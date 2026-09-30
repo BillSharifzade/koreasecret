@@ -1,0 +1,8 @@
+node_modules
+.next
+out
+legacy
+image.png
+.git
+*.tsbuildinfo
+.github

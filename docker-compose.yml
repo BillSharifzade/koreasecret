@@ -1,0 +1,11 @@
+services:
+  web:
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_SITE_URL: http://localhost:${PORT:-3100}
+    image: korea-secret:latest
+    container_name: korea-secret
+    ports:
+      - "${PORT:-3100}:3000"
+    restart: unless-stopped
