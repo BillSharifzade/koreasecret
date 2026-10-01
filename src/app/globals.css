@@ -242,6 +242,7 @@ textarea.input { height: auto; min-height: 110px; padding: 14px 18px; resize: ve
   --h-btn-hover: var(--brand-600);
   --h-hover: rgba(221, 68, 135, .1);
   --h-ease: .4s var(--ease);
+  --glass-blur: 18px;
   position: fixed; z-index: 50; display: block;
   top: calc(var(--promo-h) + var(--header-m)); left: var(--header-m); right: var(--header-m);
   color: var(--h-ink);
@@ -566,7 +567,7 @@ mark { background: var(--brand-100); color: var(--brand-700); border-radius: 4px
 .hero__slide { position: absolute; inset: 0; opacity: 0; visibility: hidden; transition: opacity .9s var(--ease), visibility 0s linear .9s; --hero-line: rgba(255, 255, 255, .5); }
 .hero__slide[data-tone="light"] { color: var(--ink); --hero-line: rgba(22, 18, 21, .14); }
 .hero__slide.is-active { opacity: 1; visibility: visible; z-index: 1; transition: opacity .9s var(--ease), visibility 0s; }
-.hero__bg { position: absolute; inset: 0; z-index: -1; transform: scale(1.06); transition: transform 7s linear; }
+.hero__bg { position: absolute; inset: 0; z-index: -1; transform: scale(1.04); transition: transform 1.6s var(--ease-out); }
 .hero__slide.is-active .hero__bg { transform: scale(1); }
 .hero__grain { position: absolute; inset: 0; z-index: -1; opacity: .07; background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 3px 3px; }
 .hero__inner { position: relative; height: 100%; }
@@ -593,7 +594,7 @@ mark { background: var(--brand-100); color: var(--brand-700); border-radius: 4px
 .hero__art { position: absolute; top: 158px; right: 0; bottom: 118px; left: 49%; z-index: 1; }
 .hero__art > * { position: absolute; }
 /* glass pill with the slide timer */
-.hero__dots.glass-surface { position: absolute; left: 50%; bottom: 112px; z-index: 5; transform: translateX(-50%); }
+.hero__dots.glass-surface { position: absolute; left: 50%; bottom: 112px; z-index: 5; transform: translateX(-50%); --glass-blur: 10px; }
 .hero__dots > .glass-surface__content { gap: 2px; padding: 5px 10px; }
 .hero__dot { width: 16px; height: 22px; display: grid; place-items: center; transition: width .5s var(--ease-out); }
 .hero__dot.is-active { width: 40px; }
@@ -608,7 +609,7 @@ mark { background: var(--brand-100); color: var(--brand-700); border-radius: 4px
 .hero.has-cursor :is(a, button) { cursor: pointer; }
 .hero__cursor { position: absolute; left: 0; top: 0; z-index: 8; width: 92px; height: 92px; margin: -46px 0 0 -46px; pointer-events: none; opacity: 0; transition: opacity .25s var(--ease); will-change: transform; }
 .hero__cursor.is-visible { opacity: 1; }
-.hero__cursor-glass.glass-surface { color: #fff; transform: scale(.55); transition: transform .35s var(--ease-out), color .5s var(--ease); }
+.hero__cursor-glass.glass-surface { color: #fff; transform: scale(.55); transition: transform .35s var(--ease-out), color .5s var(--ease); --glass-blur: 8px; }
 .hero__cursor.is-visible .hero__cursor-glass { transform: scale(1); }
 .hero:active .hero__cursor.is-visible .hero__cursor-glass { transform: scale(.88); }
 .hero__cursor .i { width: 30px; height: 30px; stroke-width: 1.5; transition: transform .45s var(--ease-out); }
@@ -764,7 +765,7 @@ mark { background: var(--brand-100); color: var(--brand-700); border-radius: 4px
 .story-card::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 0 rgba(255, 255, 255, 0); transition: box-shadow .35s var(--ease); pointer-events: none; }
 .story-card:hover::after { box-shadow: inset 0 0 0 3px rgba(255, 255, 255, .85); }
 .story-card:focus-visible { outline-offset: 4px; border-radius: var(--r-lg); }
-.story-card__play.glass-surface { position: absolute; left: 16px; top: 16px; color: #fff; text-shadow: 0 1px 3px rgba(30, 8, 26, .35); }
+.story-card__play.glass-surface { position: absolute; left: 16px; top: 16px; color: #fff; text-shadow: 0 1px 3px rgba(30, 8, 26, .35); --glass-blur: 10px; }
 .story-card__play > .glass-surface__content { gap: 6px; padding: 0 12px 0 8px; font-size: 13px; font-weight: 600; }
 .story-card__play .i { width: 16px; height: 16px; }
 .story-card__caption { position: absolute; left: 18px; right: 18px; bottom: 18px; font-size: 15px; line-height: 1.3; font-weight: 500; }
@@ -919,7 +920,7 @@ mark { background: var(--brand-100); color: var(--brand-700); border-radius: 4px
 .collection-card__art { position: absolute; inset: 0; z-index: -1; }
 .collection-card__art svg { width: 100%; height: 100%; }
 .collection-card__title { position: absolute; left: 44px; top: 40px; max-width: 44%; font-family: var(--serif); font-size: clamp(32px, 3.4vw, 52px); font-weight: 500; letter-spacing: -.02em; line-height: 1.02; }
-.collection-card__count.glass-surface { position: absolute; left: 44px; bottom: 40px; color: var(--ink); transition: color .25s var(--ease); }
+.collection-card__count.glass-surface { position: absolute; left: 44px; bottom: 40px; color: var(--ink); transition: color .25s var(--ease); --glass-blur: 12px; }
 .collection-card__count > .glass-surface__content { gap: 8px; padding: 0 20px 0 22px; font-size: 16px; font-weight: 500; white-space: nowrap; }
 .collection-card__count .i { width: 18px; height: 18px; transition: transform .3s var(--ease-out); }
 .collection-card:hover .collection-card__count { color: var(--brand); }
@@ -941,7 +942,7 @@ mark { background: var(--brand-100); color: var(--brand-700); border-radius: 4px
 .store-card__osm { position: absolute; right: 8px; bottom: 8px; padding: 2px 7px; border-radius: 6px; background: rgba(255, 255, 255, .82); font-size: 10px; color: rgba(22, 18, 21, .7); }
 .store-card__osm a { text-decoration: underline; text-underline-offset: 2px; }
 .store-card__note { position: absolute; left: 14px; top: 14px; display: inline-flex; align-items: center; height: 32px; padding: 0 13px; border-radius: 999px; background: #fff; color: var(--brand); font-size: 13px; font-weight: 600; }
-.store-card__toggle { position: absolute; right: 12px; top: 12px; z-index: 1; display: grid; border-radius: 999px; color: #fff; text-shadow: 0 1px 3px rgba(20, 10, 18, .45); }
+.store-card__toggle { position: absolute; right: 12px; top: 12px; z-index: 1; display: grid; border-radius: 999px; color: #fff; text-shadow: 0 1px 3px rgba(20, 10, 18, .45); --glass-blur: 10px; }
 .store-card__toggle > .glass-surface > .glass-surface__content { gap: 6px; padding: 0 14px 0 11px; font-size: 13px; font-weight: 600; white-space: nowrap; }
 .store-card__toggle .i { width: 17px; height: 17px; }
 .store-card__city { display: flex; align-items: baseline; gap: 10px; margin-top: 20px; font-size: 20px; font-weight: 700; }
@@ -1421,7 +1422,7 @@ mark { background: var(--brand-100); color: var(--brand-700); border-radius: 4px
   .footer { padding-bottom: 110px; }
   .footer__top { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 34px 20px; }
   .footer__pay { margin-left: 0; }
-  .tabbar.glass-surface { display: flex; position: fixed; left: 10px; right: 10px; bottom: 10px; z-index: 75; color: var(--muted); transition: color .4s var(--ease); }
+  .tabbar.glass-surface { display: flex; position: fixed; left: 10px; right: 10px; bottom: 10px; z-index: 75; color: var(--muted); transition: color .4s var(--ease), background-color .4s var(--ease), box-shadow .4s var(--ease); --glass-blur: 18px; }
   .tabbar.glass-surface[data-backdrop="dark"] { color: rgba(255, 255, 255, .78); }
   .tabbar > .glass-surface__content { display: grid; grid-template-columns: repeat(5, 1fr); padding: 0 8px; }
   .tabbar__item { position: relative; display: grid; justify-items: center; align-content: center; gap: 3px; height: 100%; font-size: 11px; color: inherit; transition: color .25s var(--ease); }

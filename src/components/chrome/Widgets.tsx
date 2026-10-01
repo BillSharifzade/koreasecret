@@ -16,7 +16,7 @@ export function TabBar() {
   const ui = useUI();
   const pathname = usePathname();
   const ref = useRef<HTMLElement>(null);
-  const backdrop = useBackdropTone(ref);
+  const backdrop = useBackdropTone(ref, { media: '(max-width: 1023px)' });
   const cartCount = useShop((s) => s.cart.reduce((n, it) => n + it.q, 0));
   const favCount = useShop((s) => s.fav.length);
   const home = pathname === '/';

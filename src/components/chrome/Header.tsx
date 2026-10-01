@@ -67,7 +67,7 @@ export function Header() {
   const megaOpen = ui.overlay === 'mega';
   const searchOpen = ui.overlay === 'search';
   // the ink follows whatever is behind the glass; an open menu or search slides a white panel under it
-  const backdrop = useBackdropTone(ref, megaOpen || searchOpen ? 'light' : undefined);
+  const backdrop = useBackdropTone(ref, { force: megaOpen || searchOpen ? 'light' : undefined });
 
   // morph into the compact bar as soon as the page starts scrolling
   useEffect(() => {
@@ -90,6 +90,7 @@ export function Header() {
     <div className={`header-wrap${isHome ? ' header-wrap--overlay' : ''}`}>
       <GlassSurface
         {...GLASS}
+        refract
         as="header"
         ref={ref}
         id="siteHeader"

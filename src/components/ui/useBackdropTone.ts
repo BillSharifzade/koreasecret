@@ -6,15 +6,25 @@ export type Tone = 'light' | 'dark';
 /*
  * What sits behind a floating glass element: 'dark' when most of it is a dark surface, otherwise 'light'.
  * Dark surfaces mark themselves with data-surface="dark" (the hero follows its current banner); everything else is
- * the white page. The glass and its ink adapt to it, the way Apple's liquid glass does.
+ * the white page. Three hit tests at most every 120 ms while scrolling, plus a slow tick for carousels that slide
+ * other cards underneath — and nothing at all while `media` doesn't match (e.g. the phone tab bar on desktop).
  */
-export function useBackdropTone(ref: RefObject<HTMLElement | null>, force?: Tone): Tone {
+export function useBackdropTone(ref: RefObject<HTMLElement | null>, { force, media }: { force?: Tone; media?: string } = {}): Tone {
   const [tone, setTone] = useState<Tone>('light');
+  const [active, setActive] = useState(!media);
 
   useEffect(() => {
-    if (force) return;
+    if (!media) return;
+    const mq = window.matchMedia(media);
+    const sync = () => setActive(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, [media]);
+
+  useEffect(() => {
     const el = ref.current;
-    if (!el) return;
+    if (force || !active || !el) return;
     let pending = false, timer = 0, last = 0;
     const sample = () => {
       pending = false;
@@ -33,16 +43,15 @@ export function useBackdropTone(ref: RefObject<HTMLElement | null>, force?: Tone
     const schedule = () => {
       if (pending) return;
       pending = true;
-      // scroll can fire every frame; three hit tests per ~80 ms are plenty
-      timer = window.setTimeout(() => requestAnimationFrame(sample), Math.max(0, 80 - (performance.now() - last)));
+      timer = window.setTimeout(() => requestAnimationFrame(sample), Math.max(0, 120 - (performance.now() - last)));
     };
     sample();
     window.addEventListener('scroll', schedule, { passive: true });
     window.addEventListener('resize', schedule);
-    // banners change their tone in place; carousels slide other cards underneath without any scrolling
+    // banners change their tone in place
     const mo = new MutationObserver(schedule);
     mo.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['data-surface'] });
-    const tick = window.setInterval(() => { if (!document.hidden) schedule(); }, 700);
+    const tick = window.setInterval(() => { if (!document.hidden) schedule(); }, 1000);
     return () => {
       window.removeEventListener('scroll', schedule);
       window.removeEventListener('resize', schedule);
@@ -50,7 +59,7 @@ export function useBackdropTone(ref: RefObject<HTMLElement | null>, force?: Tone
       window.clearInterval(tick);
       window.clearTimeout(timer);
     };
-  }, [ref, force]);
+  }, [ref, force, active]);
 
   return force ?? tone;
 }

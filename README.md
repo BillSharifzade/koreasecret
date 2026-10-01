@@ -2,7 +2,7 @@
 
 Storefront for **Korea Secret**, a Korean cosmetics shop in Dushanbe, Tajikistan: landing page, catalogue with filters and product pages. The interface is in Russian; prices are in Tajik somoni (смн).
 
-Built with **Next.js 16 (App Router) + React 19 + TypeScript**, run and built with **Bun**. The site is a static export, so the same build is served by Docker and by GitHub Pages. Carousels use [Embla](https://www.embla-carousel.com/); the header, the phone tab bar and the other see-through controls use React Bits' [GlassSurface](https://reactbits.dev/components/glass-surface) (`src/components/ui/GlassSurface.tsx`, MIT + Commons Clause — its licence sits next to it).
+Built with **Next.js 16 (App Router) + React 19 + TypeScript**, run and built with **Bun**. The site is a static export, so the same build is served by Docker and by GitHub Pages. Carousels use [Embla](https://www.embla-carousel.com/); the header, the phone tab bar and the other see-through controls use a slimmed-down React Bits [GlassSurface](https://reactbits.dev/components/glass-surface) (`src/components/ui/GlassSurface.tsx`, MIT + Commons Clause — its licence sits next to it): the desktop header bends the backdrop through one SVG displacement pass on Chromium, everything else (and every other browser) is frosted glass.
 
 ## Scripts
 

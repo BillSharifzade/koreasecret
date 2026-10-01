@@ -2,9 +2,14 @@
 /*
  * GlassSurface — React Bits (https://reactbits.dev/components/glass-surface), © 2026 David Haz,
  * MIT + Commons Clause (see GlassSurface.LICENSE.md).
- * Ported to TypeScript. Local changes: `as` (span/nav/header roots, e.g. inside buttons and links), `tone` (the
- * frost and rim set the original picks with light-dark() — 'dark' over dark backdrops, see GlassSurface.css), extra
- * HTML props and ref, and displacement-map updates debounced while the element is resizing (the header folding).
+ *
+ * Ported to TypeScript and slimmed down for speed. Two tiers share one look (frost, rims, soft shadow):
+ *  - refract: the real lens. A single feDisplacementMap bends the backdrop along the edges (the original runs three
+ *    for an RGB split, plus colour matrices, blends and a blur — roughly five times the work every frame). Used only
+ *    where it is worth it (`refract`) and only on Chromium desktops with a fine pointer and a capable CPU/GPU.
+ *  - frosted: plain backdrop blur + saturation. Everything else, and the fallback on Safari, Firefox and phones.
+ * Local additions: `as` (span/nav/header roots, e.g. inside buttons and links), `tone` (the original's light-dark()
+ * pair, chosen by what is behind the glass — see GlassSurface.css), HTML props, ref, and a debounced map redraw.
  */
 import { useCallback, useEffect, useId, useRef, useState, type CSSProperties, type HTMLAttributes, type ReactNode, type Ref } from 'react';
 import './GlassSurface.css';
@@ -16,20 +21,20 @@ export interface GlassSurfaceProps extends Omit<HTMLAttributes<HTMLElement>, 'ch
   width?: number | string;
   height?: number | string;
   borderRadius?: number;
+  /** lens rim width, as a share of the shorter side */
   borderWidth?: number;
   brightness?: number;
   opacity?: number;
+  /** softness of the lens rim in the displacement map */
   blur?: number;
-  displace?: number;
   backgroundOpacity?: number;
   saturation?: number;
   distortionScale?: number;
-  redOffset?: number;
-  greenOffset?: number;
-  blueOffset?: number;
   xChannel?: Channel;
   yChannel?: Channel;
   mixBlendMode?: CSSProperties['mixBlendMode'];
+  /** bend the backdrop (desktop Chromium only); otherwise the surface is frosted */
+  refract?: boolean;
   className?: string;
   style?: CSSProperties;
   as?: 'div' | 'span' | 'nav' | 'header';
@@ -37,31 +42,31 @@ export interface GlassSurfaceProps extends Omit<HTMLAttributes<HTMLElement>, 'ch
   ref?: Ref<HTMLElement>;
 }
 
-/** The look picked for Korea Secret (React Bits customiser: radius 50, frost 0.1, displace 0.5, offsets 0/10/20). */
+/** The Korea Secret glass (React Bits customiser: radius 50, frost 0.1, rim 0.07, brightness 50, opacity 0.93, blur 11). */
 export const GLASS = {
   borderRadius: 50,
   backgroundOpacity: 0.1,
-  saturation: 1,
   borderWidth: 0.07,
   brightness: 50,
   opacity: 0.93,
   blur: 11,
-  displace: 0.5,
-  distortionScale: -180,
-  redOffset: 0,
-  greenOffset: 10,
-  blueOffset: 20
+  distortionScale: -150
 } as const;
 
-const supportsSVGFilters = (filterId: string) => {
-  if (typeof window === 'undefined' || typeof document === 'undefined') return false;
-  const isWebkit = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
-  const isFirefox = /Firefox/.test(navigator.userAgent);
-  if (isWebkit || isFirefox) return false;
-  const div = document.createElement('div');
-  div.style.backdropFilter = `url(#${filterId})`;
-  return div.style.backdropFilter !== '';
-};
+const DESKTOP = '(hover: hover) and (pointer: fine) and (min-width: 1024px)';
+
+/** Refraction costs a filter pass over the element every frame its backdrop changes: keep it to machines that won't notice. */
+function canRefract() {
+  if (typeof window === 'undefined') return false;
+  const ua = navigator.userAgent;
+  if ((/Safari/.test(ua) && !/Chrome/.test(ua)) || /Firefox/.test(ua)) return false;
+  if (!matchMedia(DESKTOP).matches || matchMedia('(prefers-reduced-transparency: reduce)').matches) return false;
+  const nav = navigator as Navigator & { deviceMemory?: number };
+  if ((nav.hardwareConcurrency ?? 8) < 4 || (nav.deviceMemory ?? 8) < 4) return false;
+  const probe = document.createElement('div');
+  probe.style.backdropFilter = 'url(#probe)';
+  return probe.style.backdropFilter !== '';
+}
 
 export default function GlassSurface({
   children,
@@ -72,16 +77,13 @@ export default function GlassSurface({
   brightness = 50,
   opacity = 0.93,
   blur = 11,
-  displace = 0,
   backgroundOpacity = 0,
   saturation = 1,
-  distortionScale = -180,
-  redOffset = 0,
-  greenOffset = 10,
-  blueOffset = 20,
+  distortionScale = -150,
   xChannel = 'R',
   yChannel = 'G',
   mixBlendMode = 'difference',
+  refract = false,
   className = '',
   style = {},
   as: Tag = 'div',
@@ -91,17 +93,10 @@ export default function GlassSurface({
 }: GlassSurfaceProps) {
   const uniqueId = useId().replace(/[^a-zA-Z0-9_-]/g, '');
   const filterId = `glass-filter-${uniqueId}`;
-  const redGradId = `red-grad-${uniqueId}`;
-  const blueGradId = `blue-grad-${uniqueId}`;
-
-  const [svgSupported, setSvgSupported] = useState(false);
+  const [lens, setLens] = useState(false);
 
   const containerRef = useRef<HTMLElement | null>(null);
   const feImageRef = useRef<SVGFEImageElement>(null);
-  const redChannelRef = useRef<SVGFEDisplacementMapElement>(null);
-  const greenChannelRef = useRef<SVGFEDisplacementMapElement>(null);
-  const blueChannelRef = useRef<SVGFEDisplacementMapElement>(null);
-  const gaussianBlurRef = useRef<SVGFEGaussianBlurElement>(null);
 
   const setRefs = useCallback((el: HTMLElement | null) => {
     containerRef.current = el;
@@ -109,82 +104,41 @@ export default function GlassSurface({
     else if (ref) (ref as { current: HTMLElement | null }).current = el;
   }, [ref]);
 
-  const generateDisplacementMap = () => {
-    const rect = containerRef.current?.getBoundingClientRect();
-    const actualWidth = rect?.width || 400;
-    const actualHeight = rect?.height || 200;
-    const edgeSize = Math.min(actualWidth, actualHeight) * (borderWidth * 0.5);
-
-    const svgContent = `
-      <svg viewBox="0 0 ${actualWidth} ${actualHeight}" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="${redGradId}" x1="100%" y1="0%" x2="0%" y2="0%">
-            <stop offset="0%" stop-color="#0000"/>
-            <stop offset="100%" stop-color="red"/>
-          </linearGradient>
-          <linearGradient id="${blueGradId}" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#0000"/>
-            <stop offset="100%" stop-color="blue"/>
-          </linearGradient>
-        </defs>
-        <rect x="0" y="0" width="${actualWidth}" height="${actualHeight}" fill="black"></rect>
-        <rect x="0" y="0" width="${actualWidth}" height="${actualHeight}" rx="${borderRadius}" fill="url(#${redGradId})" />
-        <rect x="0" y="0" width="${actualWidth}" height="${actualHeight}" rx="${borderRadius}" fill="url(#${blueGradId})" style="mix-blend-mode: ${mixBlendMode}" />
-        <rect x="${edgeSize}" y="${edgeSize}" width="${actualWidth - edgeSize * 2}" height="${actualHeight - edgeSize * 2}" rx="${borderRadius}" fill="hsl(0 0% ${brightness}% / ${opacity})" style="filter:blur(${blur}px)" />
-      </svg>
-    `;
-
-    return `data:image/svg+xml,${encodeURIComponent(svgContent)}`;
-  };
-
-  const updateDisplacementMap = () => {
-    feImageRef.current?.setAttribute('href', generateDisplacementMap());
-  };
-
   useEffect(() => {
-    updateDisplacementMap();
-    [
-      { ref: redChannelRef, offset: redOffset },
-      { ref: greenChannelRef, offset: greenOffset },
-      { ref: blueChannelRef, offset: blueOffset }
-    ].forEach(({ ref: r, offset }) => {
-      if (r.current) {
-        r.current.setAttribute('scale', (distortionScale + offset).toString());
-        r.current.setAttribute('xChannelSelector', xChannel);
-        r.current.setAttribute('yChannelSelector', yChannel);
-      }
-    });
+    if (!refract) return;
+    const mq = matchMedia(DESKTOP);
+    const sync = () => setLens(canRefract());
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, [refract]);
 
-    gaussianBlurRef.current?.setAttribute('stdDeviation', displace.toString());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [width, height, borderRadius, borderWidth, brightness, opacity, blur, displace, distortionScale, redOffset, greenOffset, blueOffset, xChannel, yChannel, mixBlendMode]);
+  // the displacement map: red rises to the left, blue down the height, a soft grey core leaves the middle untouched
+  const drawMap = useCallback(() => {
+    const el = containerRef.current;
+    if (!el || !feImageRef.current) return;
+    const w = el.offsetWidth || 400, h = el.offsetHeight || 200;
+    const edge = Math.min(w, h) * (borderWidth * 0.5);
+    const svg = `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg"><defs>` +
+      `<linearGradient id="r" x1="100%" y1="0%" x2="0%" y2="0%"><stop offset="0%" stop-color="#0000"/><stop offset="100%" stop-color="red"/></linearGradient>` +
+      `<linearGradient id="b" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#0000"/><stop offset="100%" stop-color="blue"/></linearGradient></defs>` +
+      `<rect width="${w}" height="${h}" fill="black"/>` +
+      `<rect width="${w}" height="${h}" rx="${borderRadius}" fill="url(#r)"/>` +
+      `<rect width="${w}" height="${h}" rx="${borderRadius}" fill="url(#b)" style="mix-blend-mode:${mixBlendMode}"/>` +
+      `<rect x="${edge}" y="${edge}" width="${w - edge * 2}" height="${h - edge * 2}" rx="${borderRadius}" fill="hsl(0 0% ${brightness}% / ${opacity})" style="filter:blur(${blur}px)"/></svg>`;
+    feImageRef.current.setAttribute('href', `data:image/svg+xml,${encodeURIComponent(svg)}`);
+  }, [borderRadius, borderWidth, brightness, opacity, blur, mixBlendMode]);
 
-  // while the element is resizing (an animated fold, a window drag) keep the stretched map and redraw once it settles
+  // drawn once, then again only after a resize has settled (an animated fold stretches the old map meanwhile)
   useEffect(() => {
     const el = containerRef.current;
-    if (!el) return;
+    if (!lens || !el) return;
+    drawMap();
     let t = 0;
-    const resizeObserver = new ResizeObserver(() => {
-      window.clearTimeout(t);
-      t = window.setTimeout(updateDisplacementMap, 140);
-    });
-    resizeObserver.observe(el);
-    return () => {
-      resizeObserver.disconnect();
-      window.clearTimeout(t);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    const t = window.setTimeout(updateDisplacementMap, 0);
-    return () => window.clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [width, height]);
-
-  useEffect(() => {
-    setSvgSupported(supportsSVGFilters(filterId));
-  }, [filterId]);
+    const ro = new ResizeObserver(() => { window.clearTimeout(t); t = window.setTimeout(drawMap, 160); });
+    ro.observe(el);
+    return () => { ro.disconnect(); window.clearTimeout(t); };
+  }, [lens, drawMap, width, height]);
 
   const containerStyle = {
     ...style,
@@ -193,63 +147,22 @@ export default function GlassSurface({
     borderRadius: `${borderRadius}px`,
     '--glass-frost': backgroundOpacity,
     '--glass-saturation': saturation,
-    '--filter-id': `url(#${filterId})`
+    ...(lens ? { '--filter-id': `url(#${filterId})` } : null)
   } as CSSProperties;
 
   const Inner = Tag === 'span' ? 'span' : 'div';
   return (
-    <Tag
-      ref={setRefs}
-      className={`glass-surface ${svgSupported ? 'glass-surface--svg' : 'glass-surface--fallback'} ${className}`}
-      style={containerStyle}
-      data-glass-tone={tone ?? 'light'}
-      {...rest}
-    >
-      <svg className="glass-surface__filter" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-        <defs>
-          <filter id={filterId} colorInterpolationFilters="sRGB" x="0%" y="0%" width="100%" height="100%">
-            <feImage ref={feImageRef} x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map" />
-
-            <feDisplacementMap ref={redChannelRef} in="SourceGraphic" in2="map" result="dispRed" />
-            <feColorMatrix
-              in="dispRed"
-              type="matrix"
-              values="1 0 0 0 0
-                      0 0 0 0 0
-                      0 0 0 0 0
-                      0 0 0 1 0"
-              result="red"
-            />
-
-            <feDisplacementMap ref={greenChannelRef} in="SourceGraphic" in2="map" result="dispGreen" />
-            <feColorMatrix
-              in="dispGreen"
-              type="matrix"
-              values="0 0 0 0 0
-                      0 1 0 0 0
-                      0 0 0 0 0
-                      0 0 0 1 0"
-              result="green"
-            />
-
-            <feDisplacementMap ref={blueChannelRef} in="SourceGraphic" in2="map" result="dispBlue" />
-            <feColorMatrix
-              in="dispBlue"
-              type="matrix"
-              values="0 0 0 0 0
-                      0 0 0 0 0
-                      0 0 1 0 0
-                      0 0 0 1 0"
-              result="blue"
-            />
-
-            <feBlend in="red" in2="green" mode="screen" result="rg" />
-            <feBlend in="rg" in2="blue" mode="screen" result="output" />
-            <feGaussianBlur ref={gaussianBlurRef} in="output" stdDeviation="0.7" />
-          </filter>
-        </defs>
-      </svg>
-
+    <Tag ref={setRefs} className={`glass-surface ${lens ? 'glass-surface--svg' : 'glass-surface--frost'} ${className}`} style={containerStyle} data-glass-tone={tone ?? 'light'} {...rest}>
+      {lens && (
+        <svg className="glass-surface__filter" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+          <defs>
+            <filter id={filterId} colorInterpolationFilters="sRGB" x="0%" y="0%" width="100%" height="100%">
+              <feImage ref={feImageRef} x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map" />
+              <feDisplacementMap in="SourceGraphic" in2="map" scale={distortionScale} xChannelSelector={xChannel} yChannelSelector={yChannel} />
+            </filter>
+          </defs>
+        </svg>
+      )}
       <Inner className="glass-surface__content">{children}</Inner>
     </Tag>
   );
