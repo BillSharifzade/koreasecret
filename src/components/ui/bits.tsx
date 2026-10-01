@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { Icon } from '../Icon';
-import { href, translator } from '@/lib/i18n';
-import type { Lang } from '@/lib/types';
+import { SliderArrows } from './Slider';
 
 export function Stars({ rating }: { rating: number }) {
   return (
@@ -11,20 +10,14 @@ export function Stars({ rating }: { rating: number }) {
   );
 }
 
-/** Section title + optional "All" pill + carousel arrows (wired by the nearest [data-scope] carousel). */
-export function SectionHead({ lang, title, link, nav, all = true }: { lang: Lang; title: string; link?: string; nav?: boolean; all?: boolean }) {
-  const tr = translator(lang);
+/** Section title + optional «Все» pill + arrows for the slider in the surrounding <SliderScope>. */
+export function SectionHead({ title, link, nav, all = true }: { title: string; link?: string; nav?: boolean; all?: boolean }) {
   const html = { __html: title };
   return (
     <div className="section__head">
-      <h2 className="section__title">{link ? <Link href={href(lang, link)} dangerouslySetInnerHTML={html} /> : <span dangerouslySetInnerHTML={html} />}</h2>
-      {link && all && <Link className="pill-link" href={href(lang, link)}>{tr.t('common.all')}<Icon name="chev-right" /></Link>}
-      {nav && (
-        <div className="section__nav">
-          <button className="arrow-btn" type="button" data-dir="prev" aria-label={tr.t('common.prev')}><Icon name="arrow-left" /></button>
-          <button className="arrow-btn" type="button" data-dir="next" aria-label={tr.t('common.next')}><Icon name="arrow-right" /></button>
-        </div>
-      )}
+      <h2 className="section__title">{link ? <Link href={link} dangerouslySetInnerHTML={html} /> : <span dangerouslySetInnerHTML={html} />}</h2>
+      {link && all && <Link className="pill-link" href={link}><span>Все</span><Icon name="chev-right" /></Link>}
+      {nav && <SliderArrows />}
     </div>
   );
 }

@@ -1,45 +1,46 @@
 'use client';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState, type MouseEvent } from 'react';
+import { usePathname } from 'next/navigation';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { Butterfly, Mark } from '../Brand';
 import { Icon } from '../Icon';
-import { useI18n, useUI } from '../providers';
-import { AccountModal, CityModal, GiftCardModal, cityLabel } from './modals';
-import { PROMO_BAR } from '@/lib/data';
-import { href, LANGS, type StrKey } from '@/lib/i18n';
+import { useUI } from '../providers';
+import { useLiquidGlass } from './liquidGlass';
+import { AccountModal, CityModal, GiftCardModal } from './modals';
+import { CONFIG, PROMO_BAR } from '@/lib/data';
 import { useShop } from '@/lib/store';
-import type { Lang } from '@/lib/types';
 
-const NAV: { path: string; key: StrKey; accent?: boolean; giftcard?: boolean }[] = [
-  { path: '/catalog?offer=new', key: 'nav.new' },
-  { path: '/catalog?offer=hit', key: 'nav.hits' },
-  { path: '/catalog?cat=sun', key: 'nav.spf' },
-  { path: '/catalog?type=sheet_mask,sleeping_mask,lip_mask', key: 'nav.masks' },
-  { path: '/catalog?cat=sets', key: 'nav.sets' },
-  { path: '/#giftcards', key: 'nav.giftcards', giftcard: true },
-  { path: '/#stores', key: 'nav.stores' },
-  { path: '/#journal', key: 'nav.journal' },
-  { path: '/catalog?offer=excl', key: 'nav.excl' },
-  { path: '/catalog?offer=sale', key: 'nav.sale', accent: true }
+const NAV: { path: string; label: string; accent?: boolean; giftcard?: boolean }[] = [
+  { path: '/catalog?offer=new', label: 'Новинки' },
+  { path: '/catalog?offer=hit', label: 'Хиты' },
+  { path: '/catalog?cat=sun', label: 'Сезон SPF' },
+  { path: '/catalog?type=sheet_mask,sleeping_mask,lip_mask', label: 'Маски' },
+  { path: '/catalog?cat=sets', label: 'Наборы' },
+  { path: '/#giftcards', label: 'Подарочные карты', giftcard: true },
+  { path: '/#stores', label: 'Магазины' },
+  { path: '/#journal', label: 'Журнал' },
+  { path: '/catalog?offer=excl', label: 'Только в Korea Secret' },
+  { path: '/catalog?offer=sale', label: 'Скидки до 30%', accent: true }
 ];
 
+/** Announcement bar — rendered only while PROMO_BAR.enabled (to be switched from the admin panel). */
 export function PromoBar() {
-  const tr = useI18n();
   const ui = useUI();
   const [tick, setTick] = useState(0);
+  const msgs = PROMO_BAR.messages;
+  const on = PROMO_BAR.enabled && msgs.length > 0;
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!on || msgs.length < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const t = window.setInterval(() => setTick((n) => n + 1), 4200);
     return () => window.clearInterval(t);
-  }, []);
-  const n = PROMO_BAR.length;
-  const cur = tick % n, prev = tick > 0 ? (tick - 1) % n : -1;
+  }, [on, msgs.length]);
+  if (!on) return null;
+  const cur = tick % msgs.length, prev = tick > 0 ? (tick - 1) % msgs.length : -1;
   return (
     <div className="promo-bar">
       <div className="promo-bar__track">
-        {PROMO_BAR.map((m, i) => {
-          const [a, b] = m[tr.lang].split('{code}');
+        {msgs.map((m, i) => {
+          const [a, b] = m.text.split('{code}');
           return (
             <div key={i} className={`promo-bar__msg${i === cur ? ' is-active' : ''}${i === prev ? ' is-leaving' : ''}`} aria-hidden={i !== cur}>
               {a}
@@ -53,90 +54,85 @@ export function PromoBar() {
   );
 }
 
-export function useLangSwitch() {
-  const pathname = usePathname();
-  const router = useRouter();
-  return {
-    path: (l: Lang) => pathname.replace(/^\/(ru|en)(?=\/|$)/, `/${l}`),
-    go: (e: MouseEvent, l: Lang, current: Lang) => {
-      e.preventDefault();
-      if (l === current) return;
-      try { window.localStorage.setItem('ks-lang', l); } catch { /* storage unavailable */ }
-      router.push(pathname.replace(/^\/(ru|en)(?=\/|$)/, `/${l}`) + window.location.search + window.location.hash, { scroll: false });
-    }
-  };
-}
-
-export function LangSwitch() {
-  const tr = useI18n();
-  const sw = useLangSwitch();
-  return (
-    <div className="header__lang" role="group" aria-label="Language">
-      {LANGS.map((l) => (
-        <Link key={l} href={sw.path(l)} className={l === tr.lang ? 'is-active' : ''} aria-current={l === tr.lang ? 'true' : undefined} onClick={(e) => sw.go(e, l, tr.lang)} prefetch={false}>{l.toUpperCase()}</Link>
-      ))}
-    </div>
-  );
-}
-
 export function Header() {
-  const tr = useI18n();
   const ui = useUI();
   const pathname = usePathname();
-  const lang = tr.lang;
-  const isHome = pathname === `/${lang}` || pathname === `/${lang}/`;
-  const [stuck, setStuck] = useState(false);
+  const isHome = pathname === '/';
+  const ref = useRef<HTMLElement>(null);
+  const [compact, setCompact] = useState(false);
   const cartCount = useShop((s) => s.cart.reduce((n, it) => n + it.q, 0));
   const favCount = useShop((s) => s.fav.length);
-  const city = useShop((s) => s.city);
+  const city = useShop((s) => s.city) || CONFIG.cities[0];
+  useLiquidGlass(ref);
 
+  // morph into the compact bar as soon as the page starts scrolling
   useEffect(() => {
-    const limit = isHome ? 380 : 180;
-    const on = () => setStuck(window.scrollY > limit);
-    on();
+    let raf = 0;
+    const read = () => { raf = 0; setCompact(window.scrollY > 4); };
+    const on = () => { if (!raf) raf = requestAnimationFrame(read); };
+    read();
     window.addEventListener('scroll', on, { passive: true });
-    return () => window.removeEventListener('scroll', on);
-  }, [isHome]);
+    return () => { window.removeEventListener('scroll', on); cancelAnimationFrame(raf); };
+  }, []);
 
-  const solid = stuck || !isHome || ui.overlay === 'mega';
+  // the specular highlight follows the pointer across the glass
+  const onPointerMove = (e: React.PointerEvent<HTMLElement>) => {
+    if (e.pointerType !== 'mouse') return;
+    const r = e.currentTarget.getBoundingClientRect();
+    e.currentTarget.style.setProperty('--mx', `${Math.round(e.clientX - r.left)}px`);
+    e.currentTarget.style.setProperty('--my', `${Math.round(e.clientY - r.top)}px`);
+  };
+
   const megaOpen = ui.overlay === 'mega';
+  const searchOpen = ui.overlay === 'search';
+  const solid = !isHome || megaOpen || searchOpen;
   const badge = (n: number, bumps: number) => <span key={bumps} className={`header__badge${n > 0 ? ' is-visible' : ''}${bumps > 0 && n > 0 ? ' is-bump' : ''}`}>{n > 99 ? '99+' : n || ''}</span>;
 
   return (
     <div className={`header-wrap${isHome ? ' header-wrap--overlay' : ''}`}>
-      <div className={`header${isHome ? ' header--overlay' : ''}${solid ? ' is-solid' : ''}${stuck ? ' is-stuck' : ''}`} id="siteHeader">
+      <header
+        ref={ref}
+        id="siteHeader"
+        className={`header${isHome ? ' header--overlay' : ''}${solid ? ' is-solid' : ''}${compact ? ' is-compact' : ''}`}
+        onPointerMove={onPointerMove}
+        style={{ '--mx': '50%', '--my': '0px' } as CSSProperties}
+      >
+        <span className="header__shine" aria-hidden="true" />
         <div className="header__top">
           <div className="header__left">
-            <button className="header__burger" type="button" aria-label={tr.t('nav.menu')} aria-expanded={megaOpen} onClick={() => ui.toggle('mega')}><Icon name={megaOpen ? 'close' : 'menu'} /></button>
-            <button className="header__geo" type="button" onClick={() => ui.openModal(<CityModal />, { label: tr.t('city.title') })}><Icon name="pin" /><span>{cityLabel(city || tr.t('city.default'), lang)}</span></button>
+            <button className="header__burger" type="button" aria-label="Меню" aria-expanded={megaOpen} onClick={() => ui.toggle('mega')}><Icon name={megaOpen ? 'close' : 'menu'} /></button>
+            <button className="header__geo" type="button" onClick={() => ui.openModal(<CityModal />, { label: 'Ваш город' })}><Icon name="pin" /><span>{city}</span></button>
             <div className="header__catalog-wrap">
               <button className="header__catalog" type="button" aria-expanded={megaOpen} aria-controls="mega" onClick={() => ui.toggle('mega')}>
-                <Icon name="menu" className="i-menu" /><Icon name="close" className="i-close" /><span>{tr.t('nav.catalog')}</span>
+                <Icon name={megaOpen ? 'close' : 'menu'} /><span>Каталог</span>
               </button>
             </div>
           </div>
           <div className="header__center">
-            <Link className="logo" href={`/${lang}`} aria-label={tr.t('logo.home')}>
+            <Link className="logo" href="/" aria-label="Korea Secret — на главную">
               <Mark />
               <span className="logo__word">Korea Secret<Butterfly className="logo__bfly" /></span>
             </Link>
           </div>
           <div className="header__right">
-            <LangSwitch />
-            <button className="header__action" type="button" aria-label={tr.t('nav.search')} onClick={() => ui.open('search')}><Icon name="search" /></button>
-            <button className="header__action header__action--fav" type="button" aria-label={tr.t('nav.fav')} onClick={() => ui.open('fav')}><Icon name="heart" />{badge(favCount, ui.bump.fav)}</button>
-            <button className="header__action" type="button" aria-label={tr.t('nav.cart')} onClick={() => ui.open('cart')}><Icon name="bag" />{badge(cartCount, ui.bump.cart)}</button>
-            <button className="header__action header__action--account" type="button" aria-label={tr.t('nav.account')} onClick={() => ui.openModal(<AccountModal />, { label: tr.t('acc.title') })}><Icon name="user" /></button>
+            <button className={`header__action header__action--search${searchOpen ? ' is-active' : ''}`} type="button" aria-label={searchOpen ? 'Закрыть поиск' : 'Поиск'} aria-expanded={searchOpen} aria-controls="search" onClick={() => ui.toggle('search')}>
+              <Icon name="search" className="i-search" /><Icon name="close" className="i-close" />
+            </button>
+            <button className="header__action header__action--fav" type="button" aria-label="Избранное" onClick={() => ui.open('fav')}><Icon name="heart" />{badge(favCount, ui.bump.fav)}</button>
+            <button className="header__action" type="button" aria-label="Корзина" onClick={() => ui.open('cart')}><Icon name="bag" />{badge(cartCount, ui.bump.cart)}</button>
+            <button className="header__action header__action--account" type="button" aria-label="Профиль" onClick={() => ui.openModal(<AccountModal />, { label: 'Вход или регистрация' })}><Icon name="user" /></button>
           </div>
         </div>
-        <div className="header__bottom">
-          <nav className="header__nav" aria-label={tr.t('nav.main')}>
-            {NAV.map((n) => (n.giftcard
-              ? <a key={n.key} href={href(lang, n.path)} onClick={(e) => { e.preventDefault(); ui.openModal(<GiftCardModal />, { label: tr.t('gc.title') }); }}>{tr.t(n.key)}</a>
-              : <Link key={n.key} href={href(lang, n.path)} className={n.accent ? 'is-accent' : undefined}>{tr.t(n.key)}</Link>))}
-          </nav>
+        <div className="header__fold">
+          <div className="header__bottom">
+            <nav className="header__nav" aria-label="Основная навигация">
+              {NAV.map((n) => (n.giftcard
+                ? <a key={n.label} href={n.path} onClick={(e) => { e.preventDefault(); ui.openModal(<GiftCardModal />, { label: 'Подарочная карта' }); }}>{n.label}</a>
+                : <Link key={n.label} href={n.path} className={n.accent ? 'is-accent' : undefined}>{n.label}</Link>))}
+            </nav>
+          </div>
         </div>
-      </div>
+      </header>
     </div>
   );
 }

@@ -10,7 +10,8 @@ const nextConfig: NextConfig = {
   trailingSlash: true,
   reactStrictMode: true,
   images: { unoptimized: true },
-  experimental: { globalNotFound: true }
+  // don't let `next dev` write AGENTS.md / CLAUDE.md into the repo
+  agentRules: false
 };
 
 export default nextConfig;

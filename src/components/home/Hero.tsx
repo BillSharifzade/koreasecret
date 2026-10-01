@@ -1,84 +1,158 @@
 'use client';
 import Link from 'next/link';
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as RPointerEvent } from 'react';
 import { Art } from '../Art';
 import { Butterfly } from '../Brand';
 import { Icon } from '../Icon';
-import { useI18n, useUI } from '../providers';
+import { useUI } from '../providers';
+import { heroTone } from '@/lib/color';
 import { CONFIG, HERO_SLIDES } from '@/lib/data';
-import { href } from '@/lib/i18n';
 
 const DELAY = 6500;
+const INTERACTIVE = 'a, button, input, .hero__dots';
 
 export function Hero() {
-  const tr = useI18n();
   const ui = useUI();
-  const [i, setI] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const [cycle, setCycle] = useState(0);
-  const sx = useRef<{ x: number; y: number } | null>(null);
   const n = HERO_SLIDES.length;
+  const tones = useMemo(() => HERO_SLIDES.map(heroTone), []);
+  const [i, setI] = useState(0);
+  const go = useCallback((k: number) => setI(((k % n) + n) % n), [n]);
 
-  const go = useCallback((k: number) => { setI(((k % n) + n) % n); setCycle((c) => c + 1); }, [n]);
+  const heroRef = useRef<HTMLElement>(null);
+  const fills = useRef<(HTMLSpanElement | null)[]>([]);
+  const anim = useRef<Animation | null>(null);
+  const hold = useRef({ hidden: false, offscreen: false, focus: false });
+  const swipe = useRef<{ x: number; y: number } | null>(null);
 
-  useEffect(() => {
-    if (paused || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const t = window.setTimeout(() => go(i + 1), DELAY);
-    return () => window.clearTimeout(t);
-  }, [i, paused, cycle, go]);
-
-  useEffect(() => {
-    const onVis = () => setPaused(document.hidden);
-    document.addEventListener('visibilitychange', onVis);
-    return () => document.removeEventListener('visibilitychange', onVis);
+  /* ---------- autoplay: the progress fill's own animation is the timer, so they never drift ---------- */
+  const sync = useCallback(() => {
+    const a = anim.current;
+    if (!a) return;
+    const held = hold.current.hidden || hold.current.offscreen || hold.current.focus;
+    if (held && a.playState === 'running') a.pause();
+    else if (!held && a.playState === 'paused') a.play();
   }, []);
+
+  useEffect(() => {
+    const el = fills.current[i];
+    if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const a = el.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: DELAY, easing: 'linear', fill: 'forwards' });
+    anim.current = a;
+    sync();
+    a.onfinish = () => go(i + 1);
+    return () => { a.onfinish = null; a.cancel(); anim.current = null; };
+  }, [i, go, sync]);
+
+  useEffect(() => {
+    const hero = heroRef.current!;
+    const onVis = () => { hold.current.hidden = document.hidden; sync(); };
+    const io = new IntersectionObserver(([en]) => {
+      hold.current.offscreen = !en.isIntersecting;
+      hero.classList.toggle('is-offscreen', !en.isIntersecting); // also freezes the floating art
+      sync();
+    });
+    io.observe(hero);
+    document.addEventListener('visibilitychange', onVis);
+    return () => { io.disconnect(); document.removeEventListener('visibilitychange', onVis); };
+  }, [sync]);
+
+  /* ---------- the header and the dots follow the banner's ink ---------- */
+  useEffect(() => { document.documentElement.dataset.heroTone = tones[i]; }, [i, tones]);
+  useEffect(() => () => { delete document.documentElement.dataset.heroTone; }, []);
+
+  /* ---------- side-aware arrow cursor ---------- */
+  const cursor = useRef<HTMLDivElement>(null);
+  const pos = useRef({ x: 0, y: 0, tx: 0, ty: 0, raf: 0, side: 1, shown: false });
+  const [fine, setFine] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(hover: hover) and (pointer: fine)');
+    const on = () => setFine(mq.matches);
+    on();
+    mq.addEventListener('change', on);
+    return () => { mq.removeEventListener('change', on); cancelAnimationFrame(pos.current.raf); };
+  }, []);
+
+  const loop = () => {
+    const p = pos.current, el = cursor.current;
+    if (!el) return;
+    p.x += (p.tx - p.x) * 0.24;
+    p.y += (p.ty - p.y) * 0.24;
+    el.style.transform = `translate3d(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px, 0)`;
+    p.raf = Math.abs(p.tx - p.x) + Math.abs(p.ty - p.y) > 0.2 ? requestAnimationFrame(loop) : 0;
+  };
+  const show = (on: boolean) => {
+    const p = pos.current;
+    if (p.shown === on) return;
+    p.shown = on;
+    cursor.current?.classList.toggle('is-visible', on);
+  };
+  const onMove = (e: RPointerEvent<HTMLElement>) => {
+    if (!fine || e.pointerType !== 'mouse') return;
+    const box = e.currentTarget.getBoundingClientRect();
+    const p = pos.current;
+    p.tx = e.clientX - box.left;
+    p.ty = e.clientY - box.top;
+    if (!p.shown) { p.x = p.tx; p.y = p.ty; }
+    const side = p.tx < box.width / 2 ? -1 : 1;
+    if (side !== p.side) { p.side = side; cursor.current?.classList.toggle('is-prev', side < 0); }
+    show(!(e.target as Element).closest(INTERACTIVE));
+    if (!p.raf) p.raf = requestAnimationFrame(loop);
+  };
 
   return (
     <section
-      className={`hero${paused ? ' is-paused' : ''}`}
+      ref={heroRef}
+      className={`hero${fine ? ' has-cursor' : ''}`}
+      data-tone={tones[i]}
       aria-roledescription="carousel"
-      aria-label={tr.t('home.heroLabel')}
-      style={{ '--hero-delay': `${DELAY}ms` } as CSSProperties}
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => { setPaused(false); setCycle((c) => c + 1); }}
-      onFocus={() => setPaused(true)}
-      onBlur={() => setPaused(false)}
+      aria-label="Акции и новости"
+      onPointerMove={onMove}
+      onPointerLeave={() => show(false)}
+      onClick={(e) => { if (fine && !(e.target as Element).closest(INTERACTIVE)) go(i + pos.current.side); }}
+      onFocus={(e) => { hold.current.focus = (e.target as Element).matches(':focus-visible'); sync(); }}
+      onBlur={() => { hold.current.focus = false; sync(); }}
       onKeyDown={(e) => { if (e.key === 'ArrowRight') go(i + 1); if (e.key === 'ArrowLeft') go(i - 1); }}
-      onPointerDown={(e) => { if (e.pointerType !== 'mouse') sx.current = { x: e.clientX, y: e.clientY }; }}
+      onPointerDown={(e) => { if (e.pointerType !== 'mouse') swipe.current = { x: e.clientX, y: e.clientY }; }}
       onPointerUp={(e) => {
-        if (!sx.current) return;
-        const dx = e.clientX - sx.current.x, dy = e.clientY - sx.current.y;
+        const s = swipe.current;
+        swipe.current = null;
+        if (!s) return;
+        const dx = e.clientX - s.x, dy = e.clientY - s.y;
         if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) go(i + (dx < 0 ? 1 : -1));
-        sx.current = null;
       }}
     >
       <div className="hero__slides">
         {HERO_SLIDES.map((s, k) => (
-          <div key={s.id} className={`hero__slide${k === i ? ' is-active' : ''}`} role="group" aria-roledescription="slide" aria-label={`${k + 1} / ${n}`} aria-hidden={k !== i}>
+          <div key={s.id} className={`hero__slide${k === i ? ' is-active' : ''}`} data-tone={tones[k]} role="group" aria-roledescription="slide" aria-label={`${k + 1} из ${n}`} aria-hidden={k !== i}>
             <div className="hero__bg" style={{ background: s.bg }} />
             <div className="hero__grain" />
             <div className="hero__hline" />
             <div className="hero__vline" />
             <div className="hero__inner container">
               <div className="hero__content">
-                <div className="hero__kicker"><Butterfly />{tr.L(s.kicker)}</div>
-                <h2 className="hero__title" dangerouslySetInnerHTML={{ __html: tr.L(s.title) }} />
-                <p className="hero__text">{tr.L(s.text)}</p>
+                <div className="hero__kicker"><Butterfly />{s.kicker}</div>
+                <h2 className="hero__title" dangerouslySetInnerHTML={{ __html: s.title }} />
+                <p className="hero__text">{s.text}</p>
               </div>
               <div className="hero__cta">
                 {s.action === 'copy'
-                  ? <button className="btn btn--primary" type="button" tabIndex={k === i ? 0 : -1} onClick={() => ui.copyPromo(CONFIG.promo.code)}>{tr.L(s.cta)} <Icon name="copy" /></button>
-                  : <Link className="btn btn--primary" href={href(tr.lang, s.link)} tabIndex={k === i ? 0 : -1}>{tr.L(s.cta)} <Icon name="arrow-right" /></Link>}
+                  ? <button className="btn btn--primary" type="button" tabIndex={k === i ? 0 : -1} onClick={() => ui.copyPromo(CONFIG.promo.code)}>{s.cta} <Icon name="copy" /></button>
+                  : <Link className="btn btn--primary" href={s.link} tabIndex={k === i ? 0 : -1}>{s.cta} <Icon name="arrow-right" /></Link>}
               </div>
-              <Art className="hero__art" as="div" spec={{ kind: 'hero', id: s.id, lang: tr.lang }} />
+              <Art className="hero__art" as="div" spec={{ kind: 'hero', id: s.id }} />
             </div>
           </div>
         ))}
       </div>
-      <div className="hero__dots" role="tablist" aria-label={tr.t('home.heroLabel')}>
+      <div className="hero__dots" role="tablist" aria-label="Слайды">
         {HERO_SLIDES.map((s, k) => (
-          <button key={`${s.id}-${k === i ? cycle : 'x'}`} className={`hero__dot${k === i ? ' is-active' : ''}`} type="button" role="tab" aria-selected={k === i} aria-label={tr.t('home.slide', { n: k + 1 })} onClick={() => go(k)} />
+          <button key={s.id} className={`hero__dot${k === i ? ' is-active' : ''}`} type="button" role="tab" aria-selected={k === i} aria-label={`Слайд ${k + 1}`} onClick={() => go(k)}>
+            <span className="hero__dot-track"><span className="hero__dot-fill" ref={(el) => { fills.current[k] = el; }} /></span>
+          </button>
         ))}
+      </div>
+      <div ref={cursor} className="hero__cursor" aria-hidden="true">
+        <div className="hero__cursor-glass"><Icon name="arrow-right" /></div>
       </div>
     </section>
   );

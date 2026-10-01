@@ -1,7 +1,3 @@
-export type Lang = 'ru' | 'en';
-export type Loc = { ru: string; en: string };
-export type LocList = { ru: string[]; en: string[] };
-
 export type CatId = 'face' | 'sun' | 'makeup' | 'body' | 'hair' | 'sets';
 
 export type ProductType =
@@ -61,24 +57,28 @@ export interface Product {
   ingr: IngredientKey[];
   variants?: Variant[];
   art: ArtSpec;
-  desc: Loc;
+  desc: string;
 }
 
 export type BrandStyle = 'caps' | 'stack' | 'light' | 'wide' | 'serif' | 'bold' | 'italic';
 export interface Brand { id: string; name: string; style: BrandStyle }
 
-export interface TypeInfo extends Loc { cat: CatId; many: Loc }
-export interface CatGroup extends Loc { types: ProductType[] }
-export interface Category extends Loc { id: CatId; icon: string; groups: CatGroup[] }
-export interface Ingredient extends Loc { glyph: Glyph; tint: string; note: Loc }
+export interface TypeInfo { cat: CatId; name: string; many: string }
+export interface CatGroup { name: string; types: ProductType[] }
+export interface Category { id: CatId; icon: string; name: string; groups: CatGroup[] }
+export interface Ingredient { glyph: Glyph; tint: string; name: string; note: string }
 
-export interface Review { name: Loc; rating: number; text: Loc; pros: string[] }
-export interface HeroSlide { id: 'promo' | 'glass' | 'spf' | 'gifts'; bg: string; kicker: Loc; title: Loc; text: Loc; cta: Loc; action?: 'copy'; link: string }
-export interface HomeCat extends Loc { icon: string; href: string }
-export interface Story { id: string; palette: [string, string]; products: string[]; title: Loc; dur: string; frames: Loc[] }
-export interface Promo { id: 'p1' | 'p2' | 'p3' | 'p4'; theme: string; dark?: boolean; title: Loc; date: Loc; link: string }
-export interface Article { id: string; theme: 'routine' | 'pdrn' | 'spf' | 'oil' | 'store'; mins: number; tag: Loc; title: Loc; body: LocList }
-export interface Store { city: Loc; addr: Loc; metro: Loc; metroColor: string; hours: string }
-export interface Collection { id: string; theme: 'gift' | 'antiage'; title: Loc; href: string; filter: (p: Product) => boolean }
+export interface Review { name: string; rating: number; text: string; pros: string[] }
+export interface HeroSlide { id: 'promo' | 'glass' | 'spf' | 'gifts'; bg: string; /** forced ink; otherwise derived from the background colours */ tone?: Tone; kicker: string; title: string; text: string; cta: string; action?: 'copy'; link: string }
+export type Tone = 'light' | 'dark';
+export interface HomeCat { icon: string; name: string; href: string }
+export interface Story { id: string; palette: [string, string]; products: string[]; title: string; dur: string; frames: string[] }
+export interface Promo { id: string; theme: string; /** dark text on a pale card */ dark?: boolean; title: string; date: string; link: string }
+export interface Article { id: string; theme: 'routine' | 'pdrn' | 'spf' | 'oil' | 'store'; mins: number; tag: string; title: string; body: string[] }
+export interface Store { id: string; city: string; addr: string; area: string; note?: string; hours: string; lat: number; lon: number; photo: string }
+export interface Collection { id: string; title: string; /** background palette, see art.ts THEMES */ theme: string; /** products drawn on the card */ art: string[]; href: string; filter: (p: Product) => boolean }
+export type HairStyle = 'long' | 'bun' | 'wavy' | 'bob';
+export interface BloggerLook { skin: string; hair: string; style: HairStyle; outfit: string; bg: [string, string]; accent: string }
+export interface Blogger { id: string; name: string; /** genitive, for «Фавориты в уходе …» */ nameGen: string; about: string; look: BloggerLook; products: string[] }
 
 export interface CartItem { id: string; v: number; q: number }

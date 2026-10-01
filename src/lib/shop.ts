@@ -1,6 +1,6 @@
-import { BRANDS, CONCERNS, CONFIG, EXPERT, INGREDIENTS, PRODUCTS, REVIEW_POOL, TYPES } from './data';
-import { fmt, type Translator } from './i18n';
-import type { Brand, CartItem, CatId, Lang, Product, Review } from './types';
+import { BRANDS, CONCERNS, CONFIG, INGREDIENTS, PRODUCTS, REVIEW_POOL, TYPES } from './data';
+import { count, fmt } from './format';
+import type { Brand, CartItem, CatId, Product, Review } from './types';
 
 const byId = new Map(PRODUCTS.map((p) => [p.id, p]));
 const order = new Map(PRODUCTS.map((p, i) => [p.id, i]));
@@ -9,7 +9,7 @@ export const getProduct = (id: string | null | undefined): Product | undefined =
 export const productOrder = (id: string) => order.get(id) ?? 0;
 export const brandOf = (id: string): Brand => BRANDS.find((b) => b.id === id) || { id, name: id, style: 'caps' };
 export const titleOf = (p: Product) => `${brandOf(p.brand).name} ${p.name}`;
-export const typeLabel = (p: Product, lang: Lang) => TYPES[p.type][lang];
+export const typeLabel = (p: Product) => TYPES[p.type].name;
 export const catOf = (p: Product): CatId => TYPES[p.type].cat;
 export const discountOf = (p: Product) => (p.old ? Math.round((1 - p.price / p.old) * 100) : 0);
 export const priceOf = (p: Product, v = 0) => p.variants?.[v]?.price ?? p.price;
@@ -18,7 +18,6 @@ export const hasPriceVariants = (p: Product) => !!p.variants?.some((x) => x.pric
 export const price = (n: number) => `${fmt(n)} ${CONFIG.currency}`;
 export const score = (p: Product) => p.rating * Math.log(p.reviews + 2);
 export const productPath = (p: Product | string) => `/product/${encodeURIComponent(typeof p === 'string' ? p : p.id)}`;
-export const expertIds = EXPERT.products;
 
 /* ---------- cart ---------- */
 export interface Totals { sub: number; full: number; savings: number; pct: number; promo: number; delivery: number; total: number; count: number }
@@ -53,9 +52,8 @@ const indexOf = (p: Product) => {
   let s = index.get(p.id);
   if (!s) {
     const ty = TYPES[p.type];
-    s = norm([brandOf(p.brand).name, p.name, ty.ru, ty.en, ty.many.ru, ty.many.en, SYN[p.type] || '',
-      ...p.ingr.map((k) => `${INGREDIENTS[k].ru} ${INGREDIENTS[k].en}`),
-      ...p.concerns.map((k) => `${CONCERNS[k].ru} ${CONCERNS[k].en}`), p.desc.ru, p.desc.en].join(' '));
+    s = norm([brandOf(p.brand).name, p.name, ty.name, ty.many, SYN[p.type] || '',
+      ...p.ingr.map((k) => INGREDIENTS[k].name), ...p.concerns.map((k) => CONCERNS[k]), p.desc].join(' '));
     index.set(p.id, s);
   }
   return s;
@@ -94,17 +92,19 @@ export const sku = (p: Product) => 'KS-' + String([...p.id].reduce((h, c) => (h 
 export const stockLevel = (n: number) => (n > 30 ? 'many' : n > 10 ? 'some' : n > 0 ? 'few' : 'none') as 'many' | 'some' | 'few' | 'none';
 export const firstSentence = (s: string) => { const m = s.match(/^.+?[.!?](\s|$)/); return m ? m[0].trim() : s; };
 export const stripTags = (s: string) => s.replace(/<[^>]+>/g, '');
+/** Tajik numbers: +992 XX XXX-XX-XX */
 export const maskPhone = (v: string) => {
   let d = v.replace(/\D/g, '');
-  if (d.startsWith('8')) d = '7' + d.slice(1);
-  if (!d.startsWith('7')) d = '7' + d;
-  const p = d.slice(1, 11);
-  let out = '+7';
-  if (p.length) out += ' (' + p.slice(0, 3);
-  if (p.length >= 3) out += ')';
-  if (p.length > 3) out += ' ' + p.slice(3, 6);
-  if (p.length > 6) out += '-' + p.slice(6, 8);
-  if (p.length > 8) out += '-' + p.slice(8, 10);
+  if (d.startsWith('992')) d = d.slice(3);
+  else if (d.startsWith('8') && d.length > 9) d = d.slice(1);
+  const p = d.slice(0, 9);
+  let out = '+992';
+  if (p.length) out += ' ' + p.slice(0, 2);
+  if (p.length > 2) out += ' ' + p.slice(2, 5);
+  if (p.length > 5) out += '-' + p.slice(5, 7);
+  if (p.length > 7) out += '-' + p.slice(7, 9);
   return out;
 };
-export const variantsLabel = (p: Product, tr: Translator) => (p.variants && p.variants.length > 1 && !hasPriceVariants(p) ? tr.pl('pl.variants', p.variants.length - 1) : '');
+/** true when the masked value holds a full Tajik number */
+export const phoneComplete = (v: string) => v.replace(/\D/g, '').length === 12;
+export const variantsLabel = (p: Product) => (p.variants && p.variants.length > 1 && !hasPriceVariants(p) ? `Ещё ${count(p.variants.length - 1, 'вариант', 'варианта', 'вариантов')}` : '');

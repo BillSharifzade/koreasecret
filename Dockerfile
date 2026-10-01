@@ -25,5 +25,5 @@ COPY --from=build /app/out ./out
 COPY --from=build /app/server.ts ./server.ts
 USER bun
 EXPOSE 3000
-HEALTHCHECK --interval=30s --timeout=3s CMD wget -qO- http://127.0.0.1:3000/ru/ >/dev/null || exit 1
+HEALTHCHECK --interval=30s --timeout=3s CMD wget -qO- http://127.0.0.1:3000/ >/dev/null || exit 1
 CMD ["bun", "server.ts"]

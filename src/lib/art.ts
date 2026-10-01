@@ -1,7 +1,7 @@
 /* Korea Secret — procedural artwork (packshots, icons, scenes) as SVG strings.
    Every call runs inside an id scope so gradient ids are unique per component (see components/Art.tsx). */
-import { BRANDS, INGREDIENTS, PRODUCTS, STORIES } from './data';
-import type { ArtSpec, Glyph, IngredientKey, Lang, Product, Story } from './types';
+import { BLOGGERS, BRANDS, COLLECTIONS, INGREDIENTS, PRODUCTS, STORIES } from './data';
+import type { ArtSpec, Blogger, Glyph, IngredientKey, Product, Story } from './types';
 
 /* Brand marks traced from the KS logo */
 export const MARK_D = 'M75 1.5C73.1 2.3 63.2 5.9 53 9.5C23.5 20.1 1.5 28.2 1.1 28.5C0.9 28.7 1.1 30.5 1.4 32.5C1.8 34.7 2.7 36 3.6 36C4.8 36 25.9 29.5 31.8 27.3C32.8 26.9 33 62.9 32.8 206.6L32.5 386.5 16.3 386.8L0 387.1 0 391L0 395 58 395L116 395 116 391L116 387 99.5 387C87.2 387 82.8 386.7 82.5 385.8C82.2 385.1 82.1 354.8 82.2 318.6L82.5 252.7 97 270.6C114 291.6 127.7 308.4 164.9 354.5C180 373.2 193.5 389.9 194.9 391.7L197.5 394.9 228.3 394.9L259.1 395 252.9 387.3C249.4 383 241.7 373.6 235.8 366.4C229.9 359.1 225 353 225 352.6C225 352.3 227.7 354.1 231 356.6C234.3 359.1 241.1 363.1 246.2 365.5C254.9 369.6 281.2 378.8 294.5 382.5C303.7 385.1 317.7 390.7 326 395.2C348.6 407.5 357.7 420.8 355 437.6C351.3 460.4 331.5 471.9 296 472.1C281.2 472.1 272.3 471 263.9 468.1C240.2 460 227.6 442.6 226.2 416.2C225.7 406.6 225.6 405.9 223.4 405.4C222.1 405.1 220.6 405.1 220 405.5C218.9 406.2 218.6 461.7 219.7 464.5C220 465.4 221.5 466 223.1 466C225.5 466 226 465.6 226 463.6L226 461.1 234.3 465C251.6 473.1 267 476.8 286.1 477.7C321.5 479.2 349.4 470 367.6 450.7C374.8 443.2 380.1 433.9 381.9 425.9C383.4 419.4 383.2 404.3 381.5 397.8C379.2 388.7 375 381 368.5 374.2C356.2 360.9 337.2 351.3 306 342.5C263.8 330.7 255.9 327.4 245 317.3C240 312.7 237.1 309 234.8 304.2C231.8 298.1 231.5 296.8 231.5 288C231.5 279.5 231.8 278 234.2 273.9C240.3 263.6 251.6 256.1 267.5 251.9C278.3 249.1 301.3 248.8 311 251.4C338.4 258.8 354 278 355.9 306.5L356.5 316.5 359.5 316.5L362.5 316.5 362.8 286.3L363 256 359.5 256C356.4 256 356 256.3 356 258.5C356 261.8 355 261.7 348.1 257.6C340.8 253.4 331.1 249.5 320.7 246.7C313.5 244.8 310.1 244.5 292 244.6C274.4 244.7 270.4 245 263.8 246.8C241 253 225.8 262.9 214.8 278.4C204.6 293 202.2 314.6 209.1 330.8C210.1 333.1 210.8 335 210.6 335C210.3 335 203.9 327.4 183.5 302.5C181.7 300.3 171.1 287.3 159.9 273.7C126.9 233.4 116 219.9 116 219C116 218.5 117.3 217.1 118.9 215.8C124.6 211.2 222 116.9 222 115.9C222 115.4 219.6 115 216.6 115C211.6 115 210.9 115.3 206.7 119.3C202.6 123.1 176.5 148.3 145 178.5C138.1 185.2 127.1 195.7 120.5 202C113.9 208.3 102.6 219.1 95.5 226L82.5 238.5 82.2 119.3C82 6.5 81.9 0 80.2 0.1C79.3 0.1 76.9 0.7 75 1.5M357.9 115.9C317.8 146.2 312.6 199.8 346.2 236.4C349.5 240 352.5 243 353 243C353.4 243 352.5 239.1 351 234.3C347.8 224.2 346 213.1 346 202.6C346 195.9 348.4 178.9 349.9 174.8C350.2 173.9 350.5 181.5 350.5 191.8C350.5 212.8 351.7 219.1 358.8 236.4C362.1 244.4 363 245.7 366.1 247.2C372.6 250.3 385.6 252.3 394.9 251.7C405 251.1 403.7 252.4 392.5 254.2C385 255.4 373 254.5 367.6 252.4C364 251 367 254.1 373.3 258.1C382.6 264.1 391 266.3 402.8 265.8C418.9 265 429 259.6 439.9 246C442.7 242.4 445 239 445 238.3C445 237.4 443.4 237 440.3 237C432.8 237 423.7 234.4 414.9 229.8L406.7 225.5 395.1 225.5L383.4 225.6 386.7 220.1C392.3 210.8 394 205 394 195C394 179.6 390.9 170.2 381.8 157.7C378.9 153.7 375.1 147.5 373.3 143.9C369.5 136.2 366 122.7 366 115.8C366 113.1 365.6 111 365.1 111C364.7 111 361.4 113.2 357.9 115.9M293.2 146.4C289.5 149.8 289.5 149.9 289.7 157.2C290.2 175.9 299.4 201.2 311.6 217.6C319.9 228.7 334.1 241.9 344.5 248C349.4 250.8 348.5 249.9 339.8 243.1C317 225.4 301.8 199.7 296.6 170.3L296.1 167 300.6 167C306.6 167 310.6 164.5 312.5 159.7C315.8 151.6 310.1 143 301.4 143C297.7 143 296.3 143.6 293.2 146.4';
@@ -226,12 +226,12 @@ const S: Record<ArtSpec['shape'], ShapeFn> = {
     return { defs, b, rx: 130 };
   },
   giftcard: (_p, _a, o) => {
-    const amount = o.amount || '5 000 ₽';
+    const amount = o.amount || '500 смн';
     const g1 = uid(), g2 = uid(), gs = uid();
     const defs = `<linearGradient id="${g1}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f07db4"/><stop offset=".55" stop-color="#dd4487"/><stop offset="1" stop-color="#a83b8b"/></linearGradient><linearGradient id="${g2}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b893ef"/><stop offset="1" stop-color="#7e46b4"/></linearGradient><linearGradient id="${gs}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".45"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>`;
     const card = (fill: string, big: string) => `<rect x="-130" y="-82" width="260" height="164" rx="18" fill="${fill}"/><path d="M-130 -30 L40 -82 L100 -82 L-130 -4 Z" fill="url(#${gs})" opacity=".5"/><g fill="#fff" transform="translate(-110 -64) scale(.075)"><path d="${MARK_D}"/></g>` +
-      txt(big, 112, 62, { size: 36, weight: 500, fill: '#fff', family: 'serif', anchor: 'end', max: 190 }) + txt('KOREA SECRET · GIFT CARD', -110, 62, { size: 7.5, weight: 600, ls: 0.16, fill: '#fff', anchor: 'start', opacity: 0.85 });
-    return { defs, b: `<g transform="translate(222 176) rotate(10)">${card(`url(#${g2})`, '10 000 ₽')}</g><g transform="translate(186 236) rotate(-9)">${card(`url(#${g1})`, amount)}</g>`, rx: 130 };
+      txt(big, 112, 62, { size: 34, weight: 500, fill: '#fff', family: 'serif', anchor: 'end', max: 180 }) + txt('KOREA SECRET · GIFT CARD', -110, 26, { size: 7.5, weight: 600, ls: 0.16, fill: '#fff', anchor: 'start', opacity: 0.85 });
+    return { defs, b: `<g transform="translate(222 176) rotate(10)">${card(`url(#${g2})`, '1 000 смн')}</g><g transform="translate(186 236) rotate(-9)">${card(`url(#${g1})`, amount)}</g>`, rx: 130 };
   }
 };
 
@@ -379,31 +379,29 @@ const bflyEl = (cls = 'bfly-deco flap') => `<svg class="${cls}" viewBox="-1 0 15
 const glow = (c: string, op = 0.8) => `<div class="orb" style="aspect-ratio:1;background:radial-gradient(circle at 35% 30%, #fff 0%, ${c} 38%, transparent 70%);opacity:${op};filter:blur(2px)"></div>`;
 const bubble = '<div class="orb" style="aspect-ratio:1;background:radial-gradient(circle at 32% 28%,#fff 0,rgba(255,255,255,.4) 22%,rgba(255,180,220,.15) 60%,transparent 70%);border:1px solid rgba(255,255,255,.35)"></div>';
 
-function heroRaw(id: string, lang: Lang) {
-  const en = lang === 'en';
+function heroRaw(id: string) {
   if (id === 'promo') {
-    const from = en ? 'over' : 'от';
     return place(glow('rgba(255,210,230,.9)', 0.55), 30, -10, 60) + place(prodEl('banila-clean-it-zero'), 30, 22, 34, -6, 'prod float-b', 2) + place(prodEl('medicube-pdrn-serum'), 52, -6, 32, 4, 'prod float-a', 3) +
-      place(prodEl('medicube-collagen-mask'), 70, 16, 30, 14, 'prod float-c', 2) + place(pill('−10%', `${from} 3 000 ₽`, 'glass-pill--sm'), 6, 4, 0, -8, 'float-c', 4) + place(pill('−15%', `${from} 6 000 ₽`), 0, 46, 0, 7, 'float-a', 4) +
-      place(pill('−20%', `${from} 10 000 ₽`), 46, 70, 0, -5, 'float-b', 5) + place(bflyEl(), 26, 8, 7, -12, '', 6) + place(bflyEl(), 90, 4, 5, 18, '', 6);
+      place(prodEl('medicube-collagen-mask'), 70, 16, 30, 14, 'prod float-c', 2) + place(pill('−10%', 'от 350 смн', 'glass-pill--sm'), 6, 4, 0, -8, 'float-c', 4) + place(pill('−15%', 'от 700 смн'), 0, 46, 0, 7, 'float-a', 4) +
+      place(pill('−20%', 'от 1 200 смн'), 46, 70, 0, -5, 'float-b', 5) + place(bflyEl(), 26, 8, 7, -12, '', 6) + place(bflyEl(), 90, 4, 5, 18, '', 6);
   }
   if (id === 'glass') {
     return place(glow('rgba(236,110,175,.9)', 0.5), 22, -14, 70) + place(prodEl('numbuzin-no3'), 18, 18, 30, -8, 'prod float-b', 2) + place(prodEl('medicube-pdrn-serum'), 38, 0, 38, 0, 'prod float-a', 3) +
       place(prodEl('torriden-dive-in-serum'), 64, 16, 30, 9, 'prod float-c', 2) + place(bubble, 8, 58, 10, 0, 'float-a', 4) + place(bubble, 88, 8, 7, 0, 'float-c', 4) +
-      place(pill('PDRN', en ? 'new serums' : 'новые сыворотки', 'glass-pill--sm'), 60, 72, 0, -6, 'float-b', 5) + place(bflyEl(), 30, 70, 6, -10, '', 6);
+      place(pill('PDRN', 'новые сыворотки', 'glass-pill--sm'), 60, 72, 0, -6, 'float-b', 5) + place(bflyEl(), 30, 70, 6, -10, '', 6);
   }
   if (id === 'spf') {
-    return place('<div class="orb" style="aspect-ratio:1;background:radial-gradient(circle at 50% 50%,#fffbe8 0,#ffe7b3 35%,rgba(255,200,150,.5) 60%,transparent 72%)"></div>', 34, -18, 58) +
+    return place('<div class="orb" style="aspect-ratio:1;background:radial-gradient(circle at 50% 50%,#fffdf4 0,#ffeccb 38%,rgba(255,214,170,.55) 62%,transparent 72%)"></div>', 34, -18, 58) +
       place(prodEl('boj-relief-sun'), 24, 12, 32, -10, 'prod float-a', 3) + place(prodEl('skin1004-sun-serum'), 46, 4, 30, 6, 'prod float-b', 2) + place(prodEl('isntree-sun-gel'), 66, 20, 28, 16, 'prod float-c', 3) +
-      place(pill('SPF 50+', en ? 'no white cast' : 'без белого следа'), 4, 58, 0, -7, 'float-b', 5) + place(bflyEl(), 84, 70, 6, 12, '', 6);
+      place(pill('SPF 50+', 'без белого следа'), 4, 58, 0, -7, 'float-b', 5) + place(bflyEl('bfly-deco bfly-deco--brand flap'), 84, 70, 6, 12, '', 6);
   }
-  return place(glow('rgba(255,255,255,.9)', 0.4), 26, -12, 64) + place(prodEl('ks-glass-skin-set'), 28, 8, 40, -4, 'prod float-a', 3) + place(prodEl('ks-mini-routine'), 62, 30, 30, 8, 'prod float-b', 2) +
-    place(prodEl('ks-giftcard', { amount: '5 000 ₽' }), 2, 44, 34, -8, 'prod float-c', 4) + place(bflyEl(), 70, 4, 8, 14, '', 6) + place(bflyEl(), 18, 10, 5, -16, '', 6);
+  return place(glow('rgba(255,255,255,.95)', 0.55), 26, -12, 64) + place(prodEl('ks-glass-skin-set'), 28, 8, 40, -4, 'prod float-a', 3) + place(prodEl('ks-mini-routine'), 62, 30, 30, 8, 'prod float-b', 2) +
+    place(prodEl('ks-giftcard', { amount: '500 смн' }), 2, 44, 34, -8, 'prod float-c', 4) + place(bflyEl('bfly-deco bfly-deco--brand flap'), 70, 4, 8, 14, '', 6) + place(bflyEl('bfly-deco bfly-deco--brand flap'), 18, 10, 5, -16, '', 6);
 }
 
 function promoRaw(id: string) {
   const W = 1020, H = 540;
-  const key = ({ p1: 'pink', p2: 'peach', p3: 'mint', p4: 'lilac' } as Record<string, string>)[id] || 'pink';
+  const key = ({ p1: 'pink', p2: 'peach', p3: 'mint', p4: 'lilac', p5: 'cream', p6: 'blue' } as Record<string, string>)[id] || 'pink';
   const bg = sceneBg(W, H, key, id);
   let defs = bg.defs, el = bg.el;
   const og = uid();
@@ -411,7 +409,12 @@ function promoRaw(id: string) {
   if (id === 'p1') el += orb(og, 690, 170, 120, 0.8) + nest('medicube-pdrn-serum', 600, 60, 300) + nest('banila-clean-it-zero', 520, 210, 250) + nest('medicube-collagen-mask', 760, 150, 250) + bfly(840, 60, 0.42, '#fff', 0.95, 14) + sparkle(560, 90, 1.6) + sparkle(930, 330, 1.2);
   else if (id === 'p2') { const sg = uid(); defs += rGrad(sg, [[0, '#fffbe8', 1], [0.5, '#ffe2a8', 0.9], [1, '#ffcf99', 0]]); el += `<circle cx="760" cy="200" r="190" fill="url(#${sg})"/>` + nest('skin1004-sun-serum', 560, 110, 280) + nest('roundlab-birch-sun', 700, 140, 290) + nest('isntree-sun-gel', 820, 210, 220) + sparkle(600, 80, 1.4) + sparkle(950, 110, 1); }
   else if (id === 'p3') { const m = P('abib-heartleaf-mask'); el += (m ? `<g transform="translate(590 60)">${inner(m)}</g>` : '') + nest('mediheal-teatree-mask', 740, 90, 330) + bfly(900, 70, 0.34, '#fff', 0.9, -10) + sparkle(610, 420, 1.4); }
-  else el += nest('ks-mini-routine', 560, 100, 330) + nest('ks-glass-skin-set', 730, 70, 330) + bfly(610, 70, 0.4, '#fff', 0.95, -12) + bfly(930, 360, 0.28, '#fff', 0.9, 20) + sparkle(900, 80, 1.5);
+  else if (id === 'p4') el += nest('ks-mini-routine', 560, 100, 330) + nest('ks-glass-skin-set', 730, 70, 330) + bfly(610, 70, 0.4, '#fff', 0.95, -12) + bfly(930, 360, 0.28, '#fff', 0.9, 20) + sparkle(900, 80, 1.5);
+  else if (id === 'p5') {
+    const rand = rng('p5');
+    for (let i = 0; i < 22; i++) { const x = 520 + rand() * 480, y = 430 + rand() * 90; el += `<ellipse cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" rx="4" ry="9" fill="#fffaf0" opacity=".9" transform="rotate(${(rand() * 180).toFixed(0)} ${x.toFixed(0)} ${y.toFixed(0)})"/>`; }
+    el += orb(og, 640, 140, 70, 0.6) + nest('boj-ginseng-water', 540, 80, 290) + nest('boj-dynasty-cream', 700, 190, 250) + nest('boj-glow-serum', 800, 60, 270) + sparkle(600, 70, 1.4) + bfly(930, 330, 0.3, '#fff', 0.9, 16);
+  } else el += orb(og, 600, 120, 46, 0.8) + orb(og, 930, 380, 34, 0.8) + orb(og, 560, 400, 22, 0.8) + nest('laneige-water-bank', 540, 170, 260) + nest('torriden-dive-in-serum', 670, 50, 320) + nest('torriden-soothing-cream', 810, 170, 250) + sparkle(900, 90, 1.5) + bfly(570, 60, 0.32, '#fff', 0.95, -10);
   return svgWrap(W, H, defs, el);
 }
 
@@ -482,39 +485,74 @@ function journalRaw(theme: string, w = 1340, h = 470) {
   return svgWrap(w, h, defs, el);
 }
 
-function collectionRaw(theme: string) {
-  const W = 660, H = 440;
-  const bg = sceneBg(W, H, theme === 'gift' ? 'blue' : 'rose', theme);
-  let defs = bg.defs, el = bg.el;
-  if (theme === 'gift') el += nest('ks-glass-skin-set', 250, 90, 330) + nest('ks-giftcard', 420, 160, 250) + nest('romand-juicy-tint', 140, 170, 230) + bfly(520, 60, 0.4, '#dd4487', 0.9, 14) + sparkle(120, 90, 2, '#fff');
-  else { const og = uid(); defs += orbGrad(og, '#e0558f'); el += orb(og, 170, 330, 40, 0.7) + orb(og, 560, 110, 26, 0.7) + orb(og, 600, 330, 50, 0.6) + nest('sulwhasoo-first-care', 250, 70, 320) + nest('boj-revive-eye', 430, 150, 250) + nest('medicube-pdrn-serum', 120, 140, 260); }
-  return svgWrap(W, H, defs, el);
+function collectionRaw(id: string) {
+  const c = COLLECTIONS.find((x) => x.id === id) || COLLECTIONS[0];
+  const W = 1000, H = 560;
+  const bg = sceneBg(W, H, c.theme, c.id);
+  const og = uid();
+  let defs = bg.defs + orbGrad(og, THEMES[c.theme]?.[1] || '#e0558f'), el = bg.el;
+  const podium = (x: number, y: number, rw: number, col: string) => { const gg = uid(); defs += cyl(gg, col, 0.4); return `<rect x="${x - rw}" y="${y}" width="${rw * 2}" height="${H - y}" fill="url(#${gg})"/><ellipse cx="${x}" cy="${y}" rx="${rw}" ry="${rw * 0.2}" fill="${light(col, 0.4)}"/>`; };
+  const [a, b, d] = c.art;
+  const tint = THEMES[c.theme]?.[0] || '#fde2ec';
+  el += podium(560, 430, 104, light(tint, 0.35)) + podium(760, 380, 116, light(tint, 0.55)) + podium(920, 456, 86, light(tint, 0.2));
+  el += orb(og, 470, 160, 30, 0.7) + orb(og, 930, 120, 22, 0.7);
+  el += nest(b, 590, 34, 340) + nest(a, 404, 156, 300) + nest(d, 812, 196, 270) + bfly(470, 70, 0.34, '#fff', 0.95, -12) + sparkle(940, 290, 1.4) + sparkle(380, 400, 1.1);
+  return svgWrap(W, H, defs, el, 'xMaxYMid slice');
 }
 
-function mapRaw(i = 0) {
-  const W = 420, H = 320;
-  const rand = rng('map' + i);
-  let el = `<rect width="${W}" height="${H}" fill="#f4eff3"/>`;
-  for (let k = 0; k < 18; k++) el += `<rect x="${(rand() * W).toFixed(0)}" y="${(rand() * H).toFixed(0)}" width="${(40 + rand() * 70).toFixed(0)}" height="${(30 + rand() * 50).toFixed(0)}" rx="6" fill="#ebe3ea" transform="rotate(${(rand() * 20 - 10).toFixed(0)})"/>`;
-  el += `<path d="M-20 ${(H * (0.2 + rand() * 0.5)).toFixed(0)} C${W * 0.3} ${(H * rand()).toFixed(0)} ${W * 0.6} ${(H * rand()).toFixed(0)} ${W + 20} ${(H * (0.3 + rand() * 0.5)).toFixed(0)}" stroke="#d6e6f3" stroke-width="${(18 + rand() * 14).toFixed(0)}" fill="none"/>`;
-  el += `<ellipse cx="${(W * (0.15 + rand() * 0.7)).toFixed(0)}" cy="${(H * (0.15 + rand() * 0.7)).toFixed(0)}" rx="${(40 + rand() * 40).toFixed(0)}" ry="${(26 + rand() * 30).toFixed(0)}" fill="#dcebd3"/>`;
-  const roads: string[] = [];
-  for (let k = 0; k < 5; k++) roads.push(`M${(rand() * W).toFixed(0)} -10 L${(rand() * W).toFixed(0)} ${H + 10}`);
-  for (let k = 0; k < 4; k++) roads.push(`M-10 ${(rand() * H).toFixed(0)} L${W + 10} ${(rand() * H).toFixed(0)}`);
-  el += `<path d="${roads.join('')}" stroke="#fff" stroke-width="9" stroke-linecap="round"/><path d="${roads.slice(0, 3).join('')}" stroke="#fff" stroke-width="14" stroke-linecap="round" opacity=".7"/>`;
-  const px = W / 2, py = H / 2 + 10;
-  el += `<circle cx="${px}" cy="${py}" r="46" fill="#dd4487" opacity=".12"/><circle cx="${px}" cy="${py}" r="26" fill="#dd4487" opacity=".18"/>`;
-  el += `<path d="M${px} ${py + 4} C${px - 6} ${py - 10} ${px - 26} ${py - 24} ${px - 26} ${py - 44} C${px - 26} ${py - 60} ${px - 14} ${py - 72} ${px} ${py - 72} C${px + 14} ${py - 72} ${px + 26} ${py - 60} ${px + 26} ${py - 44} C${px + 26} ${py - 24} ${px + 6} ${py - 10} ${px} ${py + 4} Z" fill="#dd4487"/><path d="${BFLY_D}" fill="#fff" transform="translate(${px - 14} ${py - 58}) scale(.18)"/>`;
-  return svgWrap(W, H, '', el);
-}
+/* Illustrated, fictional bloggers: flat editorial portraits built from the blogger's palette. */
+const HAIR: Record<Blogger['look']['style'], { back: string; front: string; extra?: string }> = {
+  long: {
+    back: 'M168 240 C158 150 214 116 262 116 C318 116 364 156 352 248 C348 330 372 420 400 500 C352 522 318 472 312 424 L208 424 C200 472 168 522 120 500 C148 420 172 330 168 240 Z',
+    front: 'M180 238 C184 168 230 138 270 140 C308 142 338 168 342 216 C322 186 292 172 262 176 C236 198 210 224 180 238 Z'
+  },
+  bun: {
+    back: 'M176 248 C168 168 214 128 262 128 C312 128 354 168 344 248 C336 214 312 186 262 184 C212 186 186 214 176 248 Z',
+    front: 'M182 232 C190 178 226 150 262 150 C300 150 332 176 340 230 C318 196 292 182 262 184 C232 184 204 198 182 232 Z',
+    extra: '<circle cx="262" cy="104" r="44"/><path d="M226 120 C240 134 284 134 298 120" fill="none" stroke-opacity=".2" stroke="#000" stroke-width="3"/>'
+  },
+  wavy: {
+    back: 'M160 250 C140 170 200 106 264 108 C334 110 388 170 366 252 C386 300 360 340 382 382 C398 422 370 462 340 474 C344 432 322 412 318 384 L204 384 C200 412 178 432 182 474 C150 462 124 422 140 382 C160 340 136 300 160 250 Z',
+    front: 'M186 244 C186 176 226 140 262 142 C258 172 236 214 186 244 Z M338 244 C338 176 298 140 262 142 C266 172 288 214 338 244 Z'
+  },
+  bob: {
+    back: 'M168 254 C158 168 214 122 262 122 C312 122 366 168 354 254 C352 300 360 332 368 354 C332 364 312 344 306 322 L218 322 C212 344 192 364 154 354 C162 332 170 300 168 254 Z',
+    front: 'M182 224 C188 168 228 138 262 138 C300 138 336 168 340 224 C300 206 222 206 182 224 Z'
+  }
+};
 
-function expertRaw() {
-  const W = 440, H = 560;
-  const g = uid(), sh = uid();
-  const defs = `<linearGradient id="${g}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3d6df"/><stop offset=".6" stop-color="#e7a9c3"/><stop offset="1" stop-color="#b8527f"/></linearGradient>` + vGrad(sh, 'rgba(60,10,40,0)', 'rgba(60,10,40,.55)');
-  let el = `<rect width="${W}" height="${H}" fill="url(#${g})"/><path d="M70 ${H} V210 A150 150 0 0 1 370 210 V${H} Z" fill="#fff" opacity=".35"/><rect x="90" y="300" width="260" height="10" rx="5" fill="#fff" opacity=".7"/>`;
-  el += nest('anua-heartleaf-toner', 70, 120, 200, { shadow: false }) + nest('torriden-dive-in-serum', 160, 150, 170, { shadow: false }) + nest('boj-relief-sun', 240, 120, 190, { shadow: false });
-  el += bfly(300, 60, 0.36, '#fff', 0.95, 12) + sparkle(90, 80, 1.3) + `<rect y="${H * 0.45}" width="${W}" height="${H * 0.55}" fill="url(#${sh})"/>`;
+function bloggerRaw(id: string) {
+  const b = BLOGGERS.find((x) => x.id === id) || BLOGGERS[0];
+  const { skin, hair, style, outfit, bg: [b1, b2], accent } = b.look;
+  const W = 520, H = 640;
+  const gb = uid(), gf = uid(), gh = uid(), go = uid(), gs = uid(), gc = uid();
+  const defs = `<linearGradient id="${gb}" x1="0" y1="0" x2=".7" y2="1"><stop offset="0" stop-color="${b1}"/><stop offset="1" stop-color="${b2}"/></linearGradient>` +
+    rGrad(gf, [[0, light(skin, 0.28)], [0.6, skin], [1, dark(skin, 0.1)]], '.38', '.3', '.85') +
+    `<linearGradient id="${gh}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${light(hair, 0.18)}"/><stop offset=".5" stop-color="${hair}"/><stop offset="1" stop-color="${dark(hair, 0.25)}"/></linearGradient>` +
+    `<linearGradient id="${go}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${light(outfit, 0.18)}"/><stop offset="1" stop-color="${dark(outfit, 0.2)}"/></linearGradient>` +
+    rGrad(gs, [[0, '#fff', 0.85], [1, '#fff', 0]]) + rGrad(gc, [[0, '#f27d98', 0.5], [1, '#f27d98', 0]]);
+  const hs = HAIR[style];
+  const shade = dark(skin, 0.16);
+  let el = `<rect width="${W}" height="${H}" fill="url(#${gb})"/><circle cx="262" cy="236" r="200" fill="url(#${gs})" opacity=".75"/>`;
+  el += `<circle cx="420" cy="120" r="64" fill="${accent}" opacity=".28"/><circle cx="96" cy="430" r="38" fill="#fff" opacity=".22"/>`;
+  el += `<g fill="url(#${gh})">${hs.extra || ''}<path d="${hs.back}"/></g>`;
+  // neck, shoulders and neckline
+  el += `<path d="M232 322 L232 424 Q260 440 288 424 L288 322 Z" fill="${skin}"/><path d="M232 334 Q260 370 288 334 L288 356 Q260 390 232 356 Z" fill="${shade}" opacity=".45"/>`;
+  el += `<path d="M58 ${H} C62 540 110 474 190 452 C214 446 230 432 236 418 L284 418 C290 432 306 446 330 452 C410 474 458 540 462 ${H} Z" fill="url(#${go})"/>`;
+  el += `<path d="M236 418 L260 488 L284 418 Z" fill="${skin}"/><path d="M236 418 L260 488 L284 418" fill="none" stroke="${dark(outfit, 0.3)}" stroke-opacity=".35" stroke-width="3"/>`;
+  el += `<path d="M150 470 C176 500 186 560 182 ${H}" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width="6" stroke-linecap="round"/>`;
+  // ears, face, features
+  el += `<ellipse cx="181" cy="262" rx="13" ry="21" fill="${skin}"/><ellipse cx="339" cy="262" rx="13" ry="21" fill="${skin}"/>`;
+  el += `<path d="M260 150 C313 150 341 192 341 246 C341 302 312 348 260 354 C208 348 179 302 179 246 C179 192 207 150 260 150 Z" fill="url(#${gf})"/>`;
+  el += `<circle cx="214" cy="290" r="26" fill="url(#${gc})"/><circle cx="306" cy="290" r="26" fill="url(#${gc})"/>`;
+  el += `<g fill="none" stroke-linecap="round"><path d="M206 214 Q226 201 247 209" stroke="${hair}" stroke-width="5"/><path d="M273 209 Q294 201 314 214" stroke="${hair}" stroke-width="5"/>`;
+  el += `<path d="M211 246 Q229 259 247 246" stroke="#3a2230" stroke-width="4"/><path d="M273 246 Q291 259 309 246" stroke="#3a2230" stroke-width="4"/><path d="M213 248 L207 253 M219 252 L215 258 M301 252 L305 258 M307 248 L313 253" stroke="#3a2230" stroke-width="2.5"/>`;
+  el += `<path d="M262 260 Q270 284 256 291" stroke="${shade}" stroke-width="3" opacity=".7"/></g>`;
+  el += `<path d="M236 314 Q248 304 260 309 Q272 304 284 314 Q260 336 236 314 Z" fill="#d6496d"/><path d="M244 314 Q260 322 276 314" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="2" stroke-linecap="round"/>`;
+  el += `<g fill="url(#${gh})"><path d="${hs.front}"/></g>`;
+  el += `<circle cx="181" cy="292" r="9" fill="none" stroke="${accent === '#ffffff' ? '#e8c27a' : accent}" stroke-width="3.5"/><circle cx="339" cy="292" r="9" fill="none" stroke="${accent === '#ffffff' ? '#e8c27a' : accent}" stroke-width="3.5"/>`;
+  // her pick, presented in front of the portrait
+  el += nest(b.products[0], 300, 370, 250) + bfly(84, 70, 0.3, '#fff', 0.9, -14) + sparkle(452, 250, 1.4) + sparkle(110, 300, 1);
   return svgWrap(W, H, defs, el);
 }
 
@@ -540,7 +578,7 @@ function giftcardsRaw() {
   const cubes = uid();
   const defs = `<linearGradient id="${cubes}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity=".05"/></linearGradient>`;
   let el = `<rect x="470" y="30" width="120" height="120" rx="22" fill="url(#${cubes})" stroke="#fff" stroke-opacity=".5" transform="rotate(18 530 90)"/><rect x="60" y="330" width="80" height="80" rx="16" fill="url(#${cubes})" stroke="#fff" stroke-opacity=".4" transform="rotate(-14 100 370)"/>`;
-  if (gc) el += productSvgRaw(gc, { x: 70, y: 20, size: 560, shadow: false, decorative: true, amount: '10 000 ₽' });
+  if (gc) el += productSvgRaw(gc, { x: 70, y: 20, size: 560, shadow: false, decorative: true, amount: '1 000 смн' });
   el += bfly(560, 330, 0.5, '#fff', 0.95, 16) + sparkle(120, 90, 2);
   return svgWrap(670, 470, defs, el, 'xMidYMid meet');
 }
@@ -550,7 +588,7 @@ function giftcardPreviewRaw(amount: string) {
   const g = uid(), gs = uid();
   const defs = `<linearGradient id="${g}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f07db4"/><stop offset=".55" stop-color="#dd4487"/><stop offset="1" stop-color="#a83b8b"/></linearGradient><linearGradient id="${gs}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".4"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>`;
   const el = `<rect width="${W}" height="${H}" fill="url(#${g})"/><path d="M0 90 L300 0 L400 0 L0 140 Z" fill="url(#${gs})" opacity=".5"/><g fill="#fff" transform="translate(34 30) scale(.13)"><path d="${MARK_D}"/></g>` + bfly(380, 30, 0.42, '#fff', 0.9, 12) +
-    txt(amount, W - 34, H - 40, { size: 64, weight: 500, fill: '#fff', family: 'serif', anchor: 'end', max: 360 }) + txt('KOREA SECRET · GIFT CARD', 34, H - 40, { size: 11, weight: 600, ls: 0.16, fill: '#fff', anchor: 'start', opacity: 0.85 });
+    txt(amount, W - 34, H - 40, { size: 64, weight: 500, fill: '#fff', family: 'serif', anchor: 'end', max: 360 }) + txt('KOREA SECRET · GIFT CARD', 34, 122, { size: 11, weight: 600, ls: 0.16, fill: '#fff', anchor: 'start', opacity: 0.85 });
   return svgWrap(W, H, defs, el);
 }
 
@@ -601,13 +639,13 @@ export type ArtSpecInput =
   | { kind: 'product'; id: string; variant?: string; amount?: string; shadow?: boolean; decorative?: boolean }
   | { kind: 'gallery'; id: string; view: GalleryView; variant?: string; amount?: string }
   | { kind: 'icon'; name: string }
-  | { kind: 'hero'; id: string; lang: Lang }
+  | { kind: 'hero'; id: string }
   | { kind: 'promo'; id: string }
   | { kind: 'story'; index: number; frame: number }
   | { kind: 'journal'; theme: string; w?: number; h?: number }
-  | { kind: 'collection'; theme: string }
-  | { kind: 'map'; index: number }
-  | { kind: 'expert' } | { kind: 'spotlight' } | { kind: 'strip' } | { kind: 'giftcards' } | { kind: 'seo' }
+  | { kind: 'collection'; id: string }
+  | { kind: 'blogger'; id: string }
+  | { kind: 'spotlight' } | { kind: 'strip' } | { kind: 'giftcards' } | { kind: 'seo' }
   | { kind: 'giftcardPreview'; amount: string }
   | { kind: 'ingredient'; key: IngredientKey }
   | { kind: 'megaPromo'; index: number }
@@ -620,13 +658,12 @@ export function renderArt(spec: ArtSpecInput, prefix: string): string {
       case 'product': { const p = P(spec.id); return p ? productSvgRaw(p, { variant: spec.variant, amount: spec.amount, shadow: spec.shadow, decorative: spec.decorative ?? true }) : ''; }
       case 'gallery': { const p = P(spec.id); return p ? galleryRaw(p, spec.view, { variant: spec.variant, amount: spec.amount }) : ''; }
       case 'icon': return iconRaw(spec.name);
-      case 'hero': return heroRaw(spec.id, spec.lang);
+      case 'hero': return heroRaw(spec.id);
       case 'promo': return promoRaw(spec.id);
       case 'story': return STORIES[spec.index] ? storyRaw(STORIES[spec.index], spec.frame) : '';
       case 'journal': return journalRaw(spec.theme, spec.w, spec.h);
-      case 'collection': return collectionRaw(spec.theme);
-      case 'map': return mapRaw(spec.index);
-      case 'expert': return expertRaw();
+      case 'collection': return collectionRaw(spec.id);
+      case 'blogger': return bloggerRaw(spec.id);
       case 'spotlight': return spotlightRaw();
       case 'strip': return stripRaw();
       case 'giftcards': return giftcardsRaw();

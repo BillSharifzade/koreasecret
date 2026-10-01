@@ -24,17 +24,9 @@ function install() {
   });
 }
 
-function lock() {
-  const b = document.body;
-  if (b.classList.contains('is-locked')) return;
-  const sw = window.innerWidth - document.documentElement.clientWidth;
-  b.style.paddingRight = sw > 0 ? `${sw}px` : '';
-  b.classList.add('is-locked');
-}
-function unlock() {
-  document.body.classList.remove('is-locked');
-  document.body.style.paddingRight = '';
-}
+// scrollbars are hidden site-wide, so locking needs no width compensation
+const lock = () => document.body.classList.add('is-locked');
+const unlock = () => document.body.classList.remove('is-locked');
 
 export function useLayer(open: boolean, close: () => void, ref: RefObject<HTMLElement | null>, focus?: string) {
   const closeRef = useRef(close);

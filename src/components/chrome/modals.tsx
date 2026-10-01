@@ -2,26 +2,23 @@
 import { useState, type FormEvent } from 'react';
 import { Art } from '../Art';
 import { Butterfly } from '../Brand';
-import { useI18n, useUI } from '../providers';
+import { useUI } from '../providers';
 import { CONFIG } from '@/lib/data';
-import { cartTotals, getProduct, maskPhone, priceOf, price, titleOf } from '@/lib/shop';
+import { cartTotals, getProduct, maskPhone, phoneComplete, priceOf, price, titleOf } from '@/lib/shop';
 import { shop, useShop } from '@/lib/store';
 
-const CITY_EN: Record<string, string> = { 'Москва': 'Moscow', 'Санкт-Петербург': 'Saint Petersburg', 'Казань': 'Kazan', 'Екатеринбург': 'Yekaterinburg', 'Новосибирск': 'Novosibirsk', 'Краснодар': 'Krasnodar' };
-export const cityLabel = (city: string, lang: string) => (lang === 'en' ? CITY_EN[city] || city : city);
 
 export function CityModal() {
-  const tr = useI18n();
   const ui = useUI();
   const city = useShop((s) => s.city) || CONFIG.cities[0];
   return (
     <>
-      <h2 className="modal__title">{tr.t('city.title')}</h2>
-      <p className="modal__text">{tr.t('city.text')}</p>
+      <h2 className="modal__title">Ваш город</h2>
+      <p className="modal__text">От города зависят сроки доставки и наличие в магазинах</p>
       <div className="search__chips">
         {CONFIG.cities.map((c) => (
-          <button key={c} className={`chip${c === city ? ' is-active' : ''}`} type="button" onClick={() => { shop.setCity(c); ui.closeModal(); ui.toast({ title: tr.t('city.saved', { city: cityLabel(c, tr.lang) }), icon: 'pin' }); }}>
-            {cityLabel(c, tr.lang)}
+          <button key={c} className={`chip${c === city ? ' is-active' : ''}`} type="button" onClick={() => { shop.setCity(c); ui.closeModal(); ui.toast({ title: `Город: ${c}`, icon: 'pin' }); }}>
+            {c}
           </button>
         ))}
       </div>
@@ -31,55 +28,51 @@ export function CityModal() {
 
 export function PhoneInput({ name, id, required }: { name: string; id?: string; required?: boolean }) {
   const [v, setV] = useState('');
-  return <input className="input" id={id} name={name} type="tel" inputMode="tel" placeholder="+7 (___) ___-__-__" autoComplete="tel" required={required} value={v} onChange={(e) => setV(e.target.value ? maskPhone(e.target.value) : '')} />;
+  return <input className="input" id={id} name={name} type="tel" inputMode="tel" placeholder="+992 __ ___-__-__" autoComplete="tel" required={required} value={v} onChange={(e) => setV(e.target.value ? maskPhone(e.target.value) : '')} />;
 }
 
 export function AccountModal() {
-  const tr = useI18n();
   const ui = useUI();
   const submit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const input = e.currentTarget.elements.namedItem('phone') as HTMLInputElement;
-    const digits = input.value.replace(/\D/g, '');
-    if (digits.length < 11) { input.focus(); ui.toast({ title: tr.t('acc.bad'), icon: 'phone' }); return; }
+    if (!phoneComplete(input.value)) { input.focus(); ui.toast({ title: 'Введите номер полностью', icon: 'phone' }); return; }
     ui.closeModal();
-    ui.toast({ title: tr.t('acc.demo'), text: maskPhone(digits), icon: 'phone' });
+    ui.toast({ title: 'Демо-режим: SMS не отправляются', text: input.value, icon: 'phone' });
   };
   return (
     <>
-      <h2 className="modal__title">{tr.t('acc.title')}</h2>
-      <p className="modal__text">{tr.t('acc.text')}</p>
+      <h2 className="modal__title">Вход или регистрация</h2>
+      <p className="modal__text">Введите номер телефона — мы отправим код подтверждения. Бонусы за покупки, история заказов и персональные подборки ждут вас.</p>
       <form className="modal__stack" onSubmit={submit} noValidate>
-        <label className="field"><span className="field__label">{tr.t('acc.phone')}</span><PhoneInput name="phone" /></label>
-        <button className="btn btn--primary btn--block" type="submit">{tr.t('acc.btn')}</button>
-        <p className="modal__note">{tr.t('acc.note')}</p>
+        <label className="field"><span className="field__label">Номер телефона</span><PhoneInput name="phone" /></label>
+        <button className="btn btn--primary btn--block" type="submit">Получить код</button>
+        <p className="modal__note">Нажимая кнопку, вы соглашаетесь с условиями обработки персональных данных</p>
       </form>
     </>
   );
 }
 
 export function GiftCardModal() {
-  const tr = useI18n();
   const ui = useUI();
   const p = getProduct('ks-giftcard')!;
   const [v, setV] = useState(1);
   return (
     <>
-      <h2 className="modal__title">{tr.t('gc.title')}</h2>
-      <p className="modal__text">{tr.t('gc.text')}</p>
+      <h2 className="modal__title">Подарочная карта</h2>
+      <p className="modal__text">Выберите номинал — карту можно вручить в конверте или отправить по e-mail.</p>
       <Art className="giftcard-preview" as="div" spec={{ kind: 'giftcardPreview', amount: p.variants![v].name }} />
-      <div className="denoms" role="radiogroup" aria-label={tr.t('gc.title')}>
+      <div className="denoms" role="radiogroup" aria-label="Подарочная карта">
         {p.variants!.map((x, i) => (
           <button key={x.name} className={`denom${i === v ? ' is-active' : ''}`} type="button" role="radio" aria-checked={i === v} onClick={() => setV(i)}>{x.name}</button>
         ))}
       </div>
-      <button className="btn btn--primary btn--block btn--lg" style={{ marginTop: 22 }} type="button" onClick={() => { ui.addToCart(p.id, v); ui.closeModal(); }}>{tr.t('gc.add')}</button>
+      <button className="btn btn--primary btn--block btn--lg" style={{ marginTop: 22 }} type="button" onClick={() => { ui.addToCart(p.id, v); ui.closeModal(); }}>Добавить в корзину</button>
     </>
   );
 }
 
 export function CheckoutModal() {
-  const tr = useI18n();
   const ui = useUI();
   const cart = useShop((s) => s.cart);
   const promo = useShop((s) => s.promo);
@@ -90,9 +83,9 @@ export function CheckoutModal() {
     return (
       <div className="success">
         <div className="success__art"><Butterfly className="bfly-deco flap" /></div>
-        <h3>{tr.t('co.success')}</h3>
-        <p dangerouslySetInnerHTML={{ __html: tr.t('co.successText', { num: done }) }} />
-        <button className="btn btn--primary" type="button" onClick={ui.closeModal}>{tr.t('co.continue')}</button>
+        <h3>Заказ оформлен!</h3>
+        <p dangerouslySetInnerHTML={{ __html: `Номер заказа <span class="success__num">${done}</span>. Мы пришлём SMS, когда он будет готов. Это демо — оплата не списывается.` }} />
+        <button className="btn btn--primary" type="button" onClick={ui.closeModal}>Продолжить покупки</button>
       </div>
     );
   }
@@ -102,7 +95,7 @@ export function CheckoutModal() {
     const f = e.currentTarget;
     const name = f.elements.namedItem('name') as HTMLInputElement;
     const phone = f.elements.namedItem('phone') as HTMLInputElement;
-    if (!name.value.trim() || phone.value.replace(/\D/g, '').length < 11) { ui.toast({ title: tr.t('co.required'), icon: 'user' }); (name.value.trim() ? phone : name).focus(); return; }
+    if (!name.value.trim() || !phoneComplete(phone.value)) { ui.toast({ title: 'Заполните имя и телефон', icon: 'user' }); (name.value.trim() ? phone : name).focus(); return; }
     setDone('KS-' + String(Date.now()).slice(-6));
     shop.clearCart();
     ui.close();
@@ -113,22 +106,22 @@ export function CheckoutModal() {
 
   return (
     <>
-      <h2 className="modal__title">{tr.t('co.title')}</h2>
+      <h2 className="modal__title">Оформление заказа</h2>
       <div className="co">
         <form className="co__form" onSubmit={submit} noValidate>
           <div className="co__row">
-            <label className="field"><span className="field__label">{tr.t('co.name')}</span><input className="input" name="name" autoComplete="given-name" required /></label>
-            <label className="field"><span className="field__label">{tr.t('co.phone')}</span><PhoneInput name="phone" required /></label>
+            <label className="field"><span className="field__label">Имя</span><input className="input" name="name" autoComplete="given-name" required /></label>
+            <label className="field"><span className="field__label">Телефон</span><PhoneInput name="phone" required /></label>
           </div>
-          <label className="field"><span className="field__label">{tr.t('co.email')}</span><input className="input" name="email" type="email" autoComplete="email" /></label>
-          <div className="field"><span className="field__label">{tr.t('co.method')}</span><div className="radio-cards">{radio('ship', 'courier', tr.t('co.courier'), tr.t('co.courierNote'), true)}{radio('ship', 'pickup', tr.t('co.pickup'), tr.t('co.pickupNote'))}{radio('ship', 'store', tr.t('co.store'), tr.t('co.storeNote'))}</div></div>
-          <label className="field"><span className="field__label">{tr.t('co.address')}</span><input className="input" name="address" autoComplete="street-address" /></label>
-          <div className="field"><span className="field__label">{tr.t('co.pay')}</span><div className="radio-cards">{radio('pay', 'card', tr.t('co.payCard'), tr.t('co.payCardNote'), true)}{radio('pay', 'sbp', tr.t('co.paySbp'), tr.t('co.paySbpNote'))}{radio('pay', 'cash', tr.t('co.payCash'), tr.t('co.payCashNote'))}</div></div>
-          <label className="field"><span className="field__label">{tr.t('co.comment')}</span><textarea className="input" name="comment" rows={2} /></label>
-          <button className="btn btn--primary btn--lg btn--block" type="submit">{tr.t('co.confirm')} · {price(T.total)}</button>
+          <label className="field"><span className="field__label">E-mail</span><input className="input" name="email" type="email" autoComplete="email" /></label>
+          <div className="field"><span className="field__label">Способ получения</span><div className="radio-cards">{radio('ship', 'courier', 'Курьер', 'сегодня или завтра', true)}{radio('ship', 'pickup', 'Пункт выдачи', '1–4 дня')}{radio('ship', 'store', 'Из магазина', 'сегодня, бесплатно')}</div></div>
+          <label className="field"><span className="field__label">Адрес доставки</span><input className="input" name="address" autoComplete="street-address" /></label>
+          <div className="field"><span className="field__label">Оплата</span><div className="radio-cards">{radio('pay', 'card', 'Картой онлайн', 'Visa, Mastercard, Корти Миллӣ', true)}{radio('pay', 'qr', 'QR-код', 'через мобильный банк')}{radio('pay', 'cash', 'При получении', 'картой или наличными')}</div></div>
+          <label className="field"><span className="field__label">Комментарий к заказу</span><textarea className="input" name="comment" rows={2} /></label>
+          <button className="btn btn--primary btn--lg btn--block" type="submit">Подтвердить заказ · {price(T.total)}</button>
         </form>
         <aside className="co__summary">
-          <div className="footer__title">{tr.t('co.summary')}</div>
+          <div className="footer__title">Ваш заказ</div>
           <div className="co__items">
             {cart.map((it) => {
               const p = getProduct(it.id);
@@ -143,11 +136,11 @@ export function CheckoutModal() {
               );
             })}
           </div>
-          <div className="sum-row"><span>{tr.t('cart.subtotal')}</span><span>{price(T.full)}</span></div>
-          {T.savings > 0 && <div className="sum-row"><span>{tr.t('cart.savings')}</span><span className="accent">−{price(T.savings)}</span></div>}
-          {T.promo > 0 && <div className="sum-row"><span>{tr.t('cart.promoLine')}</span><span className="accent">−{price(T.promo)}</span></div>}
-          <div className="sum-row"><span>{tr.t('cart.delivery')}</span><span>{T.delivery ? price(T.delivery) : tr.t('cart.free')}</span></div>
-          <div className="sum-row sum-row--total"><span>{tr.t('cart.total')}</span><span>{price(T.total)}</span></div>
+          <div className="sum-row"><span>Товары</span><span>{price(T.full)}</span></div>
+          {T.savings > 0 && <div className="sum-row"><span>Скидка на товары</span><span className="accent">−{price(T.savings)}</span></div>}
+          {T.promo > 0 && <div className="sum-row"><span>Промокод</span><span className="accent">−{price(T.promo)}</span></div>}
+          <div className="sum-row"><span>Доставка</span><span>{T.delivery ? price(T.delivery) : 'бесплатно'}</span></div>
+          <div className="sum-row sum-row--total"><span>Итого</span><span>{price(T.total)}</span></div>
         </aside>
       </div>
     </>

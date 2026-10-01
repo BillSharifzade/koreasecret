@@ -1,26 +1,29 @@
 import Link from 'next/link';
+import type { CSSProperties } from 'react';
 import { Art } from '../Art';
 import { Icon } from '../Icon';
-import { Carousel } from '../ui/Carousel';
 import { ProductCard } from '../ui/ProductCard';
+import { Slider, SliderArrows, SliderScope } from '../ui/Slider';
 import { SectionHead, Stars } from '../ui/bits';
 import { GiftCardButton } from './ClientBits';
-import { BRANDS, COLLECTIONS, EXPERT, HOME_CATS, PRODUCTS, PROMOS, SPOTLIGHT, STORES } from '@/lib/data';
-import { href, translator } from '@/lib/i18n';
+import { StoreCard } from './StoreCard';
+import { BLOGGERS, BRANDS, COLLECTIONS, HOME_CATS, PHOTO_CREDITS, PRODUCTS, PROMOS, SPOTLIGHT, STORES } from '@/lib/data';
+import { count } from '@/lib/format';
 import { brandOf, productPath, reviewsFor, score } from '@/lib/shop';
-import type { Lang, Product } from '@/lib/types';
+import type { Blogger, Product } from '@/lib/types';
 
-export function CategoryTiles({ lang }: { lang: Lang }) {
-  const tr = translator(lang);
+const items = (n: number) => count(n, 'товар', 'товара', 'товаров');
+
+export function CategoryTiles() {
   return (
-    <section className="cats" aria-label={tr.t('home.categories')}>
+    <section className="cats" aria-label="Категории">
       <div className="container">
         <div className="cats__card">
-          <nav className="cats__list" aria-label={tr.t('home.categories')}>
+          <nav className="cats__list" aria-label="Категории">
             {HOME_CATS.map((c) => (
-              <Link key={c.icon} className="cat-tile" href={href(lang, c.href)}>
+              <Link key={c.icon} className="cat-tile" href={c.href}>
                 <Art className="cat-tile__icon" spec={{ kind: 'icon', name: c.icon }} />
-                <span className="cat-tile__label">{tr.L(c)}</span>
+                <span className="cat-tile__label">{c.name}</span>
               </Link>
             ))}
           </nav>
@@ -30,114 +33,130 @@ export function CategoryTiles({ lang }: { lang: Lang }) {
   );
 }
 
-export function ProductSection({ lang, id, title, link, list }: { lang: Lang; id: string; title: string; link?: string; list: Product[] }) {
+/** A finite row of product cards (Новинки, Скидки, Хиты…). */
+export function ProductSection({ id, title, link, list }: { id: string; title: string; link?: string; list: Product[] }) {
   return (
-    <section className="section" id={id} data-scope>
-      <div className="container reveal">
-        <SectionHead lang={lang} title={title} link={link} nav />
-        <Carousel>{list.map((p) => <ProductCard key={p.id} id={p.id} />)}</Carousel>
-      </div>
-    </section>
-  );
-}
-
-export function Promos({ lang }: { lang: Lang }) {
-  const tr = translator(lang);
-  return (
-    <section className="section" id="promos" data-scope>
-      <div className="container reveal"><SectionHead lang={lang} title={tr.t('home.promos')} link="/catalog?offer=sale" nav /></div>
-      <div className="bleed reveal">
-        <Carousel center start={1} className="promos">
-          {PROMOS.map((p) => (
-            <Link key={p.id} className={`promo-card${p.dark ? ' is-dark' : ''}`} href={href(lang, p.link)}>
-              <Art className="promo-card__bg" as="div" spec={{ kind: 'promo', id: p.id }} />
-              <div className="promo-card__content"><div className="promo-card__title">{tr.L(p.title)}</div><div className="promo-card__date">{tr.L(p.date)}</div></div>
-              <div className="promo-card__hline" /><div className="promo-card__vline" /><div className="promo-card__vline promo-card__vline--sm" />
-              <div className="promo-card__btn"><span className="btn btn--primary">{tr.t('common.more')}</span></div>
-            </Link>
-          ))}
-        </Carousel>
-      </div>
-    </section>
-  );
-}
-
-export function Expert({ lang }: { lang: Lang }) {
-  const tr = translator(lang);
-  const list = EXPERT.products;
-  return (
-    <section className="section" id="expert" data-scope>
-      <div className="container reveal">
-        <SectionHead lang={lang} title={tr.t('home.expert')} link="/catalog?edit=expert" nav />
-        <div className="expert">
-          <div className="expert__side">
-            <div className="expert__portrait"><Art as="div" spec={{ kind: 'expert' }} /><p className="expert__quote">{tr.L(EXPERT.quote)}</p></div>
-            <div className="expert__person">
-              <div className="expert__avatar">{tr.L(EXPERT.initials)}</div>
-              <div><div className="expert__name">{tr.L(EXPERT.name)}</div><div className="expert__role">{tr.L(EXPERT.role)}</div></div>
-            </div>
-          </div>
-          <div className="expert__main">
-            <div className="expert__products"><Carousel>{list.map((id) => <ProductCard key={id} id={id} />)}</Carousel></div>
-            <Link className="expert__foot" href={href(lang, '/catalog?edit=expert')}>{tr.pl('pl.items', list.length)} {tr.t('home.inEdit')} <Icon name="chev-right" /></Link>
-          </div>
+    <SliderScope>
+      <section className="section" id={id}>
+        <div className="container reveal">
+          <SectionHead title={title} link={link} nav />
+          <Slider label={title.replace(/<[^>]+>/g, '')}>{list.map((p) => <ProductCard key={p.id} id={p.id} />)}</Slider>
         </div>
-      </div>
-    </section>
+      </section>
+    </SliderScope>
   );
 }
 
-export function Strip({ lang }: { lang: Lang }) {
-  const tr = translator(lang);
+/** Акции: an endless, centred strip that plays by itself and stops under the pointer. */
+export function Promos() {
+  return (
+    <SliderScope>
+      <section className="section" id="promos">
+        <div className="container reveal"><SectionHead title="Акции" link="/catalog?offer=sale" nav /></div>
+        <div className="bleed reveal">
+          <Slider kind="loop" className="promos" autoplay={5200} label="Акции">
+            {PROMOS.map((p) => (
+              <Link key={p.id} className={`promo-card${p.dark ? ' is-dark' : ''}`} href={p.link} draggable={false}>
+                <Art className="promo-card__bg" as="div" spec={{ kind: 'promo', id: p.id }} />
+                <div className="promo-card__content"><div className="promo-card__title">{p.title}</div><div className="promo-card__date">{p.date}</div></div>
+                <div className="promo-card__hline" /><div className="promo-card__vline" /><div className="promo-card__vline promo-card__vline--sm" />
+                <div className="promo-card__btn"><span className="btn btn--primary">Подробнее</span></div>
+              </Link>
+            ))}
+          </Slider>
+        </div>
+      </section>
+    </SliderScope>
+  );
+}
+
+function BloggerPanel({ b }: { b: Blogger }) {
+  return (
+    <article className="blogger" style={{ '--tint': b.look.bg[0] } as CSSProperties}>
+      <div className="blogger__portrait">
+        <Art className="blogger__art" as="div" spec={{ kind: 'blogger', id: b.id }} />
+        <div className="blogger__id"><b>{b.name}</b><span>{b.about}</span></div>
+      </div>
+      <div className="blogger__main">
+        <SliderScope>
+          <div className="blogger__head">
+            <h3 className="blogger__title">Фавориты в уходе <em>{b.nameGen}</em></h3>
+            <SliderArrows className="blogger__nav" small />
+          </div>
+          <Slider nested className="blogger__products" label={`Фавориты ${b.nameGen}`}>{b.products.map((id) => <ProductCard key={id} id={id} />)}</Slider>
+        </SliderScope>
+        <Link className="blogger__foot" href={`/catalog?edit=${b.id}`}>{items(b.products.length)} в подборке<Icon name="chev-right" /></Link>
+      </div>
+    </article>
+  );
+}
+
+/** Выбор блогеров: one big panel per blogger; the section arrows switch bloggers, the small ones scroll their picks. */
+export function Bloggers() {
+  return (
+    <SliderScope>
+      <section className="section" id="bloggers">
+        <div className="container reveal"><SectionHead title="Выбор блогеров" nav /></div>
+        <div className="bleed reveal">
+          <Slider kind="loop" className="bloggers" wheel={false} label="Выбор блогеров">
+            {BLOGGERS.map((b) => <BloggerPanel key={b.id} b={b} />)}
+          </Slider>
+        </div>
+      </section>
+    </SliderScope>
+  );
+}
+
+export function Strip() {
   return (
     <section className="section section--tight" id="strip">
       <div className="container reveal">
-        <Link className="strip" href={href(lang, '/catalog?brand=medicube')}>
-          <div className="strip__title">{tr.t('home.strip')}</div>
+        <Link className="strip" href="/catalog?brand=medicube">
+          <div className="strip__title">PDRN-уход medicube: розовое сияние кожи</div>
           <Art className="strip__art" as="div" spec={{ kind: 'strip' }} />
-          <span className="btn btn--primary">{tr.t('home.stripCta')}</span>
+          <span className="btn btn--primary">Перейти в каталог</span>
         </Link>
       </div>
     </section>
   );
 }
 
-export function ReviewsShowcase({ lang }: { lang: Lang }) {
-  const tr = translator(lang);
+export function ReviewsShowcase() {
   const list = PRODUCTS.filter((p) => p.reviews > 400 && p.type !== 'giftcard').sort((a, b) => b.reviews - a.reviews).slice(0, 6);
   return (
-    <section className="section" id="reviews" data-scope>
-      <div className="container reveal"><SectionHead lang={lang} title={tr.t('home.reviews')} nav /></div>
-      <div className="bleed reveal">
-        <Carousel center start={1} className="reviews">
-          {list.map((p) => (
-            <div key={p.id} className="review-card">
-              <div className="review-card__product"><ProductCard id={p.id} /></div>
-              <div className="review-card__main">
-                <div className="review-card__inner">
-                  <div className="review-card__head">
-                    <div className="review-card__count">{tr.pl('pl.reviews', p.reviews)}</div>
-                    <div className="review-card__score"><Icon name="star" className="i--fill" />{p.rating}<small>/5</small></div>
-                  </div>
-                  {reviewsFor(p, 3).map((r) => (
-                    <div key={r.name.ru} className="review">
-                      <div className="review__head"><div className="review__name">{tr.L(r.name)}</div><Stars rating={r.rating} /></div>
-                      <p className="review__text">{tr.L(r.text)}</p>
+    <SliderScope>
+      <section className="section" id="reviews">
+        <div className="container reveal"><SectionHead title="Ваши отзывы" nav /></div>
+        <div className="bleed reveal">
+          <Slider kind="loop" className="reviews" label="Отзывы покупателей">
+            {list.map((p) => (
+              <div key={p.id} className="review-card">
+                <div className="review-card__product"><ProductCard id={p.id} /></div>
+                <div className="review-card__main">
+                  <div className="review-card__inner">
+                    <div className="review-card__head">
+                      <div className="review-card__count">{count(p.reviews, 'отзыв', 'отзыва', 'отзывов')}</div>
+                      <div className="review-card__score"><Icon name="star" className="i--fill" />{p.rating}<small>/5</small></div>
                     </div>
-                  ))}
+                    {reviewsFor(p, 3).map((r) => (
+                      <div key={r.name} className="review">
+                        <div className="review__head"><div className="review__name">{r.name}</div><Stars rating={r.rating} /></div>
+                        <p className="review__text">{r.text}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <Link className="review-card__foot" href={`${productPath(p)}#reviews`}>Все отзывы <Icon name="chev-right" /></Link>
                 </div>
-                <Link className="review-card__foot" href={`${href(lang, productPath(p))}#reviews`}>{tr.t('home.allReviews')} <Icon name="chev-right" /></Link>
               </div>
-            </div>
-          ))}
-        </Carousel>
-      </div>
-    </section>
+            ))}
+          </Slider>
+        </div>
+      </section>
+    </SliderScope>
   );
 }
 
-export function Spotlight({ lang }: { lang: Lang }) {
-  const tr = translator(lang);
+export function Spotlight() {
   const b = brandOf(SPOTLIGHT.brand);
   const list = PRODUCTS.filter((p) => p.brand === SPOTLIGHT.brand);
   return (
@@ -147,72 +166,73 @@ export function Spotlight({ lang }: { lang: Lang }) {
           <div className="spotlight__top">
             <div className="spotlight__info">
               <h2 className="spotlight__brand">{b.name}</h2>
-              <p className="spotlight__text">{tr.L(SPOTLIGHT.text)}</p>
-              <Link className="btn btn--white" href={href(lang, `/catalog?brand=${b.id}`)}>{tr.L(SPOTLIGHT.cta)}</Link>
+              <p className="spotlight__text">{SPOTLIGHT.text}</p>
+              <Link className="btn btn--white" href={`/catalog?brand=${b.id}`}>{SPOTLIGHT.cta}</Link>
             </div>
             <div className="spotlight__art"><Art className="spotlight__art-inner" as="div" spec={{ kind: 'spotlight' }} /></div>
           </div>
-          <div className="spotlight__products" data-scope>
-            <button className="arrow-btn arrow-btn--float" type="button" data-dir="prev" aria-label={tr.t('common.prev')}><Icon name="arrow-left" /></button>
-            <button className="arrow-btn arrow-btn--float" type="button" data-dir="next" aria-label={tr.t('common.next')}><Icon name="arrow-right" /></button>
-            <Carousel>{list.map((p) => <ProductCard key={p.id} id={p.id} />)}</Carousel>
-          </div>
+          <SliderScope>
+            <div className="spotlight__products">
+              <SliderArrows className="spotlight__nav" />
+              <Slider label={b.name}>{list.map((p) => <ProductCard key={p.id} id={p.id} />)}</Slider>
+            </div>
+          </SliderScope>
         </div>
       </div>
     </section>
   );
 }
 
-export function Collections({ lang }: { lang: Lang }) {
-  const tr = translator(lang);
+/** Подборки: big themed cards in an endless centred strip, the neighbours peeking in. */
+export function Collections() {
   return (
-    <section className="section" id="collections">
-      <div className="container reveal">
-        <SectionHead lang={lang} title={tr.t('home.collections')} />
-        <div className="collections">
-          {COLLECTIONS.map((c) => (
-            <Link key={c.id} className="collection-card" href={href(lang, c.href)}>
-              <Art className="collection-card__art" as="div" spec={{ kind: 'collection', theme: c.theme }} />
-              <h3 className="collection-card__title">{tr.L(c.title)}</h3>
-              <span className="collection-card__count">{tr.pl('pl.items', PRODUCTS.filter(c.filter).length)} <Icon name="arrow-right" /></span>
-            </Link>
-          ))}
+    <SliderScope>
+      <section className="section" id="collections">
+        <div className="container reveal"><SectionHead title="Подборки" nav /></div>
+        <div className="bleed reveal">
+          <Slider kind="loop" className="collections" label="Подборки">
+            {COLLECTIONS.map((c) => (
+              <Link key={c.id} className="collection-card" href={c.href} draggable={false}>
+                <Art className="collection-card__art" as="div" spec={{ kind: 'collection', id: c.id }} />
+                <h3 className="collection-card__title">{c.title}</h3>
+                <span className="collection-card__count">{items(PRODUCTS.filter(c.filter).length)}<Icon name="arrow-right" /></span>
+              </Link>
+            ))}
+          </Slider>
         </div>
-      </div>
-    </section>
+      </section>
+    </SliderScope>
   );
 }
 
-export function Stores({ lang }: { lang: Lang }) {
-  const tr = translator(lang);
+export function Stores() {
   return (
-    <section className="section" id="stores" data-scope>
-      <div className="container reveal">
-        <SectionHead lang={lang} title={tr.t('home.stores')} nav />
-        <Carousel className="stores">
-          {STORES.map((s, i) => (
-            <a key={s.addr.ru} className="store-card" href={`https://yandex.ru/maps/?text=${encodeURIComponent(`${s.city.ru}, ${s.addr.ru}, Korea Secret`)}`} target="_blank" rel="noopener noreferrer" aria-label={`${tr.t('home.route')}: ${tr.L(s.city)}, ${tr.L(s.addr)}`}>
-              <div className="store-card__map"><Art as="div" style={{ height: '100%' }} spec={{ kind: 'map', index: i }} /><span className="store-card__open"><i />{tr.t('home.open', { t: s.hours.split('–')[1] })}</span></div>
-              <div className="store-card__city">{tr.L(s.city)}</div>
-              <div className="store-card__addr">{tr.L(s.addr)}</div>
-              <div className="store-card__metro"><span className="metro" style={{ background: s.metroColor }}>M</span>{tr.L(s.metro)}</div>
-            </a>
-          ))}
-        </Carousel>
-      </div>
-    </section>
+    <SliderScope>
+      <section className="section" id="stores">
+        <div className="container reveal">
+          <SectionHead title="Ждём в гости" nav />
+          <Slider className="stores" label="Магазины Korea Secret">{STORES.map((s) => <StoreCard key={s.id} s={s} />)}</Slider>
+          <p className="stores__credit">
+            Фото: Wikimedia Commons —{' '}
+            {PHOTO_CREDITS.map((c, i) => (
+              <span key={c.url}>{i > 0 && ', '}<a href={c.url} target="_blank" rel="noopener noreferrer">{c.author}</a> ({c.license})</span>
+            ))}
+            ; кадрированы. Карты: © участники OpenStreetMap.
+          </p>
+        </div>
+      </section>
+    </SliderScope>
   );
 }
 
-export function GiftCards({ lang }: { lang: Lang }) {
-  const tr = translator(lang);
+export function GiftCards() {
   return (
     <section className="section" id="giftcards">
       <div className="container reveal">
         <div className="giftcards">
           <div className="giftcards__info">
-            <h2 className="giftcards__title" dangerouslySetInnerHTML={{ __html: tr.t('home.gift.title') }} />
-            <p className="giftcards__text">{tr.t('home.gift.text')}</p>
+            <h2 className="giftcards__title">Подарочные <br />карты</h2>
+            <p className="giftcards__text">Идеальный подарок для близких. В физическом или электронном формате, на любой номинал.</p>
             <div className="giftcards__hline" /><div className="giftcards__vline" />
             <div className="giftcards__btn"><GiftCardButton /></div>
           </div>
@@ -223,38 +243,37 @@ export function GiftCards({ lang }: { lang: Lang }) {
   );
 }
 
-export function Brands({ lang }: { lang: Lang }) {
-  const tr = translator(lang);
+export function Brands() {
   const total: Record<string, number> = {};
   PRODUCTS.forEach((p) => { total[p.brand] = (total[p.brand] || 0) + p.reviews; });
   const list = BRANDS.filter((b) => b.id !== 'korea-secret' && total[b.id]).sort((a, b) => total[b.id] - total[a.id]).slice(0, 16);
   return (
-    <section className="section" id="brands" data-scope>
-      <div className="container reveal">
-        <SectionHead lang={lang} title={tr.t('home.brands')} link="/catalog" nav />
-        <Carousel className="brands">
-          {list.map((b) => (
-            <Link key={b.id} className={`brand-tile brand-tile--${b.style}`} href={href(lang, `/catalog?brand=${b.id}`)}>
-              <span className="brand-tile__name">{b.name}<span className="brand-tile__count">{tr.pl('pl.products', PRODUCTS.filter((p) => p.brand === b.id).length)}</span></span>
-            </Link>
-          ))}
-        </Carousel>
-      </div>
-    </section>
+    <SliderScope>
+      <section className="section" id="brands">
+        <div className="container reveal">
+          <SectionHead title="Топ-бренды" link="/catalog" nav />
+          <Slider className="brands" label="Бренды">
+            {list.map((b) => (
+              <Link key={b.id} className={`brand-tile brand-tile--${b.style}`} href={`/catalog?brand=${b.id}`} draggable={false}>
+                <span className="brand-tile__name">{b.name}</span>
+                <span className="brand-tile__count">{count(PRODUCTS.filter((p) => p.brand === b.id).length, 'продукт', 'продукта', 'продуктов')}</span>
+              </Link>
+            ))}
+          </Slider>
+        </div>
+      </section>
+    </SliderScope>
   );
 }
 
-export function Recommend({ lang }: { lang: Lang }) {
-  const tr = translator(lang);
+export function Recommend() {
   const list = PRODUCTS.filter((p) => p.type !== 'giftcard').sort((a, b) => score(b) - score(a)).slice(8, 16);
   return (
     <section className="section" id="recommend">
       <div className="container reveal">
-        <SectionHead lang={lang} title={tr.t('home.recommend')} link="/catalog?sort=rating" />
+        <SectionHead title="Рекомендуем" link="/catalog?sort=rating" />
         <div className="product-grid">{list.map((p) => <ProductCard key={p.id} id={p.id} />)}</div>
       </div>
     </section>
   );
 }
-
-export const productLink = (lang: Lang, p: Product) => href(lang, productPath(p));

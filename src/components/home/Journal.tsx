@@ -1,8 +1,9 @@
 'use client';
 import { Art } from '../Art';
-import { useI18n, useUI } from '../providers';
+import { useUI } from '../providers';
 import { ProductCard } from '../ui/ProductCard';
 import { ARTICLES, PRODUCTS } from '@/lib/data';
+import { count } from '@/lib/format';
 import { catOf } from '@/lib/shop';
 import type { Article } from '@/lib/types';
 
@@ -15,19 +16,18 @@ const RELATED: Record<Article['theme'], (p: (typeof PRODUCTS)[number]) => boolea
 };
 
 function ArticleView({ a }: { a: Article }) {
-  const tr = useI18n();
   const products = PRODUCTS.filter(RELATED[a.theme]).slice(0, 4);
   return (
     <>
       <article className="article">
-        <div className="article__tag">{tr.L(a.tag)} · {tr.pl('pl.minutes', a.mins)}</div>
-        <h2 className="modal__title">{tr.L(a.title)}</h2>
+        <div className="article__tag">{a.tag} · {count(a.mins, 'минута', 'минуты', 'минут')}</div>
+        <h2 className="modal__title">{a.title}</h2>
         <Art className="article__art" as="div" spec={{ kind: 'journal', theme: a.theme, w: 1100, h: 500 }} />
-        {a.body[tr.lang].map((p, i) => <p key={i}>{p}</p>)}
+        {a.body.map((p, i) => <p key={i}>{p}</p>)}
       </article>
       {products.length > 0 && (
         <>
-          <h3 className="h3" style={{ margin: '30px 0 20px' }}>{tr.t('home.related')}</h3>
+          <h3 className="h3" style={{ margin: '30px 0 20px' }}>Товары из статьи</h3>
           <div className="product-grid">{products.map((p) => <ProductCard key={p.id} id={p.id} />)}</div>
         </>
       )}
@@ -35,29 +35,30 @@ function ArticleView({ a }: { a: Article }) {
   );
 }
 
-export function Journal({ title }: { title: string }) {
-  const tr = useI18n();
+export function Journal() {
   const ui = useUI();
   const [first, ...rest] = ARTICLES;
-  const open = (a: Article) => (e: React.MouseEvent) => { e.preventDefault(); ui.openModal(<ArticleView a={a} />, { wide: true, label: tr.L(a.title) }); };
+  const open = (a: Article) => (e: React.MouseEvent) => { e.preventDefault(); ui.openModal(<ArticleView a={a} />, { wide: true, label: a.title }); };
   return (
-    <div className="container reveal">
-      <div className="section__head"><h2 className="section__title" dangerouslySetInnerHTML={{ __html: title }} /></div>
-      <a className="journal-hero" href="#journal" onClick={open(first)}>
-        <Art className="journal-hero__art" as="div" spec={{ kind: 'journal', theme: first.theme }} />
-        <div className="journal-hero__content"><div className="journal-hero__tag">{tr.L(first.tag)}</div><h3 className="journal-hero__title">{tr.L(first.title)}</h3></div>
-        <div className="journal-hero__hline" /><div className="journal-hero__vline" />
-        <div className="journal-hero__btn"><span className="btn btn--white">{tr.t('home.read')}<span className="muted">~ {tr.pl('pl.minutes', first.mins)}</span></span></div>
-      </a>
-      <div className="journal-grid">
-        {rest.map((a) => (
-          <a key={a.id} className="article-card" href="#journal" onClick={open(a)}>
-            <Art className="article-card__art" as="div" spec={{ kind: 'journal', theme: a.theme, w: 600, h: 545 }} />
-            <div className="article-card__tag">{tr.L(a.tag)}</div>
-            <h3 className="article-card__title">{tr.L(a.title)}</h3>
-          </a>
-        ))}
+    <section className="section" id="journal">
+      <div className="container reveal">
+        <div className="section__head"><h2 className="section__title">Журнал <em>Korea Secret</em></h2></div>
+        <a className="journal-hero" href="#journal" onClick={open(first)}>
+          <Art className="journal-hero__art" as="div" spec={{ kind: 'journal', theme: first.theme }} />
+          <div className="journal-hero__content"><div className="journal-hero__tag">{first.tag}</div><h3 className="journal-hero__title">{first.title}</h3></div>
+          <div className="journal-hero__hline" /><div className="journal-hero__vline" />
+          <div className="journal-hero__btn"><span className="btn btn--white">Читать<span className="muted">~ {count(first.mins, 'минута', 'минуты', 'минут')}</span></span></div>
+        </a>
+        <div className="journal-grid">
+          {rest.map((a) => (
+            <a key={a.id} className="article-card" href="#journal" onClick={open(a)}>
+              <Art className="article-card__art" as="div" spec={{ kind: 'journal', theme: a.theme, w: 600, h: 545 }} />
+              <div className="article-card__tag">{a.tag}</div>
+              <h3 className="article-card__title">{a.title}</h3>
+            </a>
+          ))}
+        </div>
       </div>
-    </div>
+    </section>
   );
 }

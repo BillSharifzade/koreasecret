@@ -6,14 +6,8 @@ import { Art } from './Art';
 import { Icon } from './Icon';
 import { useLayer, useMounted } from './layer';
 import type { ArtSpecInput } from '@/lib/art';
-import { translator, type Translator } from '@/lib/i18n';
 import { getProduct, titleOf } from '@/lib/shop';
 import { shop } from '@/lib/store';
-import type { Lang } from '@/lib/types';
-
-/* ---------- i18n ---------- */
-const I18n = createContext<Translator>(translator('ru'));
-export const useI18n = () => useContext(I18n);
 
 /* ---------- UI: overlays, modal, toasts ---------- */
 export type OverlayName = 'mega' | 'search' | 'cart' | 'fav' | 'filters';
@@ -51,8 +45,7 @@ export async function copyText(text: string) {
   ta.remove();
 }
 
-export function Providers({ lang, children }: { lang: Lang; children: ReactNode }) {
-  const tr = useMemo(() => translator(lang), [lang]);
+export function Providers({ children }: { children: ReactNode }) {
   const [overlay, setOverlay] = useState<OverlayName | null>(null);
   const [modal, setModal] = useState<{ node: ReactNode; opts: ModalOpts; key: number } | null>(null);
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -87,39 +80,36 @@ export function Providers({ lang, children }: { lang: Lang; children: ReactNode 
       shop.add(id, v, q);
       setBump((b) => ({ ...b, cart: b.cart + 1 }));
       const va = p.variants?.[v];
-      toast({ title: tr.t('cart.added'), text: titleOf(p) + (va ? ` · ${va.name}` : ''), art: { kind: 'product', id, variant: va?.color, amount: va?.price ? va.name : undefined }, action: { label: tr.t('cart.open'), fn: () => setOverlay('cart') } });
+      toast({ title: 'Добавлено в корзину', text: titleOf(p) + (va ? ` · ${va.name}` : ''), art: { kind: 'product', id, variant: va?.color, amount: va?.price ? va.name : undefined }, action: { label: 'Корзина', fn: () => setOverlay('cart') } });
     },
     toggleFav: (id) => {
       const p = getProduct(id);
       if (!p) return;
       const on = shop.toggleFav(id);
       setBump((b) => ({ ...b, fav: b.fav + 1 }));
-      toast({ title: on ? tr.t('fav.added') : tr.t('fav.removed'), text: titleOf(p), icon: 'heart', action: on ? { label: tr.t('nav.fav'), fn: () => setOverlay('fav') } : undefined });
+      toast({ title: on ? 'Добавлено в избранное' : 'Удалено из избранного', text: titleOf(p), icon: 'heart', action: on ? { label: 'Избранное', fn: () => setOverlay('fav') } : undefined });
     },
     copyPromo: (code) => {
       copyText(code);
       shop.setPromo(code);
-      toast({ title: tr.t('common.copied', { code }), text: tr.t('common.copiedText'), icon: 'copy' });
+      toast({ title: `Промокод ${code} скопирован`, text: 'Мы уже применили его к корзине', icon: 'copy' });
     },
-    soon: () => toast({ title: tr.t('common.demo'), text: tr.t('common.soon'), icon: 'sparkle' }),
+    soon: () => toast({ title: 'Демо-версия магазина', text: 'Раздел появится в полной версии сайта', icon: 'sparkle' }),
     bump
-  }), [overlay, toast, tr, bump]);
+  }), [overlay, toast, bump]);
 
   return (
-    <I18n.Provider value={tr}>
-      <UI.Provider value={value}>
-        {children}
-        <ModalHost modal={modal} onClose={() => setModal(null)} />
-        <Toasts toasts={toasts} onAction={(t) => { t.action?.fn(); dismiss(t.id); }} />
-      </UI.Provider>
-    </I18n.Provider>
+    <UI.Provider value={value}>
+      {children}
+      <ModalHost modal={modal} onClose={() => setModal(null)} />
+      <Toasts toasts={toasts} onAction={(t) => { t.action?.fn(); dismiss(t.id); }} />
+    </UI.Provider>
   );
 }
 
 /* ---------- modal host ---------- */
 function ModalHost({ modal, onClose }: { modal: { node: ReactNode; opts: ModalOpts; key: number } | null; onClose: () => void }) {
   const mounted = useMounted();
-  const tr = useI18n();
   const ref = useRef<HTMLDivElement>(null);
   const [shown, setShown] = useState<typeof modal>(null);
   const [visible, setVisible] = useState(false);
@@ -138,7 +128,7 @@ function ModalHost({ modal, onClose }: { modal: { node: ReactNode; opts: ModalOp
     <div ref={ref} className={`modal${o.wide ? ' modal--wide' : ''}${o.cls ? ' ' + o.cls : ''}${visible && modal ? ' is-open' : ''}`} aria-hidden={!modal}>
       <div className="modal__backdrop" onClick={onClose} />
       <div className="modal__dialog" role="dialog" aria-modal="true" aria-label={o.label}>
-        <button className="modal__close" type="button" onClick={onClose} aria-label={tr.t('common.close')}><Icon name="close" /></button>
+        <button className="modal__close" type="button" onClick={onClose} aria-label="Закрыть"><Icon name="close" /></button>
         <div className="modal__body" key={shown.key}>{shown.node}</div>
       </div>
     </div>,
