@@ -43,7 +43,7 @@ export function Journal() {
     <section className="section" id="journal">
       <div className="container reveal">
         <div className="section__head"><h2 className="section__title">Журнал <em>Korea Secret</em></h2></div>
-        <a className="journal-hero" href="#journal" onClick={open(first)}>
+        <a className="journal-hero" href="#journal" onClick={open(first)} data-surface="dark">
           <Art className="journal-hero__art" as="div" spec={{ kind: 'journal', theme: first.theme }} />
           <div className="journal-hero__content"><div className="journal-hero__tag">{first.tag}</div><h3 className="journal-hero__title">{first.title}</h3></div>
           <div className="journal-hero__hline" /><div className="journal-hero__vline" />

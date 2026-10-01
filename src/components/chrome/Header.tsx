@@ -1,11 +1,12 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Butterfly, Mark } from '../Brand';
 import { Icon } from '../Icon';
 import { useUI } from '../providers';
-import { useLiquidGlass } from './liquidGlass';
+import GlassSurface, { GLASS } from '../ui/GlassSurface';
+import { useBackdropTone } from '../ui/useBackdropTone';
 import { AccountModal, CityModal, GiftCardModal } from './modals';
 import { CONFIG, PROMO_BAR } from '@/lib/data';
 import { useShop } from '@/lib/store';
@@ -63,7 +64,10 @@ export function Header() {
   const cartCount = useShop((s) => s.cart.reduce((n, it) => n + it.q, 0));
   const favCount = useShop((s) => s.fav.length);
   const city = useShop((s) => s.city) || CONFIG.cities[0];
-  useLiquidGlass(ref);
+  const megaOpen = ui.overlay === 'mega';
+  const searchOpen = ui.overlay === 'search';
+  // the ink follows whatever is behind the glass; an open menu or search slides a white panel under it
+  const backdrop = useBackdropTone(ref, megaOpen || searchOpen ? 'light' : undefined);
 
   // morph into the compact bar as soon as the page starts scrolling
   useEffect(() => {
@@ -75,32 +79,30 @@ export function Header() {
     return () => { window.removeEventListener('scroll', on); cancelAnimationFrame(raf); };
   }, []);
 
-  // the specular highlight follows the pointer across the glass
-  const onPointerMove = (e: React.PointerEvent<HTMLElement>) => {
-    if (e.pointerType !== 'mouse') return;
-    const r = e.currentTarget.getBoundingClientRect();
-    e.currentTarget.style.setProperty('--mx', `${Math.round(e.clientX - r.left)}px`);
-    e.currentTarget.style.setProperty('--my', `${Math.round(e.clientY - r.top)}px`);
-  };
-
-  const megaOpen = ui.overlay === 'mega';
-  const searchOpen = ui.overlay === 'search';
-  const solid = !isHome || megaOpen || searchOpen;
   const badge = (n: number, bumps: number) => <span key={bumps} className={`header__badge${n > 0 ? ' is-visible' : ''}${bumps > 0 && n > 0 ? ' is-bump' : ''}`}>{n > 99 ? '99+' : n || ''}</span>;
+  const search = (cls: string) => (
+    <button className={`header__action ${cls}${searchOpen ? ' is-active' : ''}`} type="button" aria-label={searchOpen ? 'Закрыть поиск' : 'Поиск'} aria-expanded={searchOpen} aria-controls="search" onClick={() => ui.toggle('search')}>
+      <Icon name="search" className="i-search" /><Icon name="close" className="i-close" />
+    </button>
+  );
 
   return (
     <div className={`header-wrap${isHome ? ' header-wrap--overlay' : ''}`}>
-      <header
+      <GlassSurface
+        {...GLASS}
+        as="header"
         ref={ref}
         id="siteHeader"
-        className={`header${isHome ? ' header--overlay' : ''}${solid ? ' is-solid' : ''}${compact ? ' is-compact' : ''}`}
-        onPointerMove={onPointerMove}
-        style={{ '--mx': '50%', '--my': '0px' } as CSSProperties}
+        className={`header${compact ? ' is-compact' : ''}`}
+        width="auto"
+        height="auto"
+        tone={backdrop}
+        data-backdrop={backdrop}
       >
-        <span className="header__shine" aria-hidden="true" />
         <div className="header__top">
           <div className="header__left">
             <button className="header__burger" type="button" aria-label="Меню" aria-expanded={megaOpen} onClick={() => ui.toggle('mega')}><Icon name={megaOpen ? 'close' : 'menu'} /></button>
+            {search('header__action--search header__action--mobile')}
             <button className="header__geo" type="button" onClick={() => ui.openModal(<CityModal />, { label: 'Ваш город' })}><Icon name="pin" /><span>{city}</span></button>
             <div className="header__catalog-wrap">
               <button className="header__catalog" type="button" aria-expanded={megaOpen} aria-controls="mega" onClick={() => ui.toggle('mega')}>
@@ -115,9 +117,7 @@ export function Header() {
             </Link>
           </div>
           <div className="header__right">
-            <button className={`header__action header__action--search${searchOpen ? ' is-active' : ''}`} type="button" aria-label={searchOpen ? 'Закрыть поиск' : 'Поиск'} aria-expanded={searchOpen} aria-controls="search" onClick={() => ui.toggle('search')}>
-              <Icon name="search" className="i-search" /><Icon name="close" className="i-close" />
-            </button>
+            {search('header__action--search header__action--desktop')}
             <button className="header__action header__action--fav" type="button" aria-label="Избранное" onClick={() => ui.open('fav')}><Icon name="heart" />{badge(favCount, ui.bump.fav)}</button>
             <button className="header__action" type="button" aria-label="Корзина" onClick={() => ui.open('cart')}><Icon name="bag" />{badge(cartCount, ui.bump.cart)}</button>
             <button className="header__action header__action--account" type="button" aria-label="Профиль" onClick={() => ui.openModal(<AccountModal />, { label: 'Вход или регистрация' })}><Icon name="user" /></button>
@@ -132,7 +132,7 @@ export function Header() {
             </nav>
           </div>
         </div>
-      </header>
+      </GlassSurface>
     </div>
   );
 }

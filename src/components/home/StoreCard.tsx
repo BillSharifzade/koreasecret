@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { Icon } from '../Icon';
+import GlassSurface, { GLASS } from '../ui/GlassSurface';
 import { BASE_PATH } from '@/lib/site';
 import type { Store } from '@/lib/types';
 
@@ -22,7 +23,7 @@ export function StoreCard({ s }: { s: Store }) {
         </div>
         {s.note && <span className="store-card__note">{s.note}</span>}
         <button className="store-card__toggle" type="button" aria-pressed={map} onClick={() => setMap((m) => !m)}>
-          <Icon name={map ? 'close' : 'map'} />{map ? 'Фото' : 'На карте'}
+          <GlassSurface {...GLASS} as="span" width="auto" height={36} tone="dark"><Icon name={map ? 'close' : 'map'} />{map ? 'Фото' : 'На карте'}</GlassSurface>
         </button>
       </div>
       <div className="store-card__city">{s.city}<span>{s.area}</span></div>

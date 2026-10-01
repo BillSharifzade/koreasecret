@@ -5,6 +5,7 @@ import { Art } from '../Art';
 import { Butterfly } from '../Brand';
 import { Icon } from '../Icon';
 import { useUI } from '../providers';
+import GlassSurface, { GLASS } from '../ui/GlassSurface';
 import { heroTone } from '@/lib/color';
 import { CONFIG, HERO_SLIDES } from '@/lib/data';
 
@@ -16,7 +17,15 @@ export function Hero() {
   const n = HERO_SLIDES.length;
   const tones = useMemo(() => HERO_SLIDES.map(heroTone), []);
   const [i, setI] = useState(0);
-  const go = useCallback((k: number) => setI(((k % n) + n) % n), [n]);
+  const [prev, setPrev] = useState(-1); // the banner on its way out: its copy clears before the next one rises
+  const cur = useRef(0);
+  const go = useCallback((k: number) => {
+    const next = ((k % n) + n) % n;
+    if (next === cur.current) return;
+    setPrev(cur.current);
+    cur.current = next;
+    setI(next);
+  }, [n]);
 
   const heroRef = useRef<HTMLElement>(null);
   const fills = useRef<(HTMLSpanElement | null)[]>([]);
@@ -104,6 +113,7 @@ export function Hero() {
       ref={heroRef}
       className={`hero${fine ? ' has-cursor' : ''}`}
       data-tone={tones[i]}
+      data-surface={tones[i]}
       aria-roledescription="carousel"
       aria-label="Акции и новости"
       onPointerMove={onMove}
@@ -123,7 +133,7 @@ export function Hero() {
     >
       <div className="hero__slides">
         {HERO_SLIDES.map((s, k) => (
-          <div key={s.id} className={`hero__slide${k === i ? ' is-active' : ''}`} data-tone={tones[k]} role="group" aria-roledescription="slide" aria-label={`${k + 1} из ${n}`} aria-hidden={k !== i}>
+          <div key={s.id} className={`hero__slide${k === i ? ' is-active' : k === prev ? ' is-leaving' : ''}`} data-tone={tones[k]} role="group" aria-roledescription="slide" aria-label={`${k + 1} из ${n}`} aria-hidden={k !== i}>
             <div className="hero__bg" style={{ background: s.bg }} />
             <div className="hero__grain" />
             <div className="hero__hline" />
@@ -144,15 +154,15 @@ export function Hero() {
           </div>
         ))}
       </div>
-      <div className="hero__dots" role="tablist" aria-label="Слайды">
+      <GlassSurface {...GLASS} className="hero__dots" width="auto" height="auto" tone={tones[i]} role="tablist" aria-label="Слайды">
         {HERO_SLIDES.map((s, k) => (
           <button key={s.id} className={`hero__dot${k === i ? ' is-active' : ''}`} type="button" role="tab" aria-selected={k === i} aria-label={`Слайд ${k + 1}`} onClick={() => go(k)}>
             <span className="hero__dot-track"><span className="hero__dot-fill" ref={(el) => { fills.current[k] = el; }} /></span>
           </button>
         ))}
-      </div>
+      </GlassSurface>
       <div ref={cursor} className="hero__cursor" aria-hidden="true">
-        <div className="hero__cursor-glass"><Icon name="arrow-right" /></div>
+        <GlassSurface {...GLASS} className="hero__cursor-glass" width={92} height={92} tone={tones[i]}><Icon name="arrow-right" /></GlassSurface>
       </div>
     </section>
   );

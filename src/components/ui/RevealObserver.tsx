@@ -12,7 +12,8 @@ export function RevealObserver() {
     }
     const io = new IntersectionObserver(
       (entries) => entries.forEach((en) => { if (en.isIntersecting) { en.target.classList.add('is-in'); io.unobserve(en.target); } }),
-      { rootMargin: '0px 0px -8% 0px', threshold: 0.06 }
+      // start just before an element scrolls in, so it settles as it arrives instead of popping in on screen
+      { rootMargin: '0px 0px 12% 0px', threshold: 0 }
     );
     let raf = 0;
     const scan = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => document.querySelectorAll('.reveal:not(.is-in)').forEach((el) => io.observe(el))); };

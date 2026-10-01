@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { CSSProperties } from 'react';
 import { Art } from '../Art';
 import { Icon } from '../Icon';
+import GlassSurface, { GLASS } from '../ui/GlassSurface';
 import { ProductCard } from '../ui/ProductCard';
 import { Slider, SliderArrows, SliderScope } from '../ui/Slider';
 import { SectionHead, Stars } from '../ui/bits';
@@ -56,7 +57,7 @@ export function Promos() {
         <div className="bleed reveal">
           <Slider kind="loop" className="promos" autoplay={5200} label="Акции">
             {PROMOS.map((p) => (
-              <Link key={p.id} className={`promo-card${p.dark ? ' is-dark' : ''}`} href={p.link} draggable={false}>
+              <Link key={p.id} className={`promo-card${p.dark ? ' is-dark' : ''}`} href={p.link} draggable={false} data-surface={p.dark ? 'light' : 'dark'}>
                 <Art className="promo-card__bg" as="div" spec={{ kind: 'promo', id: p.id }} />
                 <div className="promo-card__content"><div className="promo-card__title">{p.title}</div><div className="promo-card__date">{p.date}</div></div>
                 <div className="promo-card__hline" /><div className="promo-card__vline" /><div className="promo-card__vline promo-card__vline--sm" />
@@ -195,7 +196,7 @@ export function Collections() {
               <Link key={c.id} className="collection-card" href={c.href} draggable={false}>
                 <Art className="collection-card__art" as="div" spec={{ kind: 'collection', id: c.id }} />
                 <h3 className="collection-card__title">{c.title}</h3>
-                <span className="collection-card__count">{items(PRODUCTS.filter(c.filter).length)}<Icon name="arrow-right" /></span>
+                <GlassSurface {...GLASS} as="span" className="collection-card__count" width="auto" height={50} tone="light">{items(PRODUCTS.filter(c.filter).length)}<Icon name="arrow-right" /></GlassSurface>
               </Link>
             ))}
           </Slider>
@@ -229,7 +230,7 @@ export function GiftCards() {
   return (
     <section className="section" id="giftcards">
       <div className="container reveal">
-        <div className="giftcards">
+        <div className="giftcards" data-surface="dark">
           <div className="giftcards__info">
             <h2 className="giftcards__title">Подарочные <br />карты</h2>
             <p className="giftcards__text">Идеальный подарок для близких. В физическом или электронном формате, на любой номинал.</p>

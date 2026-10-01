@@ -456,15 +456,15 @@ export const PROMOS: Promo[] = [
   { id: 'p6', theme: 'blue', dark: true, title: 'Неделя увлажнения Torriden и Laneige', date: '14–21 октября', link: '/catalog?concern=hydration' }
 ];
 
-/* Illustrated, fictional bloggers — swap in real partners and their picks. */
+/* Fictional bloggers, shown as silhouettes — swap in real partners, their photos and their picks. */
 export const BLOGGERS: Blogger[] = [
-  { id: 'madina', name: 'Мадина', nameGen: 'Мадины', about: 'уход за сухой кожей и плотный «сочный» тон', look: { skin: '#f1c7a5', hair: '#2b1a14', style: 'long', outfit: '#dd4487', bg: ['#fde3ee', '#f6b4cf'], accent: '#ffffff' },
+  { id: 'madina', name: 'Мадина', nameGen: 'Мадины', about: 'уход за сухой кожей и плотный «сочный» тон', look: { style: 'long', outfit: '#dd4487', bg: ['#fde3ee', '#f6b4cf'], accent: '#ffffff' },
     products: ['torriden-dive-in-serum', 'cosrx-snail-essence', 'laneige-water-bank', 'roundlab-dokdo-toner', 'cosrx-snail-cream', 'laneige-lip-mask', 'pyunkang-essence-toner', 'illiyoon-ceramide', 'heimish-clean-balm'] },
-  { id: 'nigina', name: 'Нигина', nameGen: 'Нигины', about: 'glass skin, сияние и PDRN-новинки', look: { skin: '#e9b48e', hair: '#4a2a1c', style: 'bun', outfit: '#6b2156', bg: ['#efe3ff', '#c9a7f0'], accent: '#f6c8da' },
+  { id: 'nigina', name: 'Нигина', nameGen: 'Нигины', about: 'glass skin, сияние и PDRN-новинки', look: { style: 'bun', outfit: '#6b2156', bg: ['#efe3ff', '#c9a7f0'], accent: '#f6c8da' },
     products: ['medicube-pdrn-serum', 'boj-glow-serum', 'mixsoon-bean-essence', 'numbuzin-no3', 'missha-fte', 'imfrom-rice-toner', 'klairs-vitamin-drop', 'goodal-vita-c', 'medicube-collagen-mask'] },
-  { id: 'farangis', name: 'Фарангис', nameGen: 'Фарангис', about: 'чувствительная кожа и SPF под палящее солнце', look: { skin: '#d9a07a', hair: '#1e1310', style: 'wavy', outfit: '#3d6b45', bg: ['#e4f3e8', '#a8d9c3'], accent: '#fff4dc' },
+  { id: 'farangis', name: 'Фарангис', nameGen: 'Фарангис', about: 'чувствительная кожа и SPF под палящее солнце', look: { style: 'wavy', outfit: '#3d6b45', bg: ['#e4f3e8', '#a8d9c3'], accent: '#fff4dc' },
     products: ['anua-heartleaf-toner', 'skin1004-centella-ampoule', 'boj-relief-sun', 'isntree-sun-gel', 'etude-soonjung-cream', 'abib-heartleaf-mask', 'drjart-cicapair', 'skin1004-sun-serum', 'holika-aloe'] },
-  { id: 'zarina', name: 'Зарина', nameGen: 'Зарины', about: 'стойкий макияж, тинты и кушоны', look: { skin: '#f3cdb0', hair: '#6b3b22', style: 'bob', outfit: '#1f1a2e', bg: ['#ffe6dc', '#f99185'], accent: '#e0735d' },
+  { id: 'zarina', name: 'Зарина', nameGen: 'Зарины', about: 'стойкий макияж, тинты и кушоны', look: { style: 'bob', outfit: '#1f1a2e', bg: ['#ffe6dc', '#f99185'], accent: '#e0735d' },
     products: ['romand-juicy-tint', 'tirtir-red-cushion', 'peripera-ink-mood', 'clio-kill-cover', 'banila-clean-it-zero', 'anua-cleansing-oil', 'manyo-cleansing-oil', 'medicube-zero-pad'] }
 ];
 

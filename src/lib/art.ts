@@ -500,59 +500,33 @@ function collectionRaw(id: string) {
   return svgWrap(W, H, defs, el, 'xMaxYMid slice');
 }
 
-/* Illustrated, fictional bloggers: flat editorial portraits built from the blogger's palette. */
-const HAIR: Record<Blogger['look']['style'], { back: string; front: string; extra?: string }> = {
-  long: {
-    back: 'M168 240 C158 150 214 116 262 116 C318 116 364 156 352 248 C348 330 372 420 400 500 C352 522 318 472 312 424 L208 424 C200 472 168 522 120 500 C148 420 172 330 168 240 Z',
-    front: 'M180 238 C184 168 230 138 270 140 C308 142 338 168 342 216 C322 186 292 172 262 176 C236 198 210 224 180 238 Z'
-  },
-  bun: {
-    back: 'M176 248 C168 168 214 128 262 128 C312 128 354 168 344 248 C336 214 312 186 262 184 C212 186 186 214 176 248 Z',
-    front: 'M182 232 C190 178 226 150 262 150 C300 150 332 176 340 230 C318 196 292 182 262 184 C232 184 204 198 182 232 Z',
-    extra: '<circle cx="262" cy="104" r="44"/><path d="M226 120 C240 134 284 134 298 120" fill="none" stroke-opacity=".2" stroke="#000" stroke-width="3"/>'
-  },
-  wavy: {
-    back: 'M160 250 C140 170 200 106 264 108 C334 110 388 170 366 252 C386 300 360 340 382 382 C398 422 370 462 340 474 C344 432 322 412 318 384 L204 384 C200 412 178 432 182 474 C150 462 124 422 140 382 C160 340 136 300 160 250 Z',
-    front: 'M186 244 C186 176 226 140 262 142 C258 172 236 214 186 244 Z M338 244 C338 176 298 140 262 142 C266 172 288 214 338 244 Z'
-  },
-  bob: {
-    back: 'M168 254 C158 168 214 122 262 122 C312 122 366 168 354 254 C352 300 360 332 368 354 C332 364 312 344 306 322 L218 322 C212 344 192 364 154 354 C162 332 170 300 168 254 Z',
-    front: 'M182 224 C188 168 228 138 262 138 C300 138 336 168 340 224 C300 206 222 206 182 224 Z'
-  }
+/* Bloggers are drawn as silhouettes in their own palette: no real person's face is attached to placeholder picks. */
+const HAIR: Record<Blogger['look']['style'], { back: string; extra?: string }> = {
+  long: { back: 'M168 240 C158 150 214 116 262 116 C318 116 364 156 352 248 C348 330 372 420 400 500 C352 522 318 472 312 424 L208 424 C200 472 168 522 120 500 C148 420 172 330 168 240 Z' },
+  bun: { back: 'M176 248 C168 168 214 128 262 128 C312 128 354 168 344 248 C336 214 312 186 262 184 C212 186 186 214 176 248 Z', extra: '<circle cx="262" cy="104" r="44"/>' },
+  wavy: { back: 'M160 250 C140 170 200 106 264 108 C334 110 388 170 366 252 C386 300 360 340 382 382 C398 422 370 462 340 474 C344 432 322 412 318 384 L204 384 C200 412 178 432 182 474 C150 462 124 422 140 382 C160 340 136 300 160 250 Z' },
+  bob: { back: 'M168 254 C158 168 214 122 262 122 C312 122 366 168 354 254 C352 300 360 332 368 354 C332 364 312 344 306 322 L218 322 C212 344 192 364 154 354 C162 332 170 300 168 254 Z' }
 };
 
 function bloggerRaw(id: string) {
   const b = BLOGGERS.find((x) => x.id === id) || BLOGGERS[0];
-  const { skin, hair, style, outfit, bg: [b1, b2], accent } = b.look;
+  const { style, outfit, bg: [b1, b2], accent } = b.look;
   const W = 520, H = 640;
-  const gb = uid(), gf = uid(), gh = uid(), go = uid(), gs = uid(), gc = uid();
+  const gb = uid(), gs = uid(), gg = uid();
+  const ink = mix(dark(outfit, 0.45), '#24121f', 0.45);
   const defs = `<linearGradient id="${gb}" x1="0" y1="0" x2=".7" y2="1"><stop offset="0" stop-color="${b1}"/><stop offset="1" stop-color="${b2}"/></linearGradient>` +
-    rGrad(gf, [[0, light(skin, 0.28)], [0.6, skin], [1, dark(skin, 0.1)]], '.38', '.3', '.85') +
-    `<linearGradient id="${gh}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${light(hair, 0.18)}"/><stop offset=".5" stop-color="${hair}"/><stop offset="1" stop-color="${dark(hair, 0.25)}"/></linearGradient>` +
-    `<linearGradient id="${go}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${light(outfit, 0.18)}"/><stop offset="1" stop-color="${dark(outfit, 0.2)}"/></linearGradient>` +
-    rGrad(gs, [[0, '#fff', 0.85], [1, '#fff', 0]]) + rGrad(gc, [[0, '#f27d98', 0.5], [1, '#f27d98', 0]]);
+    `<linearGradient id="${gs}" gradientUnits="userSpaceOnUse" x1="0" y1="90" x2="0" y2="${H}"><stop offset="0" stop-color="${mix(ink, b2, 0.3)}"/><stop offset=".55" stop-color="${ink}"/><stop offset="1" stop-color="${dark(ink, 0.25)}"/></linearGradient>` +
+    rGrad(gg, [[0, '#fff', 0.9], [1, '#fff', 0]]);
   const hs = HAIR[style];
-  const shade = dark(skin, 0.16);
-  let el = `<rect width="${W}" height="${H}" fill="url(#${gb})"/><circle cx="262" cy="236" r="200" fill="url(#${gs})" opacity=".75"/>`;
-  el += `<circle cx="420" cy="120" r="64" fill="${accent}" opacity=".28"/><circle cx="96" cy="430" r="38" fill="#fff" opacity=".22"/>`;
-  el += `<g fill="url(#${gh})">${hs.extra || ''}<path d="${hs.back}"/></g>`;
-  // neck, shoulders and neckline
-  el += `<path d="M232 322 L232 424 Q260 440 288 424 L288 322 Z" fill="${skin}"/><path d="M232 334 Q260 370 288 334 L288 356 Q260 390 232 356 Z" fill="${shade}" opacity=".45"/>`;
-  el += `<path d="M58 ${H} C62 540 110 474 190 452 C214 446 230 432 236 418 L284 418 C290 432 306 446 330 452 C410 474 458 540 462 ${H} Z" fill="url(#${go})"/>`;
-  el += `<path d="M236 418 L260 488 L284 418 Z" fill="${skin}"/><path d="M236 418 L260 488 L284 418" fill="none" stroke="${dark(outfit, 0.3)}" stroke-opacity=".35" stroke-width="3"/>`;
-  el += `<path d="M150 470 C176 500 186 560 182 ${H}" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width="6" stroke-linecap="round"/>`;
-  // ears, face, features
-  el += `<ellipse cx="181" cy="262" rx="13" ry="21" fill="${skin}"/><ellipse cx="339" cy="262" rx="13" ry="21" fill="${skin}"/>`;
-  el += `<path d="M260 150 C313 150 341 192 341 246 C341 302 312 348 260 354 C208 348 179 302 179 246 C179 192 207 150 260 150 Z" fill="url(#${gf})"/>`;
-  el += `<circle cx="214" cy="290" r="26" fill="url(#${gc})"/><circle cx="306" cy="290" r="26" fill="url(#${gc})"/>`;
-  el += `<g fill="none" stroke-linecap="round"><path d="M206 214 Q226 201 247 209" stroke="${hair}" stroke-width="5"/><path d="M273 209 Q294 201 314 214" stroke="${hair}" stroke-width="5"/>`;
-  el += `<path d="M211 246 Q229 259 247 246" stroke="#3a2230" stroke-width="4"/><path d="M273 246 Q291 259 309 246" stroke="#3a2230" stroke-width="4"/><path d="M213 248 L207 253 M219 252 L215 258 M301 252 L305 258 M307 248 L313 253" stroke="#3a2230" stroke-width="2.5"/>`;
-  el += `<path d="M262 260 Q270 284 256 291" stroke="${shade}" stroke-width="3" opacity=".7"/></g>`;
-  el += `<path d="M236 314 Q248 304 260 309 Q272 304 284 314 Q260 336 236 314 Z" fill="#d6496d"/><path d="M244 314 Q260 322 276 314" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="2" stroke-linecap="round"/>`;
-  el += `<g fill="url(#${gh})"><path d="${hs.front}"/></g>`;
-  el += `<circle cx="181" cy="292" r="9" fill="none" stroke="${accent === '#ffffff' ? '#e8c27a' : accent}" stroke-width="3.5"/><circle cx="339" cy="292" r="9" fill="none" stroke="${accent === '#ffffff' ? '#e8c27a' : accent}" stroke-width="3.5"/>`;
-  // her pick, presented in front of the portrait
-  el += nest(b.products[0], 300, 370, 250) + bfly(84, 70, 0.3, '#fff', 0.9, -14) + sparkle(452, 250, 1.4) + sparkle(110, 300, 1);
+  let el = `<rect width="${W}" height="${H}" fill="url(#${gb})"/><circle cx="262" cy="250" r="210" fill="url(#${gg})" opacity=".8"/>`;
+  el += `<circle cx="262" cy="250" r="176" fill="none" stroke="${accent === '#ffffff' ? '#fff' : accent}" stroke-opacity=".45" stroke-width="1.5"/>`;
+  // one shape: hair, head, neck and shoulders
+  el += `<g fill="url(#${gs})">${hs.extra || ''}<path d="${hs.back}"/>` +
+    `<ellipse cx="181" cy="262" rx="13" ry="21"/><ellipse cx="339" cy="262" rx="13" ry="21"/>` +
+    `<path d="M260 150 C313 150 341 192 341 246 C341 302 312 348 260 354 C208 348 179 302 179 246 C179 192 207 150 260 150 Z"/>` +
+    `<path d="M233 318 L287 318 Q289 394 326 448 L194 448 Q231 394 233 318 Z"/>` +
+    `<path d="M58 ${H} C62 540 110 474 190 452 C214 446 230 432 236 418 L284 418 C290 432 306 446 330 452 C410 474 458 540 462 ${H} Z"/></g>`;
+  el += bfly(398, 92, 0.3, '#fff', 0.9, 14) + sparkle(112, 150, 1.3) + sparkle(430, 300, 0.9);
   return svgWrap(W, H, defs, el);
 }
 

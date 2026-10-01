@@ -7,25 +7,29 @@ import { Icon } from '../Icon';
 import { useMounted } from '../layer';
 import { useUI } from '../providers';
 import { AccountModal } from './modals';
+import GlassSurface, { GLASS } from '../ui/GlassSurface';
+import { useBackdropTone } from '../ui/useBackdropTone';
 import { CONFIG } from '@/lib/data';
 import { shop, useShop } from '@/lib/store';
 
 export function TabBar() {
   const ui = useUI();
   const pathname = usePathname();
+  const ref = useRef<HTMLElement>(null);
+  const backdrop = useBackdropTone(ref);
   const cartCount = useShop((s) => s.cart.reduce((n, it) => n + it.q, 0));
   const favCount = useShop((s) => s.fav.length);
   const home = pathname === '/';
   const catalog = pathname.startsWith('/catalog');
   const badge = (n: number) => <span className={`header__badge${n > 0 ? ' is-visible' : ''}`}>{n || ''}</span>;
   return (
-    <nav className="tabbar" aria-label="Меню">
+    <GlassSurface {...GLASS} as="nav" ref={ref} className="tabbar" width="auto" height={66} tone={backdrop} data-backdrop={backdrop} aria-label="Меню">
       <Link className={`tabbar__item${home ? ' is-active' : ''}`} href="/"><Icon name="home" /><span>Главная</span></Link>
       <button className={`tabbar__item${catalog || ui.overlay === 'mega' ? ' is-active' : ''}`} type="button" onClick={() => ui.toggle('mega')}><Icon name="grid" /><span>Каталог</span></button>
       <button className="tabbar__item" type="button" onClick={() => ui.open('fav')}><Icon name="heart" /><span>Избранное</span>{badge(favCount)}</button>
       <button className="tabbar__item" type="button" onClick={() => ui.open('cart')}><Icon name="bag" /><span>Корзина</span>{badge(cartCount)}</button>
       <button className="tabbar__item" type="button" onClick={() => ui.openModal(<AccountModal />, { label: 'Вход или регистрация' })}><Icon name="user" /><span>Профиль</span></button>
-    </nav>
+    </GlassSurface>
   );
 }
 

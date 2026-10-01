@@ -78,7 +78,7 @@ export interface Article { id: string; theme: 'routine' | 'pdrn' | 'spf' | 'oil'
 export interface Store { id: string; city: string; addr: string; area: string; note?: string; hours: string; lat: number; lon: number; photo: string }
 export interface Collection { id: string; title: string; /** background palette, see art.ts THEMES */ theme: string; /** products drawn on the card */ art: string[]; href: string; filter: (p: Product) => boolean }
 export type HairStyle = 'long' | 'bun' | 'wavy' | 'bob';
-export interface BloggerLook { skin: string; hair: string; style: HairStyle; outfit: string; bg: [string, string]; accent: string }
+export interface BloggerLook { style: HairStyle; outfit: string; bg: [string, string]; accent: string }
 export interface Blogger { id: string; name: string; /** genitive, for «Фавориты в уходе …» */ nameGen: string; about: string; look: BloggerLook; products: string[] }
 
 export interface CartItem { id: string; v: number; q: number }

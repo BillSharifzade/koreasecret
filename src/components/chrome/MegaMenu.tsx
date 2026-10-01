@@ -149,7 +149,7 @@ export function MegaMenu() {
             </div>
             <div className="mega__content">
               <button className="mega__back" type="button" onClick={() => setSub(false)}><Icon name="chev-left" /><span>Назад</span></button>
-              {content}
+              <div className="mega__pane" key={key}>{content}</div>
             </div>
           </div>
         </div>

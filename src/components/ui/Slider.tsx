@@ -3,7 +3,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
 import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures';
 import type { EmblaCarouselType, EmblaOptionsType, EmblaPluginType } from 'embla-carousel';
-import { Children, createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { Children, createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Icon } from '../Icon';
 
 /*
@@ -88,7 +88,6 @@ export function Slider({ children, kind = 'row', className = '', autoplay, wheel
     watchDrag: (_api, evt) => !(evt.target as Element | null)?.closest?.('.slider--nested') || nested === true
   }), [kind, nested]);
   const [ref, api] = useEmblaCarousel(opts, plugins);
-  const [snapped, setSnapped] = useState(0);
 
   // publish to the nearest scope so arrows outside the viewport can drive this slider
   const setApi = scope?.setApi;
@@ -98,21 +97,43 @@ export function Slider({ children, kind = 'row', className = '', autoplay, wheel
     return () => setApi(undefined);
   }, [api, setApi]);
 
-  // centred sliders highlight the slide in the middle
-  const onSelect = useCallback((a: EmblaCarouselType) => setSnapped(a.selectedScrollSnap()), []);
+  // centred sliders: each panel's fade and scale follow its live distance from the centre (--t, 1 = centred),
+  // so the neighbours dim continuously with the movement instead of switching when a slide is selected
   useEffect(() => {
     if (!api || kind === 'row') return;
-    onSelect(api);
-    api.on('select', onSelect).on('reInit', onSelect);
-    return () => { api.off('select', onSelect).off('reInit', onSelect); };
-  }, [api, kind, onSelect]);
+    const tween = (a: EmblaCarouselType, evt?: string) => {
+      const engine = a.internalEngine();
+      const progress = a.scrollProgress();
+      const inView = a.slidesInView();
+      const nodes = a.slideNodes();
+      const factor = 0.5 * a.scrollSnapList().length;
+      a.scrollSnapList().forEach((snap, snapIndex) => {
+        engine.slideRegistry[snapIndex].forEach((slide) => {
+          if (evt === 'scroll' && !inView.includes(slide)) return;
+          let diff = snap - progress;
+          if (engine.options.loop) {
+            engine.slideLooper.loopPoints.forEach((lp) => {
+              const target = lp.target();
+              if (slide === lp.index && target !== 0) diff = Math.sign(target) === -1 ? snap - (1 + progress) : snap + (1 - progress);
+            });
+          }
+          nodes[slide].style.setProperty('--t', String(Math.max(0, Math.min(1, 1 - Math.abs(diff * factor))).toFixed(3)));
+        });
+      });
+    };
+    const onScroll = (a: EmblaCarouselType) => tween(a, 'scroll');
+    const onAll = (a: EmblaCarouselType) => tween(a);
+    tween(api);
+    api.on('scroll', onScroll).on('reInit', onAll).on('slideFocus', onAll);
+    return () => { api.off('scroll', onScroll).off('reInit', onAll).off('slideFocus', onAll); };
+  }, [api, kind]);
 
   return (
     <div className={`slider slider--${kind}${nested ? ' slider--nested' : ''}${className ? ' ' + className : ''}`} aria-roledescription="carousel" aria-label={label}>
       <div className="slider__viewport" ref={ref}>
         <div className="slider__container">
           {Children.map(children, (child, i) => (
-            <div className={`slider__slide${kind !== 'row' && i === snapped ? ' is-snapped' : ''}`} role="group" aria-roledescription="slide">{child}</div>
+            <div className="slider__slide" role="group" aria-roledescription="slide">{child}</div>
           ))}
         </div>
       </div>
