@@ -73,10 +73,15 @@ export function Promos() {
 
 function BloggerPanel({ b }: { b: Blogger }) {
   return (
-    <article className="blogger" style={{ '--tint': b.look.bg[0] } as CSSProperties}>
-      <div className="blogger__portrait">
-        <Art className="blogger__art" as="div" spec={{ kind: 'blogger', id: b.id }} />
-        <div className="blogger__id"><b>{b.name}</b><span>{b.about}</span></div>
+    <article className="blogger" style={{ '--tint': b.tint } as CSSProperties}>
+      <div className="blogger__profile">
+        <svg className="blogger__avatar" viewBox="0 0 150 150" aria-hidden="true">
+          <circle cx="75" cy="75" r="75" fill="#dbdbdb" />
+          <circle cx="75" cy="58" r="27" fill="#fff" />
+          <path d="M75 94c-26 0-47 12-56 32a75 75 0 0 0 112 0c-9-20-30-32-56-32Z" fill="#fff" />
+        </svg>
+        <b className="blogger__name">{b.name}</b>
+        <span className="blogger__about">{b.about}</span>
       </div>
       <div className="blogger__main">
         <SliderScope>

@@ -90,7 +90,6 @@ export function Header() {
     <div className={`header-wrap${isHome ? ' header-wrap--overlay' : ''}`}>
       <GlassSurface
         {...GLASS}
-        refract
         as="header"
         ref={ref}
         id="siteHeader"

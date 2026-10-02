@@ -4,10 +4,10 @@
  * MIT + Commons Clause (see GlassSurface.LICENSE.md).
  *
  * Ported to TypeScript and slimmed down for speed. Two tiers share one look (frost, rims, soft shadow):
- *  - refract: the real lens. A single feDisplacementMap bends the backdrop along the edges (the original runs three
- *    for an RGB split, plus colour matrices, blends and a blur — roughly five times the work every frame). Used only
- *    where it is worth it (`refract`) and only on Chromium desktops with a fine pointer and a capable CPU/GPU.
- *  - frosted: plain backdrop blur + saturation. Everything else, and the fallback on Safari, Firefox and phones.
+ *  - frosted (default): plain backdrop blur + saturation — what the whole site uses, desktop and phone.
+ *  - refract (opt-in): the real lens. A single feDisplacementMap bends the backdrop along the edges (the original
+ *    runs three for an RGB split, plus colour matrices, blends and a blur — roughly five times the work every frame),
+ *    only on Chromium desktops with a fine pointer and a capable CPU/GPU; frosted everywhere else.
  * Local additions: `as` (span/nav/header roots, e.g. inside buttons and links), `tone` (the original's light-dark()
  * pair, chosen by what is behind the glass — see GlassSurface.css), HTML props, ref, and a debounced map redraw.
  */

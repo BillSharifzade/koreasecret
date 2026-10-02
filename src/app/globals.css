@@ -819,13 +819,10 @@ mark { background: var(--brand-100); color: var(--brand-700); border-radius: 4px
   display: grid; grid-template-columns: 40% minmax(0, 1fr); height: 620px; border-radius: var(--r-2xl); overflow: hidden;
   background: linear-gradient(120deg, color-mix(in oklab, var(--tint, #f6ecef) 40%, #fff) 0%, color-mix(in oklab, var(--tint, #efe1e8) 70%, #fff) 100%);
 }
-.blogger__portrait { position: relative; overflow: hidden; }
-.blogger__art { position: absolute; inset: 0; }
-.blogger__art svg { width: 100%; height: 100%; }
-.blogger__portrait::after { content: ""; position: absolute; inset: 58% 0 0; background: linear-gradient(180deg, rgba(40, 10, 30, 0), rgba(40, 10, 30, .5)); pointer-events: none; }
-.blogger__id { position: absolute; left: 30px; right: 30px; bottom: 28px; z-index: 1; display: grid; gap: 4px; color: #fff; text-shadow: 0 4px 18px rgba(40, 10, 30, .3); }
-.blogger__id b { font-family: var(--serif); font-size: 40px; font-weight: 500; letter-spacing: -.02em; line-height: 1; }
-.blogger__id span { font-size: 15px; opacity: .92; max-width: 300px; }
+.blogger__profile { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 40px 32px; text-align: center; }
+.blogger__avatar { width: 168px; height: 168px; margin-bottom: 18px; border-radius: 50%; box-shadow: 0 0 0 6px rgba(255, 255, 255, .7); }
+.blogger__name { font-family: var(--serif); font-size: 40px; font-weight: 500; letter-spacing: -.02em; line-height: 1.05; }
+.blogger__about { max-width: 280px; font-size: 15px; line-height: 1.4; color: var(--ink-2); }
 .blogger__main { display: flex; flex-direction: column; min-width: 0; border-left: 1px solid rgba(22, 18, 21, .08); }
 .blogger__head { display: flex; align-items: center; gap: 16px; padding: 36px 38px 28px; }
 .blogger__title { font-family: var(--serif); font-size: clamp(26px, 2.5vw, 38px); font-weight: 500; letter-spacing: -.02em; line-height: 1.05; }
@@ -1389,7 +1386,7 @@ mark { background: var(--brand-100); color: var(--brand-700); border-radius: 4px
   .promo-card__content { max-width: 70%; left: 28px; top: 28px; }
   .bloggers { --slide-w: 88vw; --slide-gap: 14px; }
   .blogger { grid-template-columns: 1fr; height: auto; }
-  .blogger__portrait { height: 360px; }
+  .blogger__profile { padding: 34px 24px 28px; }
   .blogger__main { border-left: 0; border-top: 1px solid rgba(22, 18, 21, .08); }
   .blogger__head { padding: 24px 24px 20px; }
   .blogger__products { padding: 0 24px 24px; --per: 2.2; }
@@ -1490,8 +1487,8 @@ mark { background: var(--brand-100); color: var(--brand-700); border-radius: 4px
   .promo-card__content { max-width: none; right: 24px; }
   .promo-card__vline { display: none; }
   .blogger { border-radius: 30px; }
-  .blogger__portrait { height: 300px; }
-  .blogger__id b { font-size: 32px; }
+  .blogger__avatar { width: 128px; height: 128px; margin-bottom: 14px; }
+  .blogger__name { font-size: 32px; }
   .blogger__products { --per: 1.6; padding: 0 18px 20px; }
   .blogger__head { padding: 20px 18px 16px; }
   .blogger__nav { display: none; }

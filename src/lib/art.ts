@@ -1,7 +1,7 @@
 /* Korea Secret — procedural artwork (packshots, icons, scenes) as SVG strings.
    Every call runs inside an id scope so gradient ids are unique per component (see components/Art.tsx). */
-import { BLOGGERS, BRANDS, COLLECTIONS, INGREDIENTS, PRODUCTS, STORIES } from './data';
-import type { ArtSpec, Blogger, Glyph, IngredientKey, Product, Story } from './types';
+import { BRANDS, COLLECTIONS, INGREDIENTS, PRODUCTS, STORIES } from './data';
+import type { ArtSpec, Glyph, IngredientKey, Product, Story } from './types';
 
 /* Brand marks traced from the KS logo */
 export const MARK_D = 'M75 1.5C73.1 2.3 63.2 5.9 53 9.5C23.5 20.1 1.5 28.2 1.1 28.5C0.9 28.7 1.1 30.5 1.4 32.5C1.8 34.7 2.7 36 3.6 36C4.8 36 25.9 29.5 31.8 27.3C32.8 26.9 33 62.9 32.8 206.6L32.5 386.5 16.3 386.8L0 387.1 0 391L0 395 58 395L116 395 116 391L116 387 99.5 387C87.2 387 82.8 386.7 82.5 385.8C82.2 385.1 82.1 354.8 82.2 318.6L82.5 252.7 97 270.6C114 291.6 127.7 308.4 164.9 354.5C180 373.2 193.5 389.9 194.9 391.7L197.5 394.9 228.3 394.9L259.1 395 252.9 387.3C249.4 383 241.7 373.6 235.8 366.4C229.9 359.1 225 353 225 352.6C225 352.3 227.7 354.1 231 356.6C234.3 359.1 241.1 363.1 246.2 365.5C254.9 369.6 281.2 378.8 294.5 382.5C303.7 385.1 317.7 390.7 326 395.2C348.6 407.5 357.7 420.8 355 437.6C351.3 460.4 331.5 471.9 296 472.1C281.2 472.1 272.3 471 263.9 468.1C240.2 460 227.6 442.6 226.2 416.2C225.7 406.6 225.6 405.9 223.4 405.4C222.1 405.1 220.6 405.1 220 405.5C218.9 406.2 218.6 461.7 219.7 464.5C220 465.4 221.5 466 223.1 466C225.5 466 226 465.6 226 463.6L226 461.1 234.3 465C251.6 473.1 267 476.8 286.1 477.7C321.5 479.2 349.4 470 367.6 450.7C374.8 443.2 380.1 433.9 381.9 425.9C383.4 419.4 383.2 404.3 381.5 397.8C379.2 388.7 375 381 368.5 374.2C356.2 360.9 337.2 351.3 306 342.5C263.8 330.7 255.9 327.4 245 317.3C240 312.7 237.1 309 234.8 304.2C231.8 298.1 231.5 296.8 231.5 288C231.5 279.5 231.8 278 234.2 273.9C240.3 263.6 251.6 256.1 267.5 251.9C278.3 249.1 301.3 248.8 311 251.4C338.4 258.8 354 278 355.9 306.5L356.5 316.5 359.5 316.5L362.5 316.5 362.8 286.3L363 256 359.5 256C356.4 256 356 256.3 356 258.5C356 261.8 355 261.7 348.1 257.6C340.8 253.4 331.1 249.5 320.7 246.7C313.5 244.8 310.1 244.5 292 244.6C274.4 244.7 270.4 245 263.8 246.8C241 253 225.8 262.9 214.8 278.4C204.6 293 202.2 314.6 209.1 330.8C210.1 333.1 210.8 335 210.6 335C210.3 335 203.9 327.4 183.5 302.5C181.7 300.3 171.1 287.3 159.9 273.7C126.9 233.4 116 219.9 116 219C116 218.5 117.3 217.1 118.9 215.8C124.6 211.2 222 116.9 222 115.9C222 115.4 219.6 115 216.6 115C211.6 115 210.9 115.3 206.7 119.3C202.6 123.1 176.5 148.3 145 178.5C138.1 185.2 127.1 195.7 120.5 202C113.9 208.3 102.6 219.1 95.5 226L82.5 238.5 82.2 119.3C82 6.5 81.9 0 80.2 0.1C79.3 0.1 76.9 0.7 75 1.5M357.9 115.9C317.8 146.2 312.6 199.8 346.2 236.4C349.5 240 352.5 243 353 243C353.4 243 352.5 239.1 351 234.3C347.8 224.2 346 213.1 346 202.6C346 195.9 348.4 178.9 349.9 174.8C350.2 173.9 350.5 181.5 350.5 191.8C350.5 212.8 351.7 219.1 358.8 236.4C362.1 244.4 363 245.7 366.1 247.2C372.6 250.3 385.6 252.3 394.9 251.7C405 251.1 403.7 252.4 392.5 254.2C385 255.4 373 254.5 367.6 252.4C364 251 367 254.1 373.3 258.1C382.6 264.1 391 266.3 402.8 265.8C418.9 265 429 259.6 439.9 246C442.7 242.4 445 239 445 238.3C445 237.4 443.4 237 440.3 237C432.8 237 423.7 234.4 414.9 229.8L406.7 225.5 395.1 225.5L383.4 225.6 386.7 220.1C392.3 210.8 394 205 394 195C394 179.6 390.9 170.2 381.8 157.7C378.9 153.7 375.1 147.5 373.3 143.9C369.5 136.2 366 122.7 366 115.8C366 113.1 365.6 111 365.1 111C364.7 111 361.4 113.2 357.9 115.9M293.2 146.4C289.5 149.8 289.5 149.9 289.7 157.2C290.2 175.9 299.4 201.2 311.6 217.6C319.9 228.7 334.1 241.9 344.5 248C349.4 250.8 348.5 249.9 339.8 243.1C317 225.4 301.8 199.7 296.6 170.3L296.1 167 300.6 167C306.6 167 310.6 164.5 312.5 159.7C315.8 151.6 310.1 143 301.4 143C297.7 143 296.3 143.6 293.2 146.4';
@@ -500,36 +500,6 @@ function collectionRaw(id: string) {
   return svgWrap(W, H, defs, el, 'xMaxYMid slice');
 }
 
-/* Bloggers are drawn as silhouettes in their own palette: no real person's face is attached to placeholder picks. */
-const HAIR: Record<Blogger['look']['style'], { back: string; extra?: string }> = {
-  long: { back: 'M168 240 C158 150 214 116 262 116 C318 116 364 156 352 248 C348 330 372 420 400 500 C352 522 318 472 312 424 L208 424 C200 472 168 522 120 500 C148 420 172 330 168 240 Z' },
-  bun: { back: 'M176 248 C168 168 214 128 262 128 C312 128 354 168 344 248 C336 214 312 186 262 184 C212 186 186 214 176 248 Z', extra: '<circle cx="262" cy="104" r="44"/>' },
-  wavy: { back: 'M160 250 C140 170 200 106 264 108 C334 110 388 170 366 252 C386 300 360 340 382 382 C398 422 370 462 340 474 C344 432 322 412 318 384 L204 384 C200 412 178 432 182 474 C150 462 124 422 140 382 C160 340 136 300 160 250 Z' },
-  bob: { back: 'M168 254 C158 168 214 122 262 122 C312 122 366 168 354 254 C352 300 360 332 368 354 C332 364 312 344 306 322 L218 322 C212 344 192 364 154 354 C162 332 170 300 168 254 Z' }
-};
-
-function bloggerRaw(id: string) {
-  const b = BLOGGERS.find((x) => x.id === id) || BLOGGERS[0];
-  const { style, outfit, bg: [b1, b2], accent } = b.look;
-  const W = 520, H = 640;
-  const gb = uid(), gs = uid(), gg = uid();
-  const ink = mix(dark(outfit, 0.45), '#24121f', 0.45);
-  const defs = `<linearGradient id="${gb}" x1="0" y1="0" x2=".7" y2="1"><stop offset="0" stop-color="${b1}"/><stop offset="1" stop-color="${b2}"/></linearGradient>` +
-    `<linearGradient id="${gs}" gradientUnits="userSpaceOnUse" x1="0" y1="90" x2="0" y2="${H}"><stop offset="0" stop-color="${mix(ink, b2, 0.3)}"/><stop offset=".55" stop-color="${ink}"/><stop offset="1" stop-color="${dark(ink, 0.25)}"/></linearGradient>` +
-    rGrad(gg, [[0, '#fff', 0.9], [1, '#fff', 0]]);
-  const hs = HAIR[style];
-  let el = `<rect width="${W}" height="${H}" fill="url(#${gb})"/><circle cx="262" cy="250" r="210" fill="url(#${gg})" opacity=".8"/>`;
-  el += `<circle cx="262" cy="250" r="176" fill="none" stroke="${accent === '#ffffff' ? '#fff' : accent}" stroke-opacity=".45" stroke-width="1.5"/>`;
-  // one shape: hair, head, neck and shoulders
-  el += `<g fill="url(#${gs})">${hs.extra || ''}<path d="${hs.back}"/>` +
-    `<ellipse cx="181" cy="262" rx="13" ry="21"/><ellipse cx="339" cy="262" rx="13" ry="21"/>` +
-    `<path d="M260 150 C313 150 341 192 341 246 C341 302 312 348 260 354 C208 348 179 302 179 246 C179 192 207 150 260 150 Z"/>` +
-    `<path d="M233 318 L287 318 Q289 394 326 448 L194 448 Q231 394 233 318 Z"/>` +
-    `<path d="M58 ${H} C62 540 110 474 190 452 C214 446 230 432 236 418 L284 418 C290 432 306 446 330 452 C410 474 458 540 462 ${H} Z"/></g>`;
-  el += bfly(398, 92, 0.3, '#fff', 0.9, 14) + sparkle(112, 150, 1.3) + sparkle(430, 300, 0.9);
-  return svgWrap(W, H, defs, el);
-}
-
 function spotlightRaw() {
   const W = 720, H = 420;
   const g = uid(), sg = uid();
@@ -618,7 +588,6 @@ export type ArtSpecInput =
   | { kind: 'story'; index: number; frame: number }
   | { kind: 'journal'; theme: string; w?: number; h?: number }
   | { kind: 'collection'; id: string }
-  | { kind: 'blogger'; id: string }
   | { kind: 'spotlight' } | { kind: 'strip' } | { kind: 'giftcards' } | { kind: 'seo' }
   | { kind: 'giftcardPreview'; amount: string }
   | { kind: 'ingredient'; key: IngredientKey }
@@ -637,7 +606,6 @@ export function renderArt(spec: ArtSpecInput, prefix: string): string {
       case 'story': return STORIES[spec.index] ? storyRaw(STORIES[spec.index], spec.frame) : '';
       case 'journal': return journalRaw(spec.theme, spec.w, spec.h);
       case 'collection': return collectionRaw(spec.id);
-      case 'blogger': return bloggerRaw(spec.id);
       case 'spotlight': return spotlightRaw();
       case 'strip': return stripRaw();
       case 'giftcards': return giftcardsRaw();
