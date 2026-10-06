@@ -26,13 +26,22 @@ Everything the site shows lives in **one JSON document, `content/site.json`**: p
 4. The push triggers `.github/workflows/deploy.yml`; the panel follows the GitHub Actions run step by step until the site is live (1–2 minutes).
 5. **Публикация** lists every published version — compare any of them with the draft or load it back (rollback), and download or restore JSON backups.
 
-**One-time setup**
+**Signing in: login and password**
 
-- Repository → Settings → Pages → Source: **GitHub Actions** (the workflow already exists).
-- Create a [fine-grained token](https://github.com/settings/personal-access-tokens/new): *Only select repositories* → this repository; permissions **Contents: Read and write** and **Actions: Read-only**. Paste it on the panel's sign-in page (`https://<user>.github.io/<repo>/admin/`). It is stored only in that browser (or only for the tab, if «Запомнить» is off).
-- Without a token the panel opens in **demo mode**: everything works, changes stay in the browser and can be downloaded as JSON and committed by hand.
+The panel has one admin account (login + password). There is no server, so the password is checked in the browser: `src/admin/vault.json` holds an RSA private key encrypted with a key derived from the login and password (PBKDF2-SHA256, 600 000 rounds) — the password itself is not stored anywhere. Publishing needs a GitHub token; the deploy workflow encrypts it with the vault's public key into `admin-token.json`, so only the right login and password can unlock it.
 
-The workflow passes `NEXT_PUBLIC_GITHUB_REPO` / `NEXT_PUBLIC_GITHUB_BRANCH` to the build, so the panel knows where to publish; the sign-in page lets you change both.
+One-time setup:
+
+1. Repository → Settings → Pages → Source: **GitHub Actions** (the workflow already exists).
+2. Create a [fine-grained token](https://github.com/settings/personal-access-tokens/new): *Only select repositories* → this repository; permissions **Contents: Read and write** and **Actions: Read-only**.
+3. Repository → Settings → Secrets and variables → Actions → **New repository secret**: name `ADMIN_GITHUB_TOKEN`, value — the token. Push (or re-run the workflow) so the next build seals it.
+4. Open `https://<user>.github.io/<repo>/admin/` and sign in with the admin login and password.
+
+Without the secret the same login opens the panel in **demo mode** (changes stay in the browser and can be downloaded as JSON). «Другие способы входа» also allows signing in with a token directly.
+
+Change the login or password: `ADMIN_LOGIN=… ADMIN_PASSWORD=… bun scripts/admin-credentials.ts`, commit `src/admin/vault.json`, push. Because the encrypted vault is public, use a long, random password — anyone can try to guess it offline, and it guards a token with write access to the repository. When a token expires, just update the secret.
+
+The workflow passes `NEXT_PUBLIC_GITHUB_REPO` / `NEXT_PUBLIC_GITHUB_BRANCH` to the build, so the panel knows where to publish.
 
 **What the panel covers**
 

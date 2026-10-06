@@ -45,6 +45,8 @@ jobs:
           # the admin panel (/admin) publishes content back to this repository and branch
           NEXT_PUBLIC_GITHUB_REPO: ${{ github.repository }}
           NEXT_PUBLIC_GITHUB_BRANCH: ${{ github.ref_name }}
+          # the token the admin publishes with: shipped only encrypted, unlocked by the admin login + password
+          ADMIN_GITHUB_TOKEN: ${{ secrets.ADMIN_GITHUB_TOKEN }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
