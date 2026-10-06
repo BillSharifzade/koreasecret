@@ -9,7 +9,8 @@ import { useUI } from '../providers';
 import { AccountModal } from './modals';
 import GlassSurface, { GLASS } from '../ui/GlassSurface';
 import { useBackdropTone } from '../ui/useBackdropTone';
-import { CONFIG } from '@/lib/data';
+import { CONFIG, TEXTS } from '@/lib/data';
+import { href as linkHref } from '@/lib/asset';
 import { shop, useShop } from '@/lib/store';
 
 export function TabBar() {
@@ -28,7 +29,7 @@ export function TabBar() {
       <button className={`tabbar__item${catalog || ui.overlay === 'mega' ? ' is-active' : ''}`} type="button" onClick={() => ui.toggle('mega')}><Icon name="grid" /><span>Каталог</span></button>
       <button className="tabbar__item" type="button" onClick={() => ui.open('fav')}><Icon name="heart" /><span>Избранное</span>{badge(favCount)}</button>
       <button className="tabbar__item" type="button" onClick={() => ui.open('cart')}><Icon name="bag" /><span>Корзина</span>{badge(cartCount)}</button>
-      <button className="tabbar__item" type="button" onClick={() => ui.openModal(<AccountModal />, { label: 'Вход или регистрация' })}><Icon name="user" /><span>Профиль</span></button>
+      <button className="tabbar__item" type="button" onClick={() => ui.openModal(<AccountModal />, { label: TEXTS.account.title })}><Icon name="user" /><span>Профиль</span></button>
     </GlassSurface>
   );
 }
@@ -41,7 +42,7 @@ export function CookieBanner() {
   return (
     <div className="cookie" role="region" aria-label="Cookie" style={leaving ? { opacity: 0, transform: 'translate(-50%, 16px)', transition: 'opacity .3s, transform .3s' } : undefined}>
       <Butterfly className="cookie__icon" />
-      <p dangerouslySetInnerHTML={{ __html: 'Мы используем cookie, чтобы сайт работал удобнее. Продолжая пользоваться сайтом, вы соглашаетесь с <a href="#">правилами cookie</a>.' }} />
+      <p>{TEXTS.cookie.text} {TEXTS.cookie.linkLabel && <a href={linkHref(TEXTS.cookie.href)}>{TEXTS.cookie.linkLabel}</a>}{TEXTS.cookie.linkLabel ? '.' : ''}</p>
       <button className="btn btn--gray" type="button" onClick={() => { setLeaving(true); window.setTimeout(() => shop.acceptCookies(), 300); }}>Хорошо</button>
     </div>
   );
@@ -61,20 +62,24 @@ export function ChatWidget() {
   }, [open]);
   return (
     <div ref={ref}>
-      <div className={`chat-panel${open ? ' is-open' : ''}`} role="dialog" aria-label="Консультант Korea Secret" aria-hidden={!open}>
+      <div className={`chat-panel${open ? ' is-open' : ''}`} role="dialog" aria-label={TEXTS.chat.title} aria-hidden={!open}>
         <div className="chat-panel__head">
           <div className="chat-panel__avatar"><Butterfly /></div>
-          <div><div className="chat-panel__name">Консультант Korea Secret</div><div className="chat-panel__status">Онлайн · отвечаем за 2 минуты</div></div>
+          <div><div className="chat-panel__name">{TEXTS.chat.title}</div><div className="chat-panel__status">{TEXTS.chat.status}</div></div>
         </div>
         <div className="chat-panel__body">
-          <div className="chat-panel__bubble">Здравствуйте! Поможем подобрать уход под ваш тип кожи. Где вам удобнее общаться?</div>
-          <a className="chat-panel__link" href="#" onClick={(e) => { e.preventDefault(); ui.soon(); }}><Icon name="telegram" />Telegram</a>
-          <a className="chat-panel__link" href="#" onClick={(e) => { e.preventDefault(); ui.soon(); }}><Icon name="whatsapp" />WhatsApp</a>
+          <div className="chat-panel__bubble">{TEXTS.chat.greeting}</div>
+          {([['telegram', 'Telegram'], ['whatsapp', 'WhatsApp']] as const).map(([k, label]) => {
+            const url = CONFIG.socials[k];
+            return url
+              ? <a key={k} className="chat-panel__link" href={linkHref(url)} target="_blank" rel="noopener noreferrer"><Icon name={k} />{label}</a>
+              : <a key={k} className="chat-panel__link" href="#" onClick={(e) => { e.preventDefault(); ui.soon(); }}><Icon name={k} />{label}</a>;
+          })}
           <a className="chat-panel__link" href={CONFIG.phoneHref}><Icon name="phone" />Позвонить · {CONFIG.phone}</a>
         </div>
       </div>
-      <button className="chat-fab" type="button" aria-label="Напишите нам, мы онлайн!" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
-        <Icon name="chat" /><span>Напишите нам, мы онлайн!</span><span className="chat-fab__dot" />
+      <button className="chat-fab" type="button" aria-label={TEXTS.chat.fab} aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+        <Icon name="chat" /><span>{TEXTS.chat.fab}</span><span className="chat-fab__dot" />
       </button>
     </div>
   );

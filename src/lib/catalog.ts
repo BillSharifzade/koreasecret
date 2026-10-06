@@ -126,8 +126,9 @@ export function context(st: CatalogState): { title: string; crumbs: Crumb[] } {
   else if (st.edit) { const b = bloggerOf(st.edit)!; title = `Фавориты в уходе ${b.nameGen}`; crumbs.push({ label: 'Выбор блогеров' }, { label: b.name }); }
   else if (st.type.length === 1) {
     const ty = TYPES[st.type[0]];
-    const c2 = CATS.find((c) => c.id === ty.cat)!;
-    crumbs.push({ label: c2.name, href: `/catalog?cat=${c2.id}` }, { label: ty.many });
+    const c2 = CATS.find((c) => c.id === ty.cat);
+    if (c2) crumbs.push({ label: c2.name, href: `/catalog?cat=${c2.id}` });
+    crumbs.push({ label: ty.many });
     title = ty.many;
   } else if (cat) { title = cat.name; crumbs.push({ label: title }); }
   else if (st.brand.length === 1) { title = brandOf(st.brand[0]).name; crumbs.push({ label: 'Бренды' }, { label: title }); }
@@ -136,3 +137,14 @@ export function context(st: CatalogState): { title: string; crumbs: Crumb[] } {
 }
 
 export const emptyState = (): CatalogState => parseState({});
+
+/** Catalogue state from a query string ('offer=new&cat=face', with or without the leading '?'). */
+export const fromQuery = (q: string) => parseState(Object.fromEntries(new URLSearchParams(q.replace(/^[^?]*\?/, '').replace(/^\?/, ''))));
+/** Products a catalogue query finds, in the given order (the query's own sort otherwise). */
+export function queryResults(query: string, sort?: Sort) {
+  const st = fromQuery(query);
+  if (sort) st.sort = sort;
+  return results(st);
+}
+/** The query part of a /catalog?… link ('' for other links). */
+export const linkQuery = (link: string) => (link.startsWith('/catalog') && link.includes('?') ? link.slice(link.indexOf('?') + 1) : '');

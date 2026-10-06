@@ -1603,3 +1603,36 @@ body.is-locked .chat-fab, body.is-locked .chat-panel { opacity: 0; pointer-event
 .nf h1 { font-family: var(--serif); font-weight: 500; font-size: clamp(28px, 4vw, 42px); letter-spacing: -.02em; }
 .nf p { color: var(--ink-2); font-size: 17px; }
 .nf__actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
+
+/* ---------- Content-driven additions (admin panel) ---------- */
+.cat-tile__icon img { width: 86%; height: 86%; object-fit: contain; }
+.brand-tile__logo { max-width: 70%; max-height: 56px; object-fit: contain; }
+.hero__art > .hero__photo { position: absolute; inset: 0; }
+.store-card.no-map:not(.is-map):hover .store-card__map { opacity: 0; visibility: hidden; }
+.article__body ul { display: grid; gap: 6px; padding-left: 20px; margin-bottom: 14px; list-style: disc; color: var(--ink-2); }
+.article__body a, .seo__text a { color: var(--brand); text-decoration: underline; text-underline-offset: 3px; }
+.seo__text ul { padding-left: 20px; list-style: disc; }
+
+/* preview of an unpublished draft (opened from the admin) */
+.preview-bar {
+  position: fixed; left: 16px; bottom: 16px; z-index: 140;
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 8px 8px 16px; border-radius: 999px;
+  background: rgba(22, 18, 21, .92); color: #fff; box-shadow: var(--shadow-lg);
+  font-size: 14px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  animation: toastIn .5s var(--ease-out) both;
+}
+.preview-bar__dot { width: 9px; height: 9px; border-radius: 50%; background: var(--brand-300); box-shadow: 0 0 0 4px rgba(241, 168, 201, .25); animation: pulse 2s infinite; }
+.preview-bar.is-loading .preview-bar__dot { background: #f5c46b; }
+.preview-bar__text { display: grid; line-height: 1.2; font-weight: 600; }
+.preview-bar__text small { font-weight: 400; font-size: 12px; opacity: .7; }
+.preview-bar__btn { height: 34px; padding: 0 14px; border-radius: 999px; background: rgba(255, 255, 255, .12); color: #fff; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; transition: background-color .2s; }
+.preview-bar__btn:hover { background: rgba(255, 255, 255, .22); }
+.preview-bar__btn--x { background: var(--brand); }
+.preview-bar__btn--x:hover { background: var(--brand-600); }
+@media (max-width: 1023px) { .preview-bar { bottom: calc(96px + env(safe-area-inset-bottom)); left: 12px; right: 12px; } .preview-bar__text small { display: none; } }
+
+/* the storefront embedded in the admin as a live preview */
+.ks-frame .cookie, .ks-frame .chat-fab, .ks-frame .chat-panel, .ks-frame .preview-bar { display: none !important; }
+.ks-frame .ks-focus { outline: 3px solid var(--brand); outline-offset: -3px; }
+.ks-frame main > section, .ks-frame main > [data-ks-id] { cursor: pointer; }

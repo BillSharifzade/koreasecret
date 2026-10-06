@@ -1,16 +1,27 @@
-import { BRANDS, CONCERNS, CONFIG, INGREDIENTS, PRODUCTS, REVIEW_POOL, TYPES } from './data';
+import { BRANDS, CONCERNS, CONFIG, INGREDIENTS, onContent, PRODUCTS, REVIEW_POOL, TYPES } from './data';
 import { count, fmt } from './format';
 import type { Brand, CartItem, CatId, Product, Review } from './types';
 
-const byId = new Map(PRODUCTS.map((p) => [p.id, p]));
-const order = new Map(PRODUCTS.map((p, i) => [p.id, i]));
+/* lookup maps, rebuilt whenever the content is swapped (admin draft, storefront preview) */
+let byId = new Map<string, Product>();
+let order = new Map<string, number>();
+const index = new Map<string, string>();
+function rebuild() {
+  byId = new Map(PRODUCTS.map((p) => [p.id, p]));
+  order = new Map(PRODUCTS.map((p, i) => [p.id, i]));
+  index.clear();
+}
+rebuild();
+onContent(rebuild);
 
 export const getProduct = (id: string | null | undefined): Product | undefined => (id ? byId.get(id) : undefined);
 export const productOrder = (id: string) => order.get(id) ?? 0;
 export const brandOf = (id: string): Brand => BRANDS.find((b) => b.id === id) || { id, name: id, style: 'caps' };
 export const titleOf = (p: Product) => `${brandOf(p.brand).name} ${p.name}`;
-export const typeLabel = (p: Product) => TYPES[p.type].name;
-export const catOf = (p: Product): CatId => TYPES[p.type].cat;
+export const typeLabel = (p: Product) => TYPES[p.type]?.name ?? p.type;
+export const catOf = (p: Product): CatId => TYPES[p.type]?.cat ?? '';
+/** the gift card product (opened by the «Подарочные карты» links) */
+export const giftCard = () => PRODUCTS.find((p) => p.type === 'giftcard');
 export const discountOf = (p: Product) => (p.old ? Math.round((1 - p.price / p.old) * 100) : 0);
 export const priceOf = (p: Product, v = 0) => p.variants?.[v]?.price ?? p.price;
 export const oldOf = (p: Product, v = 0) => (p.variants?.[v]?.price ? 0 : p.old ?? 0);
@@ -39,21 +50,13 @@ export function cartTotals(cart: CartItem[], promoCode: string): Totals {
 }
 
 /* ---------- search ---------- */
-const SYN: Partial<Record<Product['type'], string>> = {
-  sunscreen: 'санскрин spf солнце загар sun sunscreen санскрины солнцезащита', toner: 'тоник тонер toner', essence: 'эссенция essence', serum: 'сыворотка serum',
-  ampoule: 'ампула ampoule сыворотка serum', eye: 'глаза веки eye', cream: 'крем cream увлажнение moisturiser moisturizer', cleansing_oil: 'гидрофильное масло oil очищение cleansing',
-  cleansing_balm: 'бальзам balm очищение cleansing', cleanser: 'пенка гель умывание foam cleanser очищение', pads: 'пэды pads диски', sheet_mask: 'маска тканевая mask sheet',
-  sleeping_mask: 'маска ночная mask', lip_mask: 'губы lip маска', cushion: 'кушон тон cushion foundation', lip_tint: 'тинт губы помада tint lip', body_cream: 'тело body крем',
-  body_gel: 'гель алоэ aloe gel тело', shampoo: 'шампунь волосы hair shampoo', hair_mask: 'волосы hair маска', set: 'набор подарок set gift', giftcard: 'подарочная карта сертификат gift card'
-};
 const norm = (s: string) => s.toLowerCase().replace(/ё/g, 'е');
-const index = new Map<string, string>();
 const indexOf = (p: Product) => {
   let s = index.get(p.id);
   if (!s) {
     const ty = TYPES[p.type];
-    s = norm([brandOf(p.brand).name, p.name, ty.name, ty.many, SYN[p.type] || '',
-      ...p.ingr.map((k) => INGREDIENTS[k].name), ...p.concerns.map((k) => CONCERNS[k]), p.desc].join(' '));
+    s = norm([brandOf(p.brand).name, p.name, ty?.name, ty?.many, ty?.synonyms,
+      ...p.ingr.map((k) => INGREDIENTS[k]?.name), ...p.concerns.map((k) => CONCERNS[k]), p.desc].join(' '));
     index.set(p.id, s);
   }
   return s;
@@ -87,8 +90,16 @@ export function ratingDist(p: Product) {
   return [five, four, three, two, Math.max(0, 100 - five - four - three - two)];
 }
 
+/* ---------- product page carousels ---------- */
+export function relatedFor(p: Product) {
+  return PRODUCTS.filter((x) => x.id !== p.id && x.type !== p.type && x.type !== 'giftcard' && (catOf(x) === catOf(p) || x.type === 'sunscreen')).sort((a, b) => score(b) - score(a)).slice(0, 10).map((x) => x.id);
+}
+export function similarFor(p: Product) {
+  return PRODUCTS.filter((x) => x.id !== p.id && catOf(x) === catOf(p)).sort((a, b) => Number(b.type === p.type) - Number(a.type === p.type) || score(b) - score(a)).slice(0, 10).map((x) => x.id);
+}
+
 /* ---------- misc ---------- */
-export const sku = (p: Product) => 'KS-' + String([...p.id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 900000, 7) + 100000);
+export const sku = (p: Product) => p.sku || 'KS-' + String([...p.id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 900000, 7) + 100000);
 export const stockLevel = (n: number) => (n > 30 ? 'many' : n > 10 ? 'some' : n > 0 ? 'few' : 'none') as 'many' | 'some' | 'few' | 'none';
 export const firstSentence = (s: string) => { const m = s.match(/^.+?[.!?](\s|$)/); return m ? m[0].trim() : s; };
 export const stripTags = (s: string) => s.replace(/<[^>]+>/g, '');

@@ -5,6 +5,7 @@ import { Art } from '../Art';
 import { Icon } from '../Icon';
 import { useUI } from '../providers';
 import { GiftCardModal } from '../chrome/modals';
+import { TEXTS } from '@/lib/data';
 import { count } from '@/lib/format';
 import { discountOf, getProduct, priceOf, price, productPath, titleOf, typeLabel, variantsLabel } from '@/lib/shop';
 import { shop, useShop } from '@/lib/store';
@@ -17,7 +18,7 @@ export function BuyControl({ id, v = 0 }: { id: string; v?: number }) {
   const name = titleOf(p);
   if (p.stock <= 0) return <span className="price-pill is-oos">Нет в наличии</span>;
   if (p.type === 'giftcard') {
-    return <button className="price-pill price-pill--from" type="button" onClick={() => ui.openModal(<GiftCardModal />, { label: 'Подарочная карта' })}>от {price(p.price)}</button>;
+    return <button className="price-pill price-pill--from" type="button" onClick={() => ui.openModal(<GiftCardModal />, { label: TEXTS.giftcard.title })}>от {price(p.price)}</button>;
   }
   if (q > 0) {
     return (

@@ -3,8 +3,9 @@ import { useState, type FormEvent } from 'react';
 import { Art } from '../Art';
 import { Butterfly } from '../Brand';
 import { useUI } from '../providers';
-import { CONFIG } from '@/lib/data';
-import { cartTotals, getProduct, maskPhone, phoneComplete, priceOf, price, titleOf } from '@/lib/shop';
+import { CONFIG, TEXTS } from '@/lib/data';
+import { recordOrder } from '@/lib/orders';
+import { brandOf, cartTotals, getProduct, giftCard, maskPhone, oldOf, phoneComplete, priceOf, price, titleOf } from '@/lib/shop';
 import { shop, useShop } from '@/lib/store';
 
 
@@ -42,8 +43,8 @@ export function AccountModal() {
   };
   return (
     <>
-      <h2 className="modal__title">Вход или регистрация</h2>
-      <p className="modal__text">Введите номер телефона — мы отправим код подтверждения. Бонусы за покупки, история заказов и персональные подборки ждут вас.</p>
+      <h2 className="modal__title">{TEXTS.account.title}</h2>
+      <p className="modal__text">{TEXTS.account.text}</p>
       <form className="modal__stack" onSubmit={submit} noValidate>
         <label className="field"><span className="field__label">Номер телефона</span><PhoneInput name="phone" /></label>
         <button className="btn btn--primary btn--block" type="submit">Получить код</button>
@@ -55,15 +56,17 @@ export function AccountModal() {
 
 export function GiftCardModal() {
   const ui = useUI();
-  const p = getProduct('ks-giftcard')!;
-  const [v, setV] = useState(1);
+  const p = giftCard();
+  const variants = p?.variants?.length ? p.variants : p ? [{ name: price(p.price), price: p.price }] : [];
+  const [v, setV] = useState(Math.min(1, variants.length - 1));
+  if (!p) return <><h2 className="modal__title">{TEXTS.giftcard.title}</h2><p className="modal__text">Подарочные карты скоро появятся.</p></>;
   return (
     <>
-      <h2 className="modal__title">Подарочная карта</h2>
-      <p className="modal__text">Выберите номинал — карту можно вручить в конверте или отправить по e-mail.</p>
-      <Art className="giftcard-preview" as="div" spec={{ kind: 'giftcardPreview', amount: p.variants![v].name }} />
-      <div className="denoms" role="radiogroup" aria-label="Подарочная карта">
-        {p.variants!.map((x, i) => (
+      <h2 className="modal__title">{TEXTS.giftcard.title}</h2>
+      <p className="modal__text">{TEXTS.giftcard.text}</p>
+      <Art className="giftcard-preview" as="div" spec={{ kind: 'giftcardPreview', amount: variants[v].name }} />
+      <div className="denoms" role="radiogroup" aria-label={TEXTS.giftcard.title}>
+        {variants.map((x, i) => (
           <button key={x.name} className={`denom${i === v ? ' is-active' : ''}`} type="button" role="radio" aria-checked={i === v} onClick={() => setV(i)}>{x.name}</button>
         ))}
       </div>
@@ -84,7 +87,7 @@ export function CheckoutModal() {
       <div className="success">
         <div className="success__art"><Butterfly className="bfly-deco flap" /></div>
         <h3>Заказ оформлен!</h3>
-        <p dangerouslySetInnerHTML={{ __html: `Номер заказа <span class="success__num">${done}</span>. Мы пришлём SMS, когда он будет готов. Это демо — оплата не списывается.` }} />
+        <p>Номер заказа <span className="success__num">{done}</span>. {TEXTS.checkout.success}</p>
         <button className="btn btn--primary" type="button" onClick={ui.closeModal}>Продолжить покупки</button>
       </div>
     );
@@ -96,7 +99,20 @@ export function CheckoutModal() {
     const name = f.elements.namedItem('name') as HTMLInputElement;
     const phone = f.elements.namedItem('phone') as HTMLInputElement;
     if (!name.value.trim() || !phoneComplete(phone.value)) { ui.toast({ title: 'Заполните имя и телефон', icon: 'user' }); (name.value.trim() ? phone : name).focus(); return; }
-    setDone('KS-' + String(Date.now()).slice(-6));
+    const id = 'KS-' + String(Date.now()).slice(-6);
+    const val = (k: string) => ((f.elements.namedItem(k) as HTMLInputElement | RadioNodeList | null)?.value || '').trim();
+    recordOrder({
+      id, createdAt: new Date().toISOString(), source: 'site', status: 'new',
+      customer: { name: name.value.trim(), phone: phone.value, email: val('email') || undefined },
+      city: shop.get().city || CONFIG.cities[0], address: val('address') || undefined, delivery: val('ship'), payment: val('pay'), comment: val('comment') || undefined,
+      promo: T.pct ? promo : undefined,
+      items: cart.flatMap((it) => {
+        const p = getProduct(it.id);
+        return p ? [{ id: p.id, v: it.v, q: it.q, name: titleOf(p), variant: p.variants?.[it.v]?.name, price: priceOf(p, it.v), old: oldOf(p, it.v) || undefined, brand: brandOf(p.brand).name, type: p.type }] : [];
+      }),
+      totals: { sub: T.sub, full: T.full, savings: T.savings, promo: T.promo, delivery: T.delivery, total: T.total, count: T.count }
+    });
+    setDone(id);
     shop.clearCart();
     ui.close();
   };
@@ -114,9 +130,9 @@ export function CheckoutModal() {
             <label className="field"><span className="field__label">Телефон</span><PhoneInput name="phone" required /></label>
           </div>
           <label className="field"><span className="field__label">E-mail</span><input className="input" name="email" type="email" autoComplete="email" /></label>
-          <div className="field"><span className="field__label">Способ получения</span><div className="radio-cards">{radio('ship', 'courier', 'Курьер', 'сегодня или завтра', true)}{radio('ship', 'pickup', 'Пункт выдачи', '1–4 дня')}{radio('ship', 'store', 'Из магазина', 'сегодня, бесплатно')}</div></div>
+          <div className="field"><span className="field__label">Способ получения</span><div className="radio-cards">{TEXTS.checkout.delivery.map((o, i) => radio('ship', o.id, o.title, o.note, i === 0))}</div></div>
           <label className="field"><span className="field__label">Адрес доставки</span><input className="input" name="address" autoComplete="street-address" /></label>
-          <div className="field"><span className="field__label">Оплата</span><div className="radio-cards">{radio('pay', 'card', 'Картой онлайн', 'Visa, Mastercard, Корти Миллӣ', true)}{radio('pay', 'qr', 'QR-код', 'через мобильный банк')}{radio('pay', 'cash', 'При получении', 'картой или наличными')}</div></div>
+          <div className="field"><span className="field__label">Оплата</span><div className="radio-cards">{TEXTS.checkout.payment.map((o, i) => radio('pay', o.id, o.title, o.note, i === 0))}</div></div>
           <label className="field"><span className="field__label">Комментарий к заказу</span><textarea className="input" name="comment" rows={2} /></label>
           <button className="btn btn--primary btn--lg btn--block" type="submit">Подтвердить заказ · {price(T.total)}</button>
         </form>

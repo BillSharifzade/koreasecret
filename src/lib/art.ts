@@ -1,7 +1,8 @@
 /* Korea Secret — procedural artwork (packshots, icons, scenes) as SVG strings.
    Every call runs inside an id scope so gradient ids are unique per component (see components/Art.tsx). */
-import { BRANDS, COLLECTIONS, INGREDIENTS, PRODUCTS, STORIES } from './data';
-import type { ArtSpec, Glyph, IngredientKey, Product, Story } from './types';
+import { asset } from './asset';
+import { ARTICLES, BRANDS, COLLECTIONS, HERO_SLIDES, INGREDIENTS, MEGA_PROMOS, PRODUCTS, PROMOS, STORIES, TYPES } from './data';
+import type { ArticleTheme, ArtSpec, Decor, Glyph, HeroSlide, IngredientKey, Product, Story, TextureKind } from './types';
 
 /* Brand marks traced from the KS logo */
 export const MARK_D = 'M75 1.5C73.1 2.3 63.2 5.9 53 9.5C23.5 20.1 1.5 28.2 1.1 28.5C0.9 28.7 1.1 30.5 1.4 32.5C1.8 34.7 2.7 36 3.6 36C4.8 36 25.9 29.5 31.8 27.3C32.8 26.9 33 62.9 32.8 206.6L32.5 386.5 16.3 386.8L0 387.1 0 391L0 395 58 395L116 395 116 391L116 387 99.5 387C87.2 387 82.8 386.7 82.5 385.8C82.2 385.1 82.1 354.8 82.2 318.6L82.5 252.7 97 270.6C114 291.6 127.7 308.4 164.9 354.5C180 373.2 193.5 389.9 194.9 391.7L197.5 394.9 228.3 394.9L259.1 395 252.9 387.3C249.4 383 241.7 373.6 235.8 366.4C229.9 359.1 225 353 225 352.6C225 352.3 227.7 354.1 231 356.6C234.3 359.1 241.1 363.1 246.2 365.5C254.9 369.6 281.2 378.8 294.5 382.5C303.7 385.1 317.7 390.7 326 395.2C348.6 407.5 357.7 420.8 355 437.6C351.3 460.4 331.5 471.9 296 472.1C281.2 472.1 272.3 471 263.9 468.1C240.2 460 227.6 442.6 226.2 416.2C225.7 406.6 225.6 405.9 223.4 405.4C222.1 405.1 220.6 405.1 220 405.5C218.9 406.2 218.6 461.7 219.7 464.5C220 465.4 221.5 466 223.1 466C225.5 466 226 465.6 226 463.6L226 461.1 234.3 465C251.6 473.1 267 476.8 286.1 477.7C321.5 479.2 349.4 470 367.6 450.7C374.8 443.2 380.1 433.9 381.9 425.9C383.4 419.4 383.2 404.3 381.5 397.8C379.2 388.7 375 381 368.5 374.2C356.2 360.9 337.2 351.3 306 342.5C263.8 330.7 255.9 327.4 245 317.3C240 312.7 237.1 309 234.8 304.2C231.8 298.1 231.5 296.8 231.5 288C231.5 279.5 231.8 278 234.2 273.9C240.3 263.6 251.6 256.1 267.5 251.9C278.3 249.1 301.3 248.8 311 251.4C338.4 258.8 354 278 355.9 306.5L356.5 316.5 359.5 316.5L362.5 316.5 362.8 286.3L363 256 359.5 256C356.4 256 356 256.3 356 258.5C356 261.8 355 261.7 348.1 257.6C340.8 253.4 331.1 249.5 320.7 246.7C313.5 244.8 310.1 244.5 292 244.6C274.4 244.7 270.4 245 263.8 246.8C241 253 225.8 262.9 214.8 278.4C204.6 293 202.2 314.6 209.1 330.8C210.1 333.1 210.8 335 210.6 335C210.3 335 203.9 327.4 183.5 302.5C181.7 300.3 171.1 287.3 159.9 273.7C126.9 233.4 116 219.9 116 219C116 218.5 117.3 217.1 118.9 215.8C124.6 211.2 222 116.9 222 115.9C222 115.4 219.6 115 216.6 115C211.6 115 210.9 115.3 206.7 119.3C202.6 123.1 176.5 148.3 145 178.5C138.1 185.2 127.1 195.7 120.5 202C113.9 208.3 102.6 219.1 95.5 226L82.5 238.5 82.2 119.3C82 6.5 81.9 0 80.2 0.1C79.3 0.1 76.9 0.7 75 1.5M357.9 115.9C317.8 146.2 312.6 199.8 346.2 236.4C349.5 240 352.5 243 353 243C353.4 243 352.5 239.1 351 234.3C347.8 224.2 346 213.1 346 202.6C346 195.9 348.4 178.9 349.9 174.8C350.2 173.9 350.5 181.5 350.5 191.8C350.5 212.8 351.7 219.1 358.8 236.4C362.1 244.4 363 245.7 366.1 247.2C372.6 250.3 385.6 252.3 394.9 251.7C405 251.1 403.7 252.4 392.5 254.2C385 255.4 373 254.5 367.6 252.4C364 251 367 254.1 373.3 258.1C382.6 264.1 391 266.3 402.8 265.8C418.9 265 429 259.6 439.9 246C442.7 242.4 445 239 445 238.3C445 237.4 443.4 237 440.3 237C432.8 237 423.7 234.4 414.9 229.8L406.7 225.5 395.1 225.5L383.4 225.6 386.7 220.1C392.3 210.8 394 205 394 195C394 179.6 390.9 170.2 381.8 157.7C378.9 153.7 375.1 147.5 373.3 143.9C369.5 136.2 366 122.7 366 115.8C366 113.1 365.6 111 365.1 111C364.7 111 361.4 113.2 357.9 115.9M293.2 146.4C289.5 149.8 289.5 149.9 289.7 157.2C290.2 175.9 299.4 201.2 311.6 217.6C319.9 228.7 334.1 241.9 344.5 248C349.4 250.8 348.5 249.9 339.8 243.1C317 225.4 301.8 199.7 296.6 170.3L296.1 167 300.6 167C306.6 167 310.6 164.5 312.5 159.7C315.8 151.6 310.1 143 301.4 143C297.7 143 296.3 143.6 293.2 146.4';
@@ -71,7 +72,7 @@ function label(p: Product, a: ArtSpec, cx: number, y0: number, w: number, o: Lab
 
 /* ---------- packaging shapes (400×400 box, floor at y≈352) ---------- */
 interface ShapeOut { defs: string; b: string; rx: number }
-export interface ProductOpts { variant?: string; amount?: string; shadow?: boolean; x?: number; y?: number; size?: number; decorative?: boolean; cls?: string }
+export interface ProductOpts { photo?: number; variant?: string; amount?: string; shadow?: boolean; x?: number; y?: number; size?: number; decorative?: boolean; cls?: string }
 type ShapeFn = (p: Product, a: ArtSpec, o: ProductOpts) => ShapeOut;
 
 const S: Record<ArtSpec['shape'], ShapeFn> = {
@@ -235,7 +236,9 @@ const S: Record<ArtSpec['shape'], ShapeFn> = {
   }
 };
 
-const draw = (p: Product, o: ProductOpts = {}) => (S[p.art.shape] || S.toner)(p, p.art, o);
+/* an uploaded photo stands in for the drawn package (transparent PNG/WebP cut-outs look best) */
+const photo = (src: string): ShapeOut => ({ defs: '', b: `<image href="${esc(asset(src))}" x="28" y="22" width="344" height="344" preserveAspectRatio="xMidYMid meet"/>`, rx: 112 });
+const draw = (p: Product, o: ProductOpts = {}) => (p.images?.length ? photo(p.images[o.photo ?? 0] || p.images[0]) : (S[p.art.shape] || S.toner)(p, p.art, o));
 function inner(p: Product, o: ProductOpts = {}) { const s = draw(p, o); return `<defs>${s.defs}</defs>${s.b}`; }
 function floor(rx: number, y = 354, op = 0.24) { const id = uid('s'); return { defs: rGrad(id, [[0, '#3a1730', op], [1, '#3a1730', 0]]), el: `<ellipse cx="200" cy="${y}" rx="${rx}" ry="13" fill="url(#${id})"/>` }; }
 const titleOf = (p: Product) => `${brandName(p.brand)} ${p.name}`;
@@ -249,8 +252,7 @@ function productSvgRaw(p: Product, o: ProductOpts = {}) {
 }
 
 /* ---------- textures & glyphs ---------- */
-type TextureKind = 'cream' | 'gel' | 'smear' | 'powder' | 'pad' | 'sheet' | 'drop';
-const textureKind = (p: Product): TextureKind => ({ cream: 'cream', sleeping_mask: 'cream', cleansing_balm: 'cream', body_cream: 'cream', hair_mask: 'cream', lip_mask: 'cream', eye: 'cream', sunscreen: 'cream', cleanser: 'gel', body_gel: 'gel', shampoo: 'gel', lip_tint: 'smear', cushion: 'powder', pads: 'pad', sheet_mask: 'sheet' } as Partial<Record<Product['type'], TextureKind>>)[p.type] || 'drop';
+const textureKind = (p: Product): TextureKind => TYPES[p.type]?.texture || 'drop';
 
 function texture(kind: TextureKind, color: string, cx: number, cy: number, s = 1) {
   const g = uid(), h = uid();
@@ -292,9 +294,10 @@ function glyph(kind: Glyph, color: string, s = 1, cx = 0, cy = 0) {
   return { defs, el: `<g ${T}>${shapes[kind] || shapes.drop}</g>` };
 }
 
-export type GalleryView = 'front' | 'texture' | 'ingredients' | 'box' | 'duo';
+export type GalleryView = 'front' | 'texture' | 'ingredients' | 'box' | 'duo' | `photo${number}`;
 function galleryRaw(p: Product, view: GalleryView, o: ProductOpts = {}) {
   if (view === 'front') return productSvgRaw(p, o);
+  if (view.startsWith('photo')) return productSvgRaw(p, { ...o, photo: Number(view.slice(5)) || 0 });
   let defs = '', el = '';
   const col = p.art.liquid || (p.art.shape === 'lip' ? o.variant || p.art.c : p.art.shape === 'cushion' ? o.variant || p.variants?.[0]?.color || p.art.c : p.art.c);
   if (view === 'texture') {
@@ -303,7 +306,7 @@ function galleryRaw(p: Product, view: GalleryView, o: ProductOpts = {}) {
     el += `<g transform="translate(-60 10) scale(.86)">${inner(p, o)}</g>` + t.el;
   } else if (view === 'ingredients') {
     const spots: [number, number, number][] = [[300, 110, 0.9], [330, 250, 0.7], [90, 120, 0.75]];
-    p.ingr.slice(0, 3).forEach((k, i) => { const ing = INGREDIENTS[k]; const [x, y, s] = spots[i]; const gl = glyph(ing.glyph, dark(ing.tint, 0.25), s, x, y); defs += gl.defs; el += `<circle cx="${x}" cy="${y}" r="${54 * s}" fill="${ing.tint}" opacity=".7"/>` + gl.el; });
+    p.ingr.filter((k) => INGREDIENTS[k]).slice(0, 3).forEach((k, i) => { const ing = INGREDIENTS[k]; const [x, y, s] = spots[i]; const gl = glyph(ing.glyph, dark(ing.tint, 0.25), s, x, y); defs += gl.defs; el += `<circle cx="${x}" cy="${y}" r="${54 * s}" fill="${ing.tint}" opacity=".7"/>` + gl.el; });
     const f = floor(90);
     defs += f.defs;
     el = f.el + el + `<g transform="translate(40 30) scale(.8)">${inner(p, o)}</g>`;
@@ -353,7 +356,7 @@ const orb = (id: string, x: number | string, y: number | string, r: number | str
 const orbGrad = (id: string, c: string) => rGrad(id, [[0, '#ffffff', 0.95], [0.25, light(c, 0.5), 0.8], [0.7, c, 0.55], [1, dark(c, 0.2), 0.3]], '.35', '.3', '.7');
 const nest = (id: string, x: number, y: number, size: number, o: ProductOpts = {}) => { const p = P(id); return p ? productSvgRaw(p, { x, y, size, shadow: o.shadow !== false, decorative: true, ...o }) : ''; };
 
-const THEMES: Record<string, [string, string, string]> = {
+export const THEMES: Record<string, [string, string, string]> = {
   pink: ['#f7a6c8', '#e0558f', '#b73f86'], peach: ['#ffc7a6', '#f99185', '#ea5f8a'], mint: ['#d9f0e2', '#a8d9c3', '#6fb99f'], lilac: ['#e5d3fb', '#c7a3ef', '#9d6fd6'],
   rose: ['#fde2ec', '#f7c0d6', '#ec94ba'], cream: ['#fbf1e6', '#f4e0cc', '#e9c9ab'], blue: ['#e1eefb', '#bcd8f4', '#8fb8e6'], plum: ['#3e1636', '#6b2156', '#a2346f']
 };
@@ -373,48 +376,74 @@ const svgWrap = (w: number, h: number, defs: string, el: string, par = 'xMidYMid
 
 /* hero compositions (HTML, positioned in % of .hero__art) */
 const place = (html: string, l: number, t: number, w: number, r = 0, cls = '', z = 1) => `<div class="${cls}" style="left:${l}%;top:${t}%;width:${w}%;z-index:${z};${r ? `transform:rotate(${r}deg);` : ''}">${html}</div>`;
-const pill = (big: string, small: string, cls = '') => `<div class="glass-pill ${cls}"><span class="glass-pill__big">${big}</span><span class="glass-pill__small">${small}</span></div>`;
-const prodEl = (id: string, o: ProductOpts = {}) => { const p = P(id); return p ? productSvgRaw(p, { shadow: false, decorative: true, ...o }) : ''; };
+const pill = (big: string, small: string, cls = '') => `<div class="glass-pill ${cls}"><span class="glass-pill__big">${esc(big)}</span><span class="glass-pill__small">${esc(small)}</span></div>`;
+const prodEl = (id: string | undefined, o: ProductOpts = {}) => { const p = id ? P(id) : undefined; return p ? productSvgRaw(p, { shadow: false, decorative: true, ...o }) : ''; };
 const bflyEl = (cls = 'bfly-deco flap') => `<svg class="${cls}" viewBox="-1 0 157 156" aria-hidden="true"><path d="${BFLY_D}"/></svg>`;
 const glow = (c: string, op = 0.8) => `<div class="orb" style="aspect-ratio:1;background:radial-gradient(circle at 35% 30%, #fff 0%, ${c} 38%, transparent 70%);opacity:${op};filter:blur(2px)"></div>`;
 const bubble = '<div class="orb" style="aspect-ratio:1;background:radial-gradient(circle at 32% 28%,#fff 0,rgba(255,255,255,.4) 22%,rgba(255,180,220,.15) 60%,transparent 70%);border:1px solid rgba(255,255,255,.35)"></div>';
+/** an uploaded picture filling an SVG scene */
+const cover = (src: string, w: number, h: number) => `<image href="${esc(asset(src))}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid slice"/>`;
 
-function heroRaw(id: string) {
-  if (id === 'promo') {
-    return place(glow('rgba(255,210,230,.9)', 0.55), 30, -10, 60) + place(prodEl('banila-clean-it-zero'), 30, 22, 34, -6, 'prod float-b', 2) + place(prodEl('medicube-pdrn-serum'), 52, -6, 32, 4, 'prod float-a', 3) +
-      place(prodEl('medicube-collagen-mask'), 70, 16, 30, 14, 'prod float-c', 2) + place(pill('−10%', 'от 350 смн', 'glass-pill--sm'), 6, 4, 0, -8, 'float-c', 4) + place(pill('−15%', 'от 700 смн'), 0, 46, 0, 7, 'float-a', 4) +
-      place(pill('−20%', 'от 1 200 смн'), 46, 70, 0, -5, 'float-b', 5) + place(bflyEl(), 26, 8, 7, -12, '', 6) + place(bflyEl(), 90, 4, 5, 18, '', 6);
+/* Four compositions (the art preset); each takes up to three products and the slide's glass pills. */
+function heroRaw(s: HeroSlide) {
+  if (s.image) return `<div class="hero__photo" style="inset:0"><img src="${esc(asset(s.image))}" alt="" style="width:100%;height:100%;object-fit:contain" draggable="false"></div>`;
+  const [a, b, c] = s.products;
+  const [p1, p2, p3] = s.pills;
+  if (s.art === 'none') return '';
+  if (s.art === 'promo') {
+    return place(glow('rgba(255,210,230,.9)', 0.55), 30, -10, 60) + place(prodEl(a), 30, 22, 34, -6, 'prod float-b', 2) + place(prodEl(b), 52, -6, 32, 4, 'prod float-a', 3) +
+      place(prodEl(c, { amount: '500 смн' }), 70, 16, 30, 14, 'prod float-c', 2) + (p1 ? place(pill(p1.big, p1.small, 'glass-pill--sm'), 6, 4, 0, -8, 'float-c', 4) : '') + (p2 ? place(pill(p2.big, p2.small), 0, 46, 0, 7, 'float-a', 4) : '') +
+      (p3 ? place(pill(p3.big, p3.small), 46, 70, 0, -5, 'float-b', 5) : '') + place(bflyEl(), 26, 8, 7, -12, '', 6) + place(bflyEl(), 90, 4, 5, 18, '', 6);
   }
-  if (id === 'glass') {
-    return place(glow('rgba(236,110,175,.9)', 0.5), 22, -14, 70) + place(prodEl('numbuzin-no3'), 18, 18, 30, -8, 'prod float-b', 2) + place(prodEl('medicube-pdrn-serum'), 38, 0, 38, 0, 'prod float-a', 3) +
-      place(prodEl('torriden-dive-in-serum'), 64, 16, 30, 9, 'prod float-c', 2) + place(bubble, 8, 58, 10, 0, 'float-a', 4) + place(bubble, 88, 8, 7, 0, 'float-c', 4) +
-      place(pill('PDRN', 'новые сыворотки', 'glass-pill--sm'), 60, 72, 0, -6, 'float-b', 5) + place(bflyEl(), 30, 70, 6, -10, '', 6);
+  if (s.art === 'glass') {
+    return place(glow('rgba(236,110,175,.9)', 0.5), 22, -14, 70) + place(prodEl(a), 18, 18, 30, -8, 'prod float-b', 2) + place(prodEl(b), 38, 0, 38, 0, 'prod float-a', 3) +
+      place(prodEl(c), 64, 16, 30, 9, 'prod float-c', 2) + place(bubble, 8, 58, 10, 0, 'float-a', 4) + place(bubble, 88, 8, 7, 0, 'float-c', 4) +
+      (p1 ? place(pill(p1.big, p1.small, 'glass-pill--sm'), 60, 72, 0, -6, 'float-b', 5) : '') + (p2 ? place(pill(p2.big, p2.small, 'glass-pill--sm'), 2, 6, 0, 6, 'float-c', 5) : '') + place(bflyEl(), 30, 70, 6, -10, '', 6);
   }
-  if (id === 'spf') {
+  if (s.art === 'spf') {
     return place('<div class="orb" style="aspect-ratio:1;background:radial-gradient(circle at 50% 50%,#fffdf4 0,#ffeccb 38%,rgba(255,214,170,.55) 62%,transparent 72%)"></div>', 34, -18, 58) +
-      place(prodEl('boj-relief-sun'), 24, 12, 32, -10, 'prod float-a', 3) + place(prodEl('skin1004-sun-serum'), 46, 4, 30, 6, 'prod float-b', 2) + place(prodEl('isntree-sun-gel'), 66, 20, 28, 16, 'prod float-c', 3) +
-      place(pill('SPF 50+', 'без белого следа'), 4, 58, 0, -7, 'float-b', 5) + place(bflyEl('bfly-deco bfly-deco--brand flap'), 84, 70, 6, 12, '', 6);
+      place(prodEl(a), 24, 12, 32, -10, 'prod float-a', 3) + place(prodEl(b), 46, 4, 30, 6, 'prod float-b', 2) + place(prodEl(c), 66, 20, 28, 16, 'prod float-c', 3) +
+      (p1 ? place(pill(p1.big, p1.small), 4, 58, 0, -7, 'float-b', 5) : '') + (p2 ? place(pill(p2.big, p2.small, 'glass-pill--sm'), 62, 74, 0, 6, 'float-c', 5) : '') + place(bflyEl('bfly-deco bfly-deco--brand flap'), 84, 70, 6, 12, '', 6);
   }
-  return place(glow('rgba(255,255,255,.95)', 0.55), 26, -12, 64) + place(prodEl('ks-glass-skin-set'), 28, 8, 40, -4, 'prod float-a', 3) + place(prodEl('ks-mini-routine'), 62, 30, 30, 8, 'prod float-b', 2) +
-    place(prodEl('ks-giftcard', { amount: '500 смн' }), 2, 44, 34, -8, 'prod float-c', 4) + place(bflyEl('bfly-deco bfly-deco--brand flap'), 70, 4, 8, 14, '', 6) + place(bflyEl('bfly-deco bfly-deco--brand flap'), 18, 10, 5, -16, '', 6);
+  return place(glow('rgba(255,255,255,.95)', 0.55), 26, -12, 64) + place(prodEl(a), 28, 8, 40, -4, 'prod float-a', 3) + place(prodEl(b), 62, 30, 30, 8, 'prod float-b', 2) +
+    place(prodEl(c, { amount: '500 смн' }), 2, 44, 34, -8, 'prod float-c', 4) + (p1 ? place(pill(p1.big, p1.small, 'glass-pill--sm'), 60, 72, 0, -6, 'float-b', 5) : '') +
+    place(bflyEl('bfly-deco bfly-deco--brand flap'), 70, 4, 8, 14, '', 6) + place(bflyEl('bfly-deco bfly-deco--brand flap'), 18, 10, 5, -16, '', 6);
+}
+
+/* decorations behind the products of a scene (promo cards, mega menu) */
+function decor(kind: Decor, accent: string, og: string, seed: string) {
+  let defs = '', el = '';
+  if (kind === 'sun') { const sg = uid(); defs += rGrad(sg, [[0, '#fffbe8', 1], [0.5, '#ffe2a8', 0.9], [1, '#ffcf99', 0]]); el += `<circle cx="760" cy="200" r="190" fill="url(#${sg})"/>` + sparkle(600, 80, 1.4) + sparkle(950, 110, 1); }
+  else if (kind === 'petals') {
+    const rand = rng(seed);
+    for (let i = 0; i < 22; i++) { const x = 520 + rand() * 480, y = 430 + rand() * 90; el += `<ellipse cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" rx="4" ry="9" fill="#fffaf0" opacity=".9" transform="rotate(${(rand() * 180).toFixed(0)} ${x.toFixed(0)} ${y.toFixed(0)})"/>`; }
+    el += orb(og, 640, 140, 70, 0.6) + sparkle(600, 70, 1.4) + bfly(930, 330, 0.3, '#fff', 0.9, 16);
+  } else if (kind === 'butterflies') el += bfly(610, 70, 0.4, '#fff', 0.95, -12) + bfly(930, 360, 0.28, '#fff', 0.9, 20) + sparkle(900, 80, 1.5);
+  else if (kind === 'bubbles') el += orb(og, 600, 120, 46, 0.8) + orb(og, 930, 380, 34, 0.8) + orb(og, 560, 400, 22, 0.8) + sparkle(900, 90, 1.5) + bfly(570, 60, 0.32, '#fff', 0.95, -10);
+  else el += orb(og, 690, 170, 120, 0.8) + bfly(840, 60, 0.42, '#fff', 0.95, 14) + sparkle(560, 90, 1.6) + sparkle(930, 330, 1.2);
+  void accent;
+  return { defs, el };
+}
+/* one, two or three products on the right half of a 1020×540 scene */
+function trio(ids: string[]) {
+  const list = ids.filter((id) => P(id)).slice(0, 3);
+  if (list.length === 1) return nest(list[0], 600, 50, 380);
+  if (list.length === 2) return nest(list[0], 560, 100, 330) + nest(list[1], 730, 70, 330);
+  return list.length ? nest(list[1] ?? list[0], 520, 210, 250) + nest(list[0], 600, 60, 300) + nest(list[2], 760, 150, 250) : '';
 }
 
 function promoRaw(id: string) {
   const W = 1020, H = 540;
-  const key = ({ p1: 'pink', p2: 'peach', p3: 'mint', p4: 'lilac', p5: 'cream', p6: 'blue' } as Record<string, string>)[id] || 'pink';
+  const pr = PROMOS.find((x) => x.id === id);
+  const key = pr?.theme || 'pink';
   const bg = sceneBg(W, H, key, id);
+  if (pr?.image) return svgWrap(W, H, bg.defs, bg.el + cover(pr.image, W, H));
   let defs = bg.defs, el = bg.el;
   const og = uid();
-  defs += orbGrad(og, THEMES[key][1]);
-  if (id === 'p1') el += orb(og, 690, 170, 120, 0.8) + nest('medicube-pdrn-serum', 600, 60, 300) + nest('banila-clean-it-zero', 520, 210, 250) + nest('medicube-collagen-mask', 760, 150, 250) + bfly(840, 60, 0.42, '#fff', 0.95, 14) + sparkle(560, 90, 1.6) + sparkle(930, 330, 1.2);
-  else if (id === 'p2') { const sg = uid(); defs += rGrad(sg, [[0, '#fffbe8', 1], [0.5, '#ffe2a8', 0.9], [1, '#ffcf99', 0]]); el += `<circle cx="760" cy="200" r="190" fill="url(#${sg})"/>` + nest('skin1004-sun-serum', 560, 110, 280) + nest('roundlab-birch-sun', 700, 140, 290) + nest('isntree-sun-gel', 820, 210, 220) + sparkle(600, 80, 1.4) + sparkle(950, 110, 1); }
-  else if (id === 'p3') { const m = P('abib-heartleaf-mask'); el += (m ? `<g transform="translate(590 60)">${inner(m)}</g>` : '') + nest('mediheal-teatree-mask', 740, 90, 330) + bfly(900, 70, 0.34, '#fff', 0.9, -10) + sparkle(610, 420, 1.4); }
-  else if (id === 'p4') el += nest('ks-mini-routine', 560, 100, 330) + nest('ks-glass-skin-set', 730, 70, 330) + bfly(610, 70, 0.4, '#fff', 0.95, -12) + bfly(930, 360, 0.28, '#fff', 0.9, 20) + sparkle(900, 80, 1.5);
-  else if (id === 'p5') {
-    const rand = rng('p5');
-    for (let i = 0; i < 22; i++) { const x = 520 + rand() * 480, y = 430 + rand() * 90; el += `<ellipse cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" rx="4" ry="9" fill="#fffaf0" opacity=".9" transform="rotate(${(rand() * 180).toFixed(0)} ${x.toFixed(0)} ${y.toFixed(0)})"/>`; }
-    el += orb(og, 640, 140, 70, 0.6) + nest('boj-ginseng-water', 540, 80, 290) + nest('boj-dynasty-cream', 700, 190, 250) + nest('boj-glow-serum', 800, 60, 270) + sparkle(600, 70, 1.4) + bfly(930, 330, 0.3, '#fff', 0.9, 16);
-  } else el += orb(og, 600, 120, 46, 0.8) + orb(og, 930, 380, 34, 0.8) + orb(og, 560, 400, 22, 0.8) + nest('laneige-water-bank', 540, 170, 260) + nest('torriden-dive-in-serum', 670, 50, 320) + nest('torriden-soothing-cream', 810, 170, 250) + sparkle(900, 90, 1.5) + bfly(570, 60, 0.32, '#fff', 0.95, -10);
+  defs += orbGrad(og, (THEMES[key] || THEMES.pink)[1]);
+  const d = decor(pr?.decor || 'orbs', (THEMES[key] || THEMES.pink)[1], og, id);
+  defs += d.defs;
+  el += d.el + trio(pr?.products || []);
   return svgWrap(W, H, defs, el);
 }
 
@@ -439,28 +468,30 @@ function storyRaw(story: Story, frame = 0) {
   return svgWrap(W, H, defs, el);
 }
 
-function journalRaw(theme: string, w = 1340, h = 470) {
+function journalRaw(theme: ArticleTheme, w = 1340, h = 470, ids: string[] = [], image?: string) {
   let defs = '', el = '';
+  if (image) return svgWrap(w, h, '', `<rect width="${w}" height="${h}" fill="#f7e3ec"/>` + cover(image, w, h));
+  const [a, b, c] = ids;
   const podium = (x: number, y: number, rw: number, c: string) => { const gg = uid(); defs += cyl(gg, c, 0.4); return `<rect x="${x - rw}" y="${y}" width="${rw * 2}" height="${h - y}" fill="url(#${gg})"/><ellipse cx="${x}" cy="${y}" rx="${rw}" ry="${rw * 0.18}" fill="${light(c, 0.35)}"/>`; };
   if (theme === 'routine') {
     const bg = sceneBg(w, h, 'pink', 'routine');
     defs += bg.defs;
     el += bg.el + `<path d="M${w * 0.55} ${h} V${h * 0.35} A${h * 0.3} ${h * 0.3} 0 0 1 ${w * 0.55 + h * 0.6} ${h * 0.35} V${h} Z" fill="#fff" opacity=".35"/>`;
     el += podium(w * 0.62, h * 0.74, h * 0.16, '#f7d3e2') + podium(w * 0.78, h * 0.66, h * 0.18, '#fbe4ee') + podium(w * 0.92, h * 0.8, h * 0.14, '#f3c3d8');
-    el += nest('anua-heartleaf-toner', w * 0.62 - h * 0.25, h * 0.26, h * 0.5) + nest('torriden-dive-in-serum', w * 0.78 - h * 0.27, h * 0.14, h * 0.54) + nest('cosrx-snail-cream', w * 0.92 - h * 0.22, h * 0.38, h * 0.44) + bfly(w * 0.5, h * 0.12, h * 0.0019, '#fff', 0.9, -10);
+    el += (a ? nest(a, w * 0.62 - h * 0.25, h * 0.26, h * 0.5) : '') + (b ? nest(b, w * 0.78 - h * 0.27, h * 0.14, h * 0.54) : '') + (c ? nest(c, w * 0.92 - h * 0.22, h * 0.38, h * 0.44) : '') + bfly(w * 0.5, h * 0.12, h * 0.0019, '#fff', 0.9, -10);
   } else if (theme === 'pdrn') {
     const bg = sceneBg(w, h, 'pink', 'pdrn');
     const og = uid();
     defs += bg.defs + orbGrad(og, '#e0558f');
     el += bg.el;
-    for (let i = 0; i < 9; i++) { const y = h * 0.1 + i * h * 0.1, x = w * 0.3 + Math.sin(i * 0.8) * h * 0.14; el += `<line x1="${x}" y1="${y}" x2="${w * 0.6 - (x - w * 0.3)}" y2="${y}" stroke="#fff" stroke-opacity=".35" stroke-width="3"/>` + orb(og, x, y, h * 0.035, 0.95) + orb(og, w * 0.6 - (x - w * 0.3), y, h * 0.035, 0.95); }
-    el += nest('medicube-pdrn-serum', w * 0.55, h * 0.1, h * 0.85);
+    for (let i = 0; i < 9; i++) { const y = Math.round((h * 0.1 + i * h * 0.1) * 10) / 10, x = Math.round((w * 0.3 + Math.sin(i * 0.8) * h * 0.14) * 10) / 10; /* rounded: Math.sin may differ in the last bit between JS engines (server vs browser) */ el += `<line x1="${x}" y1="${y}" x2="${w * 0.6 - (x - w * 0.3)}" y2="${y}" stroke="#fff" stroke-opacity=".35" stroke-width="3"/>` + orb(og, x, y, h * 0.035, 0.95) + orb(og, w * 0.6 - (x - w * 0.3), y, h * 0.035, 0.95); }
+    el += a ? nest(a, w * 0.55, h * 0.1, h * 0.85) : '';
   } else if (theme === 'spf') {
     const bg = sceneBg(w, h, 'peach', 'spf');
     const sg = uid();
     defs += bg.defs + rGrad(sg, [[0, '#fffbe8', 1], [0.5, '#ffe2a8', 0.9], [1, '#ffcf99', 0]]);
     el += bg.el + `<circle cx="${w * 0.72}" cy="${h * 0.3}" r="${h * 0.4}" fill="url(#${sg})"/><g opacity=".16" fill="#7a2a3a">${[0, 1, 2, 3, 4].map((i) => `<path d="M${w * 0.1 + i * 40} ${h} C${w * 0.18 + i * 30} ${h * 0.6} ${w * 0.3} ${h * 0.4} ${w * 0.42 + i * 12} ${h * 0.3} C${w * 0.3} ${h * 0.5} ${w * 0.22} ${h * 0.7} ${w * 0.16 + i * 40} ${h} Z"/>`).join('')}</g>`;
-    el += nest('boj-relief-sun', w * 0.52, h * 0.16, h * 0.78) + nest('isntree-sun-gel', w * 0.68, h * 0.24, h * 0.7);
+    el += (a ? nest(a, w * 0.52, h * 0.16, h * 0.78) : '') + (b ? nest(b, w * 0.68, h * 0.24, h * 0.7) : '');
   } else if (theme === 'oil') {
     const bg = sceneBg(w, h, 'cream', 'oil');
     const og = uid();
@@ -468,7 +499,7 @@ function journalRaw(theme: string, w = 1340, h = 470) {
     el += bg.el;
     const rand = rng('oil');
     for (let i = 0; i < 14; i++) el += orb(og, w * (0.3 + rand() * 0.65), h * rand(), h * (0.02 + rand() * 0.07), 0.85);
-    el += nest('anua-cleansing-oil', w * 0.56, h * 0.08, h * 0.86) + nest('heimish-clean-balm', w * 0.74, h * 0.32, h * 0.62);
+    el += (a ? nest(a, w * 0.56, h * 0.08, h * 0.86) : '') + (b ? nest(b, w * 0.74, h * 0.32, h * 0.62) : '');
   } else {
     const g = uid();
     defs += `<linearGradient id="${g}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f9cfe0"/><stop offset=".5" stop-color="#e86aa3"/><stop offset="1" stop-color="#9c3a8f"/></linearGradient>`;
@@ -488,7 +519,9 @@ function journalRaw(theme: string, w = 1340, h = 470) {
 function collectionRaw(id: string) {
   const c = COLLECTIONS.find((x) => x.id === id) || COLLECTIONS[0];
   const W = 1000, H = 560;
+  if (!c) return svgWrap(W, H, '', '');
   const bg = sceneBg(W, H, c.theme, c.id);
+  if (c.image) return svgWrap(W, H, bg.defs, bg.el + cover(c.image, W, H), 'xMaxYMid slice');
   const og = uid();
   let defs = bg.defs + orbGrad(og, THEMES[c.theme]?.[1] || '#e0558f'), el = bg.el;
   const podium = (x: number, y: number, rw: number, col: string) => { const gg = uid(); defs += cyl(gg, col, 0.4); return `<rect x="${x - rw}" y="${y}" width="${rw * 2}" height="${H - y}" fill="url(#${gg})"/><ellipse cx="${x}" cy="${y}" rx="${rw}" ry="${rw * 0.2}" fill="${light(col, 0.4)}"/>`; };
@@ -496,33 +529,38 @@ function collectionRaw(id: string) {
   const tint = THEMES[c.theme]?.[0] || '#fde2ec';
   el += podium(560, 430, 104, light(tint, 0.35)) + podium(760, 380, 116, light(tint, 0.55)) + podium(920, 456, 86, light(tint, 0.2));
   el += orb(og, 470, 160, 30, 0.7) + orb(og, 930, 120, 22, 0.7);
-  el += nest(b, 590, 34, 340) + nest(a, 404, 156, 300) + nest(d, 812, 196, 270) + bfly(470, 70, 0.34, '#fff', 0.95, -12) + sparkle(940, 290, 1.4) + sparkle(380, 400, 1.1);
+  el += (b ? nest(b, 590, 34, 340) : '') + (a ? nest(a, 404, 156, 300) : '') + (d ? nest(d, 812, 196, 270) : '') + bfly(470, 70, 0.34, '#fff', 0.95, -12) + sparkle(940, 290, 1.4) + sparkle(380, 400, 1.1);
   return svgWrap(W, H, defs, el, 'xMaxYMid slice');
 }
 
-function spotlightRaw() {
+function spotlightRaw(ids: string[], image?: string) {
   const W = 720, H = 420;
+  if (image) return svgWrap(W, H, '', `<rect width="${W}" height="${H}" fill="#f2dfcf"/>` + cover(image, W, H));
+  const [a, b, c] = ids;
   const g = uid(), sg = uid();
   const defs = `<linearGradient id="${g}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f7e9d7"/><stop offset=".6" stop-color="#eed2bd"/><stop offset="1" stop-color="#d9a98e"/></linearGradient>` + rGrad(sg, [[0, '#fff3dc', 1], [0.6, '#f6d7a9', 0.8], [1, '#f6d7a9', 0]]);
   let el = `<rect width="${W}" height="${H}" fill="url(#${g})"/><circle cx="${W * 0.62}" cy="${H * 0.36}" r="${H * 0.4}" fill="url(#${sg})"/><path d="M0 ${H * 0.78} C${W * 0.3} ${H * 0.7} ${W * 0.7} ${H * 0.72} ${W} ${H * 0.66} V${H} H0 Z" fill="#fff" opacity=".35"/>`;
   const rand = rng('rice');
   for (let i = 0; i < 26; i++) { const x = W * rand(), y = H * (0.8 + rand() * 0.18); el += `<ellipse cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" rx="3" ry="7" fill="#fffaf0" transform="rotate(${(rand() * 180).toFixed(0)} ${x.toFixed(0)} ${y.toFixed(0)})"/>`; }
-  el += nest('boj-ginseng-water', 110, 40, 300) + nest('boj-glow-serum', 280, 90, 260) + nest('boj-relief-sun', 420, 60, 290) + bfly(90, 60, 0.3, '#fff', 0.9, -14);
+  el += (a ? nest(a, 110, 40, 300) : '') + (b ? nest(b, 280, 90, 260) : '') + (c ? nest(c, 420, 60, 290) : '') + bfly(90, 60, 0.3, '#fff', 0.9, -14);
   return svgWrap(W, H, defs, el);
 }
 
-function stripRaw() {
+function stripRaw(ids: string[], image?: string) {
+  if (image) return svgWrap(460, 180, '', cover(image, 460, 180), 'xMidYMid meet');
   const og = uid();
-  const el = orb(og, 70, 130, 60, 0.6) + orb(og, 400, 40, 34, 0.7) + nest('medicube-pdrn-serum', 70, -10, 200, { shadow: false }) + nest('medicube-collagen-mask', 210, 0, 190, { shadow: false }) + nest('medicube-zero-pad', 300, 20, 170, { shadow: false }) + bfly(40, 20, 0.2, '#fff', 0.95, -12);
+  const [a, b, c] = ids;
+  const el = orb(og, 70, 130, 60, 0.6) + orb(og, 400, 40, 34, 0.7) + (a ? nest(a, 70, -10, 200, { shadow: false }) : '') + (b ? nest(b, 210, 0, 190, { shadow: false }) : '') + (c ? nest(c, 300, 20, 170, { shadow: false }) : '') + bfly(40, 20, 0.2, '#fff', 0.95, -12);
   return svgWrap(460, 180, orbGrad(og, '#e0558f'), el, 'xMidYMid meet');
 }
 
-function giftcardsRaw() {
-  const gc = P('ks-giftcard');
+function giftcardsRaw(amount: string, image?: string) {
+  if (image) return svgWrap(670, 470, '', cover(image, 670, 470), 'xMidYMid meet');
+  const gc = PRODUCTS.find((p) => p.type === 'giftcard');
   const cubes = uid();
   const defs = `<linearGradient id="${cubes}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity=".05"/></linearGradient>`;
   let el = `<rect x="470" y="30" width="120" height="120" rx="22" fill="url(#${cubes})" stroke="#fff" stroke-opacity=".5" transform="rotate(18 530 90)"/><rect x="60" y="330" width="80" height="80" rx="16" fill="url(#${cubes})" stroke="#fff" stroke-opacity=".4" transform="rotate(-14 100 370)"/>`;
-  if (gc) el += productSvgRaw(gc, { x: 70, y: 20, size: 560, shadow: false, decorative: true, amount: '1 000 смн' });
+  if (gc) el += productSvgRaw(gc, { x: 70, y: 20, size: 560, shadow: false, decorative: true, amount });
   el += bfly(560, 330, 0.5, '#fff', 0.95, 16) + sparkle(120, 90, 2);
   return svgWrap(670, 470, defs, el, 'xMidYMid meet');
 }
@@ -537,16 +575,19 @@ function giftcardPreviewRaw(amount: string) {
 }
 
 function ingredientRaw(key: IngredientKey) {
-  const ing = INGREDIENTS[key];
+  const ing = INGREDIENTS[key] || { glyph: 'drop', tint: '#f1e6ee', name: key, note: '' };
   const bgG = uid();
   const gl = glyph(ing.glyph, dark(ing.tint, 0.28), 1.25, 80, 80);
   const defs = rGrad(bgG, [[0, light(ing.tint, 0.6)], [1, ing.tint]], '.4', '.3', '.9') + gl.defs;
   return `<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>${defs}</defs><rect width="160" height="160" fill="url(#${bgG})"/>${sparkle(128, 32, 1.1, '#fff', 0.9)}${gl.el}</svg>`;
 }
 
-function megaPromoRaw(i: number) {
-  const bg = sceneBg(640, 360, i === 0 ? 'peach' : 'pink', 'mega' + i);
-  const el = bg.el + (i === 0 ? nest('isntree-sun-gel', 150, 40, 300) + nest('boj-relief-sun', 330, 30, 310) : nest('medicube-pdrn-serum', 160, 20, 330) + nest('medicube-collagen-mask', 340, 40, 300));
+function megaPromoRaw(id: string) {
+  const m = MEGA_PROMOS.find((x) => x.id === id);
+  const bg = sceneBg(640, 360, m?.theme || 'pink', 'mega' + id);
+  if (m?.image) return svgWrap(640, 360, bg.defs, bg.el + cover(m.image, 640, 360));
+  const [a, b] = (m?.products || []).filter((x) => P(x));
+  const el = bg.el + (b ? nest(a, 150, 30, 310) + nest(b, 330, 35, 305) : a ? nest(a, 170, 15, 330) : '');
   return svgWrap(640, 360, bg.defs, el);
 }
 
@@ -581,17 +622,19 @@ function emptyRaw(kind: 'bag' | 'heart' | 'search') {
 /* ---------- public API (each call gets its own id scope) ---------- */
 export type ArtSpecInput =
   | { kind: 'product'; id: string; variant?: string; amount?: string; shadow?: boolean; decorative?: boolean }
+  /** a product that is not in the content (admin previews of alternatives) */
+  | { kind: 'productData'; p: Product; view?: GalleryView; variant?: string }
   | { kind: 'gallery'; id: string; view: GalleryView; variant?: string; amount?: string }
   | { kind: 'icon'; name: string }
   | { kind: 'hero'; id: string }
   | { kind: 'promo'; id: string }
   | { kind: 'story'; index: number; frame: number }
-  | { kind: 'journal'; theme: string; w?: number; h?: number }
+  | { kind: 'journal'; id: string; w?: number; h?: number }
   | { kind: 'collection'; id: string }
-  | { kind: 'spotlight' } | { kind: 'strip' } | { kind: 'giftcards' } | { kind: 'seo' }
+  | { kind: 'spotlight'; ids: string[]; image?: string } | { kind: 'strip'; ids: string[]; image?: string } | { kind: 'giftcards'; amount: string; image?: string } | { kind: 'seo' }
   | { kind: 'giftcardPreview'; amount: string }
   | { kind: 'ingredient'; key: IngredientKey }
-  | { kind: 'megaPromo'; index: number }
+  | { kind: 'megaPromo'; id: string }
   | { kind: 'pageHero'; ids: string[] }
   | { kind: 'empty'; type: 'bag' | 'heart' | 'search' };
 
@@ -599,20 +642,21 @@ export function renderArt(spec: ArtSpecInput, prefix: string): string {
   return scoped(prefix, () => {
     switch (spec.kind) {
       case 'product': { const p = P(spec.id); return p ? productSvgRaw(p, { variant: spec.variant, amount: spec.amount, shadow: spec.shadow, decorative: spec.decorative ?? true }) : ''; }
+      case 'productData': return spec.view && spec.view !== 'front' ? galleryRaw(spec.p, spec.view, { variant: spec.variant }) : productSvgRaw(spec.p, { variant: spec.variant, decorative: true });
       case 'gallery': { const p = P(spec.id); return p ? galleryRaw(p, spec.view, { variant: spec.variant, amount: spec.amount }) : ''; }
       case 'icon': return iconRaw(spec.name);
-      case 'hero': return heroRaw(spec.id);
+      case 'hero': { const s = HERO_SLIDES.find((x) => x.id === spec.id); return s ? heroRaw(s) : ''; }
       case 'promo': return promoRaw(spec.id);
       case 'story': return STORIES[spec.index] ? storyRaw(STORIES[spec.index], spec.frame) : '';
-      case 'journal': return journalRaw(spec.theme, spec.w, spec.h);
+      case 'journal': { const a = ARTICLES.find((x) => x.id === spec.id); return a ? journalRaw(a.theme, spec.w, spec.h, a.art, a.image) : ''; }
       case 'collection': return collectionRaw(spec.id);
-      case 'spotlight': return spotlightRaw();
-      case 'strip': return stripRaw();
-      case 'giftcards': return giftcardsRaw();
+      case 'spotlight': return spotlightRaw(spec.ids, spec.image);
+      case 'strip': return stripRaw(spec.ids, spec.image);
+      case 'giftcards': return giftcardsRaw(spec.amount, spec.image);
       case 'seo': return seoRaw();
       case 'giftcardPreview': return giftcardPreviewRaw(spec.amount);
       case 'ingredient': return ingredientRaw(spec.key);
-      case 'megaPromo': return megaPromoRaw(spec.index);
+      case 'megaPromo': return megaPromoRaw(spec.id);
       case 'pageHero': return pageHeroRaw(spec.ids);
       case 'empty': return emptyRaw(spec.type);
     }

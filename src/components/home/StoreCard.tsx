@@ -2,22 +2,25 @@
 import { useState } from 'react';
 import { Icon } from '../Icon';
 import GlassSurface, { GLASS } from '../ui/GlassSurface';
-import { BASE_PATH } from '@/lib/site';
+import { asset } from '@/lib/asset';
 import type { Store } from '@/lib/types';
 
-/* The map is a small pre-rendered OpenStreetMap excerpt (public/stores/map-<id>.webp) centred on the shop,
-   so hovering costs no third-party requests or API keys. */
+/* The map is a small pre-rendered OpenStreetMap excerpt (public/stores/map-<id>.webp, or one rendered in the admin)
+   centred on the shop, so hovering costs no third-party requests or API keys. A shop without one falls back to the
+   OpenStreetMap embed, loaded only once the map is opened. */
 export function StoreCard({ s }: { s: Store }) {
   const [map, setMap] = useState(false); // pinned open: touch screens and keyboard users
   const route = `https://yandex.ru/maps/?ll=${s.lon},${s.lat}&z=17&pt=${s.lon},${s.lat},pm2rdm`;
   return (
-    <article className={`store-card${map ? ' is-map' : ''}`}>
+    <article className={`store-card${map ? ' is-map' : ''}${s.map ? '' : ' no-map'}`}>
       <div className="store-card__media">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="store-card__photo" src={`${BASE_PATH}${s.photo}`} alt={`Магазин Korea Secret, ${s.addr}`} loading="lazy" decoding="async" width={1200} height={923} draggable={false} />
+        <img className="store-card__photo" src={asset(s.photo)} alt={`Магазин Korea Secret, ${s.addr}`} loading="lazy" decoding="async" width={1200} height={923} draggable={false} />
         <div className="store-card__map" aria-hidden={!map}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="store-card__mapimg" src={`${BASE_PATH}/stores/map-${s.id}.webp`} alt={`Карта: ${s.addr}`} loading="lazy" decoding="async" width={720} height={560} draggable={false} />
+          {s.map
+            // eslint-disable-next-line @next/next/no-img-element
+            ? <img className="store-card__mapimg" src={asset(s.map)} alt={`Карта: ${s.addr}`} loading="lazy" decoding="async" width={720} height={560} draggable={false} />
+            : map && <iframe className="store-card__mapimg" title={`Карта: ${s.addr}`} loading="lazy" src={`https://www.openstreetmap.org/export/embed.html?bbox=${s.lon - 0.006},${s.lat - 0.004},${s.lon + 0.006},${s.lat + 0.004}&layer=mapnik&marker=${s.lat},${s.lon}`} style={{ border: 0, width: '100%', height: '100%' }} />}
           <span className="store-card__pin"><Icon name="pin" /></span>
           <span className="store-card__osm">© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" tabIndex={map ? 0 : -1}>OpenStreetMap</a></span>
         </div>

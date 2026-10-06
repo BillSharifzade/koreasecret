@@ -6,18 +6,19 @@ import { Icon } from '../Icon';
 import { useLayer } from '../layer';
 import { useUI } from '../providers';
 import { AccountModal, CityModal, GiftCardModal } from './modals';
-import { BRANDS, CATS, CONFIG, OFFERS, PRODUCTS, TYPES } from '@/lib/data';
+import { SmartLink } from '../ui/SmartLink';
+import { BRANDS, CATS, CONFIG, MEGA_PROMOS, OFFERS, PRODUCTS, TEXTS, TYPES } from '@/lib/data';
 import { productPath, titleOf } from '@/lib/shop';
 import { useShop } from '@/lib/store';
 import type { Offer } from '@/lib/types';
 
-type Key = 'brands' | 'hits' | 'offers' | (typeof CATS)[number]['id'];
+type Key = string;
 
 export function MegaMenu() {
   const ui = useUI();
   const open = ui.overlay === 'mega';
   const ref = useRef<HTMLDivElement>(null);
-  const [key, setKey] = useState<Key>('face');
+  const [key, setKey] = useState<Key>(() => CATS[0]?.id || 'brands');
   const [sub, setSub] = useState(false);
   const [top, setTop] = useState(170);
   const [brandQ, setBrandQ] = useState('');
@@ -49,11 +50,11 @@ export function MegaMenu() {
 
   const promos = (
     <div className="mega__promos">
-      {[['/catalog?cat=sun', '−25% на санскрины SKIN1004 и Round Lab', 0], ['/catalog?brand=medicube', 'PDRN-уход medicube — новинка сезона', 1]].map(([h, label, i]) => (
-        <Link key={i} className="mega__promo" href={h as string} onClick={close}>
-          <Art className="mega__promo-art" as="div" spec={{ kind: 'megaPromo', index: i as number }} />
-          <div className="mega__promo-title">{label}</div>
-        </Link>
+      {MEGA_PROMOS.map((m) => (
+        <SmartLink key={m.id} className="mega__promo" href={m.link} onClick={close}>
+          <Art className="mega__promo-art" as="div" spec={{ kind: 'megaPromo', id: m.id }} />
+          <div className="mega__promo-title">{m.title}</div>
+        </SmartLink>
       ))}
     </div>
   );
@@ -101,7 +102,7 @@ export function MegaMenu() {
             <div>
               <div className="mega__group-title">Предложения</div>
               {(Object.keys(OFFERS) as Offer[]).map((o) => <Link key={o} className="mega__link" href={`/catalog?offer=${o}`} onClick={close}>{OFFERS[o]}</Link>)}
-              <a className="mega__link" href="/#giftcards" onClick={(e) => { e.preventDefault(); ui.openModal(<GiftCardModal />, { label: 'Подарочная карта' }); }}>Подарочные карты</a>
+              <a className="mega__link" href="/#giftcards" onClick={(e) => { e.preventDefault(); ui.openModal(<GiftCardModal />, { label: TEXTS.giftcard.title }); }}>Подарочные карты</a>
             </div>
           </div>
         </div>
@@ -110,7 +111,7 @@ export function MegaMenu() {
     );
   } else {
     const c = CATS.find((x) => x.id === key) || CATS[0];
-    content = (
+    content = !c ? null : (
       <>
         <div>
           <h3 className="mega__title"><Link href={`/catalog?cat=${c.id}`} onClick={close}>{c.name}</Link></h3>
@@ -118,7 +119,7 @@ export function MegaMenu() {
             {c.groups.map((g) => (
               <div key={g.name}>
                 <div className="mega__group-title">{g.name}</div>
-                {g.types.map((ty) => <Link key={ty} className="mega__link" href={`/catalog?type=${ty}`} onClick={close}>{TYPES[ty].many} <span className="muted">{PRODUCTS.filter((p) => p.type === ty).length}</span></Link>)}
+                {g.types.filter((ty) => TYPES[ty]).map((ty) => <Link key={ty} className="mega__link" href={`/catalog?type=${ty}`} onClick={close}>{TYPES[ty].many} <span className="muted">{PRODUCTS.filter((p) => p.type === ty).length}</span></Link>)}
               </div>
             ))}
             <div><Link className="mega__link accent" href={`/catalog?cat=${c.id}`} onClick={close}>Смотреть всё →</Link></div>
@@ -143,7 +144,7 @@ export function MegaMenu() {
               ))}
               <div className="mega__mobile-extra">
                 <button className="mega__extra-row" type="button" onClick={() => ui.openModal(<CityModal />, { label: 'Ваш город' })}><Icon name="pin" /><span>{city || CONFIG.cities[0]}</span></button>
-                <button className="mega__extra-row" type="button" onClick={() => ui.openModal(<AccountModal />, { label: 'Вход или регистрация' })}><Icon name="user" /><span>Профиль</span></button>
+                <button className="mega__extra-row" type="button" onClick={() => ui.openModal(<AccountModal />, { label: TEXTS.account.title })}><Icon name="user" /><span>Профиль</span></button>
                 <a className="mega__extra-row" href={CONFIG.phoneHref}><Icon name="phone" /><span>{CONFIG.phone}</span></a>
               </div>
             </div>

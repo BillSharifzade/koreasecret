@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Icon } from '../Icon';
 import { SliderArrows } from './Slider';
+import { mdInline } from '@/lib/md';
 
 export function Stars({ rating }: { rating: number }) {
   return (
@@ -10,13 +11,19 @@ export function Stars({ rating }: { rating: number }) {
   );
 }
 
+/** Copy with light markup (*italic*, **bold**, line breaks), escaped — safe for anything typed in the admin. */
+export function Rich({ text, as: Tag = 'span', className }: { text: string; as?: 'span' | 'div' | 'h1' | 'h2' | 'h3' | 'p'; className?: string }) {
+  return <Tag className={className} dangerouslySetInnerHTML={{ __html: mdInline(text) }} />;
+}
+
 /** Section title + optional «Все» pill + arrows for the slider in the surrounding <SliderScope>. */
 export function SectionHead({ title, link, nav, all = true }: { title: string; link?: string; nav?: boolean; all?: boolean }) {
-  const html = { __html: title };
+  const html = { __html: mdInline(title) };
+  const internal = !!link && link.startsWith('/');
   return (
     <div className="section__head">
-      <h2 className="section__title">{link ? <Link href={link} dangerouslySetInnerHTML={html} /> : <span dangerouslySetInnerHTML={html} />}</h2>
-      {link && all && <Link className="pill-link" href={link}><span>Все</span><Icon name="chev-right" /></Link>}
+      <h2 className="section__title">{internal ? <Link href={link} dangerouslySetInnerHTML={html} /> : <span dangerouslySetInnerHTML={html} />}</h2>
+      {internal && all && <Link className="pill-link" href={link}><span>Все</span><Icon name="chev-right" /></Link>}
       {nav && <SliderArrows />}
     </div>
   );

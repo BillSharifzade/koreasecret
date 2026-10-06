@@ -8,17 +8,19 @@ import { Slider, SliderScope } from '../ui/Slider';
 import { FavButton, ProductCard } from '../ui/ProductCard';
 import { SectionHead, Stars } from '../ui/bits';
 import type { GalleryView } from '@/lib/art';
-import { CATS, CONCERNS, CONFIG, HOWTO, INGREDIENTS, REVIEW_POOL, REVIEW_PROS, SKINS, STORES, TYPES } from '@/lib/data';
+import { CATS, CONCERNS, CONFIG, fill, INGREDIENTS, REVIEW_POOL, REVIEW_PROS, SKINS, STORES, TEXTS, TYPES } from '@/lib/data';
 import { count, dateRu } from '@/lib/format';
-import { brandOf, catOf, discountOf, firstSentence, getProduct, hasPriceVariants, oldOf, priceOf, price, ratingDist, reviewsFor, sku, stockLevel, titleOf, typeLabel } from '@/lib/shop';
+import { brandOf, catOf, discountOf, firstSentence, getProduct, hasPriceVariants, oldOf, priceOf, price, ratingDist, relatedFor, reviewsFor, similarFor, sku, stockLevel, titleOf, typeLabel } from '@/lib/shop';
 import { shop, useShop } from '@/lib/store';
 import type { Product } from '@/lib/types';
 
-const VIEW_LABELS: Record<GalleryView, string> = { front: 'Упаковка', texture: 'Текстура', ingredients: 'Компоненты', box: 'Коробка', duo: 'Дуэт' };
+const VIEW_LABELS: Record<string, string> = { front: 'Упаковка', texture: 'Текстура', ingredients: 'Компоненты', box: 'Коробка', duo: 'Дуэт' };
+const viewLabel = (v: GalleryView) => VIEW_LABELS[v] || `Фото ${Number(v.slice(5)) + 1}`;
 const LEVELS = { many: 'много', some: 'есть', few: 'мало', none: 'нет' };
 const reviewsN = (n: number) => count(n, 'отзыв', 'отзыва', 'отзывов');
 
 const galleryViews = (p: Product): GalleryView[] => {
+  if (p.images?.length) return [...p.images.map((_, i) => `photo${i}` as GalleryView), ...(p.ingr.length ? ['ingredients' as const] : [])];
   if (p.type === 'giftcard') return ['front'];
   const s = p.art.shape;
   const v: GalleryView[] = ['front', 'texture'];
@@ -30,7 +32,7 @@ const galleryViews = (p: Product): GalleryView[] => {
 
 function Gallery({ p, v }: { p: Product; v: number }) {
   const views = galleryViews(p);
-  const [view, setView] = useState<GalleryView>('front');
+  const [view, setView] = useState<GalleryView>(() => views[0]);
   const [zoom, setZoom] = useState<{ x: number; y: number } | null>(null);
   const va = p.variants?.[v];
   const opts = { variant: va?.color, amount: va?.price ? va.name : undefined };
@@ -53,7 +55,7 @@ function Gallery({ p, v }: { p: Product; v: number }) {
       {views.length > 1 && (
         <div className="gallery__thumbs" role="tablist">
           {views.map((vw) => (
-            <button key={vw} className={`gallery__thumb${vw === view ? ' is-active' : ''}`} type="button" role="tab" aria-selected={vw === view} aria-label={VIEW_LABELS[vw]} onClick={() => setView(vw)}>
+            <button key={vw} className={`gallery__thumb${vw === view ? ' is-active' : ''}`} type="button" role="tab" aria-selected={vw === view} aria-label={viewLabel(vw)} onClick={() => setView(vw)}>
               <Art spec={{ kind: 'gallery', id: p.id, view: vw, ...opts }} />
             </button>
           ))}
@@ -76,7 +78,7 @@ function BuyCard({ p, v, setV }: { p: Product; v: number; setV: (v: number) => v
   const priced = hasPriceVariants(p);
   const rows: [string, number][] = tab === 'online'
     ? [[city || CONFIG.cities[0], p.stock], ...CONFIG.cities.filter((c) => c !== (city || CONFIG.cities[0])).slice(0, 2).map((c, i): [string, number] => [c, Math.round(p.stock * [0.6, 0.3][i])])]
-    : STORES.map((s, i) => [s.addr, Math.max(0, Math.round(p.stock * [0.5, 0.35, 0.4, 0.2][i]) - (i === 3 ? 3 : 0))]);
+    : STORES.map((s, i) => [s.addr, Math.max(0, Math.round(p.stock * [0.5, 0.35, 0.4, 0.2][i % 4]) - (i === 3 ? 3 : 0))]);
   const dots = { many: 3, some: 2, few: 1, none: 0 };
   return (
     <div className={`buy-card${old ? ' is-sale' : ''}`}>
@@ -160,17 +162,17 @@ function About({ p }: { p: Product }) {
         {p.ingr.length > 0 && (
           <div className={`tab-panel${tab === 'ingr' ? ' is-active' : ''}`} id="tab-ingr" role="tabpanel" aria-labelledby="tabbtn-ingr">
             <p><b>Ключевые компоненты:</b></p>
-            <ol>{p.ingr.map((k) => <li key={k}><b>{INGREDIENTS[k].name}</b> — {INGREDIENTS[k].note}</li>)}</ol>
+            <ol>{p.ingr.filter((k) => INGREDIENTS[k]).map((k) => <li key={k}><b>{INGREDIENTS[k].name}</b> — {INGREDIENTS[k].note}</li>)}</ol>
             <p>Полный состав (INCI) указан на упаковке.</p>
           </div>
         )}
-        <div className={`tab-panel${tab === 'how' ? ' is-active' : ''}`} id="tab-how" role="tabpanel" aria-labelledby="tabbtn-how"><p>{HOWTO[p.type]}</p></div>
+        <div className={`tab-panel${tab === 'how' ? ' is-active' : ''}`} id="tab-how" role="tabpanel" aria-labelledby="tabbtn-how"><p>{TYPES[p.type]?.howto || 'Способ применения указан на упаковке.'}</p></div>
       </div>
       {p.ingr.length > 0 ? (
         <div>
           <h2 className="h2">Активные компоненты</h2>
           <div className="ingredients">
-            {p.ingr.map((k) => (
+            {p.ingr.filter((k) => INGREDIENTS[k]).map((k) => (
               <div key={k} className="ingredient">
                 <Art className="ingredient__art" as="div" spec={{ kind: 'ingredient', key: k }} />
                 <span>{INGREDIENTS[k].name}<br /><small>{INGREDIENTS[k].note}</small></span>
@@ -270,13 +272,12 @@ function CarouselSection({ title, ids }: { title: string; ids: string[] }) {
   );
 }
 
-export function ProductView({ id, related, similar }: { id: string; related: string[]; similar: string[] }) {
+export function ProductView({ id }: { id: string }) {
   const ui = useUI();
   const p = getProduct(id)!;
   const [v, setV] = useState(0);
-  const recent = useShop((s) => s.recent);
   const [recentShown, setRecentShown] = useState<string[]>([]);
-  const cat = CATS.find((c) => c.id === catOf(p))!;
+  const cat = CATS.find((c) => c.id === catOf(p));
   const seen = useRef(false);
 
   useEffect(() => {
@@ -285,7 +286,6 @@ export function ProductView({ id, related, similar }: { id: string; related: str
     setRecentShown(shop.get().recent.filter((x) => x !== id).slice(0, 10));
     shop.viewed(id);
   }, [id]);
-  void recent;
 
   const share = () => {
     const url = window.location.href;
@@ -299,8 +299,8 @@ export function ProductView({ id, related, similar }: { id: string; related: str
         <nav className="crumbs pp__crumbs" aria-label="breadcrumbs">
           <Link href={'/'}>Главная</Link><span aria-hidden="true">/</span>
           <Link href={'/catalog'}>Каталог</Link><span aria-hidden="true">/</span>
-          <Link href={`/catalog?cat=${cat.id}`}>{cat.name}</Link><span aria-hidden="true">/</span>
-          <Link href={`/catalog?type=${p.type}`}>{TYPES[p.type].many}</Link>
+          {cat && <><Link href={`/catalog?cat=${cat.id}`}>{cat.name}</Link><span aria-hidden="true">/</span></>}
+          <Link href={`/catalog?type=${p.type}`}>{TYPES[p.type]?.many ?? typeLabel(p)}</Link>
         </nav>
         <div className="pp__grid">
           <Gallery p={p} v={v} />
@@ -314,17 +314,15 @@ export function ProductView({ id, related, similar }: { id: string; related: str
             <p className="pp__short">{firstSentence(p.desc)}</p>
             <BuyCard p={p} v={v} setV={setV} />
             <div className="perks">
-              {[['shield', 'Оригинал из Кореи', 'Сертификаты на каждую партию'], ['truck', 'Доставка по Душанбе', `Бесплатно от ${price(CONFIG.freeShipping)}`], ['return', 'Возврат 14 дней', 'Если упаковка не вскрыта']].map(([ic, a, b]) => (
-                <div key={a} className="perk"><Icon name={ic} /><b>{a}</b><span>{b}</span></div>
-              ))}
+              {TEXTS.perks.map((k, i) => <div key={i} className="perk"><Icon name={k.icon} /><b>{fill(k.title)}</b><span>{fill(k.text)}</span></div>)}
             </div>
           </div>
         </div>
         <About p={p} />
       </section>
       <Reviews p={p} />
-      <CarouselSection title="С этим покупают" ids={related} />
-      <CarouselSection title="Похожие товары" ids={similar} />
+      <CarouselSection title="С этим покупают" ids={relatedFor(p)} />
+      <CarouselSection title="Похожие товары" ids={similarFor(p)} />
       <CarouselSection title="Вы смотрели" ids={recentShown} />
     </>
   );

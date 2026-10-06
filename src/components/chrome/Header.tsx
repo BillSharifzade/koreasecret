@@ -7,22 +7,10 @@ import { Icon } from '../Icon';
 import { useUI } from '../providers';
 import GlassSurface, { GLASS } from '../ui/GlassSurface';
 import { useBackdropTone } from '../ui/useBackdropTone';
-import { AccountModal, CityModal, GiftCardModal } from './modals';
-import { CONFIG, PROMO_BAR } from '@/lib/data';
+import { AccountModal, CityModal } from './modals';
+import { SmartLink } from '../ui/SmartLink';
+import { CONFIG, NAV, PROMO_BAR, SETTINGS, TEXTS } from '@/lib/data';
 import { useShop } from '@/lib/store';
-
-const NAV: { path: string; label: string; accent?: boolean; giftcard?: boolean }[] = [
-  { path: '/catalog?offer=new', label: 'Новинки' },
-  { path: '/catalog?offer=hit', label: 'Хиты' },
-  { path: '/catalog?cat=sun', label: 'Сезон SPF' },
-  { path: '/catalog?type=sheet_mask,sleeping_mask,lip_mask', label: 'Маски' },
-  { path: '/catalog?cat=sets', label: 'Наборы' },
-  { path: '/#giftcards', label: 'Подарочные карты', giftcard: true },
-  { path: '/#stores', label: 'Магазины' },
-  { path: '/#journal', label: 'Журнал' },
-  { path: '/catalog?offer=excl', label: 'Только в Korea Secret' },
-  { path: '/catalog?offer=sale', label: 'Скидки до 30%', accent: true }
-];
 
 /** Announcement bar — rendered only while PROMO_BAR.enabled (to be switched from the admin panel). */
 export function PromoBar() {
@@ -30,6 +18,8 @@ export function PromoBar() {
   const [tick, setTick] = useState(0);
   const msgs = PROMO_BAR.messages;
   const on = PROMO_BAR.enabled && msgs.length > 0;
+  // the header offset follows the bar (it can be switched on and off in the admin's live preview)
+  useEffect(() => { document.documentElement.classList.toggle('has-promo', on); }, [on]);
   useEffect(() => {
     if (!on || msgs.length < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const t = window.setInterval(() => setTick((n) => n + 1), 4200);
@@ -111,24 +101,22 @@ export function Header() {
             </div>
           </div>
           <div className="header__center">
-            <Link className="logo" href="/" aria-label="Korea Secret — на главную">
+            <Link className="logo" href="/" aria-label={`${SETTINGS.name} — на главную`}>
               <Mark />
-              <span className="logo__word">Korea Secret<Butterfly className="logo__bfly" /></span>
+              <span className="logo__word">{SETTINGS.name}<Butterfly className="logo__bfly" /></span>
             </Link>
           </div>
           <div className="header__right">
             {search('header__action--search header__action--desktop')}
             <button className="header__action header__action--fav" type="button" aria-label="Избранное" onClick={() => ui.open('fav')}><Icon name="heart" />{badge(favCount, ui.bump.fav)}</button>
             <button className="header__action" type="button" aria-label="Корзина" onClick={() => ui.open('cart')}><Icon name="bag" />{badge(cartCount, ui.bump.cart)}</button>
-            <button className="header__action header__action--account" type="button" aria-label="Профиль" onClick={() => ui.openModal(<AccountModal />, { label: 'Вход или регистрация' })}><Icon name="user" /></button>
+            <button className="header__action header__action--account" type="button" aria-label="Профиль" onClick={() => ui.openModal(<AccountModal />, { label: TEXTS.account.title })}><Icon name="user" /></button>
           </div>
         </div>
         <div className="header__fold">
           <div className="header__bottom">
             <nav className="header__nav" aria-label="Основная навигация">
-              {NAV.map((n) => (n.giftcard
-                ? <a key={n.label} href={n.path} onClick={(e) => { e.preventDefault(); ui.openModal(<GiftCardModal />, { label: 'Подарочная карта' }); }}>{n.label}</a>
-                : <Link key={n.label} href={n.path} className={n.accent ? 'is-accent' : undefined}>{n.label}</Link>))}
+              {NAV.map((n, i) => <SmartLink key={i} href={n.href} className={n.accent ? 'is-accent' : undefined}>{n.label}</SmartLink>)}
             </nav>
           </div>
         </div>

@@ -11,6 +11,8 @@ import { SectionHead } from '../ui/bits';
 import { Slider, SliderScope } from '../ui/Slider';
 import { STORIES } from '@/lib/data';
 import { getProduct, price, productPath } from '@/lib/shop';
+import { mdText } from '@/lib/md';
+import type { HomeSection } from '@/lib/types';
 
 const FRAME = 5000;
 
@@ -91,15 +93,16 @@ function StoryViewer({ start, onClose }: { start: number; onClose: () => void })
 }
 
 /** Short videos: a finite row of story cards; a click opens the full-screen viewer. */
-export function Stories() {
+export function Stories({ s: sec }: { s: Extract<HomeSection, { type: 'stories' }> }) {
   const mounted = useMounted();
   const [open, setOpen] = useState<number | null>(null);
+  if (!STORIES.length) return null;
   return (
     <SliderScope>
-      <section className="section" id="stories">
+      <section className="section" id={sec.id}>
         <div className="container reveal">
-          <SectionHead title="Короткие видео" nav />
-          <Slider className="stories" label="Короткие видео">
+          <SectionHead title={sec.title} nav />
+          <Slider className="stories" label={mdText(sec.title)}>
             {STORIES.map((s, i) => (
               <button key={s.id} className="story-card" type="button" aria-label={s.title} onClick={() => setOpen(i)} data-surface="dark">
                 <span className="story-card__media"><Art className="story-card__art" spec={{ kind: 'story', index: i, frame: 0 }} /></span>

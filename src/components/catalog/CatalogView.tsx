@@ -10,11 +10,10 @@ import { SectionHead } from '../ui/bits';
 import { Slider, SliderScope } from '../ui/Slider';
 import { ProductCard } from '../ui/ProductCard';
 import { activeCount, bloggerOf, context, facet, parseState, priceBounds, results, SORTS, toQuery, type CatalogState, type FacetKey, type ListKey } from '@/lib/catalog';
-import { CATS, CONCERNS, CONFIG, OFFERS, PRODUCTS, SKINS, TYPES } from '@/lib/data';
+import { CATS, CONCERNS, CONFIG, OFFERS, PRODUCTS, SETTINGS, SKINS, TEXTS, TYPES } from '@/lib/data';
 import { count, fmt } from '@/lib/format';
 import { brandOf, catOf, price } from '@/lib/shop';
 
-const PER = CONFIG.pageSize;
 const FILTERS: [FacetKey, string][] = [['price', 'Цена'], ['offer', 'Предложения'], ['brand', 'Бренд'], ['type', 'Тип продукта'], ['skin', 'Тип кожи'], ['concern', 'Задача']];
 const SORT_LABELS: Record<(typeof SORTS)[number], string> = { default: 'По умолчанию', popular: 'По популярности', priceAsc: 'Сначала дешевле', priceDesc: 'Сначала дороже', rating: 'По рейтингу', discount: 'По размеру скидки', new: 'Сначала новинки' };
 const products = (n: number) => count(n, 'продукт', 'продукта', 'продуктов');
@@ -55,6 +54,7 @@ function PriceRange({ st, onCommit }: { st: CatalogState; onCommit: (a: number, 
 
 export function CatalogView({ query }: { query: string }) {
   const ui = useUI();
+  const PER = Math.max(4, CONFIG.pageSize || 12);
   const [st, setSt] = useState<CatalogState>(() => parseState(fromQs(query)));
   const written = useRef(norm(query));
   const [openFilter, setOpenFilter] = useState<FacetKey | ''>('');
@@ -113,7 +113,7 @@ export function CatalogView({ query }: { query: string }) {
   const ctx = context(st);
   const heroIds = (list.length ? list : PRODUCTS).slice(0, 3).map((p) => p.id);
 
-  useEffect(() => { document.title = `${ctx.title} — Korea Secret`; }, [ctx.title]);
+  useEffect(() => { document.title = `${ctx.title} — ${SETTINGS.name}`; }, [ctx.title]);
 
   const facetBody = (k: FacetKey) => {
     if (k === 'price') return <PriceRange st={st} onCommit={(a, b) => update({ pmin: a, pmax: b })} />;
@@ -134,7 +134,7 @@ export function CatalogView({ query }: { query: string }) {
   };
 
   // sub-category chips
-  const chipCat = CATS.find((c) => c.id === st.cat) || (st.type.length === 1 ? CATS.find((c) => c.id === TYPES[st.type[0]].cat) : undefined);
+  const chipCat = CATS.find((c) => c.id === st.cat) || (st.type.length === 1 ? CATS.find((c) => c.id === TYPES[st.type[0]]?.cat) : undefined);
   const chip = (label: string, patch: Partial<CatalogState>, active: boolean, qs: string) => (
     <Link key={label} className={`chip${active ? ' is-active' : ''}`} href={`/catalog${qs}`} onClick={(e) => { if (e.metaKey || e.ctrlKey) return; e.preventDefault(); update({ q: '', edit: '', type: [], ...patch }, { push: true }); }}>{label}</Link>
   );
@@ -142,7 +142,7 @@ export function CatalogView({ query }: { query: string }) {
   const chips: { label: string; remove: () => void }[] = [];
   if (st.q) chips.push({ label: `«${st.q}»`, remove: () => update({ q: '' }, { push: true }) });
   if (st.cat) chips.push({ label: ((CATS.find((c) => c.id === st.cat))?.name ?? ''), remove: () => update({ cat: '' }, { push: true }) });
-  st.type.forEach((v) => chips.push({ label: TYPES[v].many, remove: () => toggleValue('type', v) }));
+  st.type.forEach((v) => chips.push({ label: TYPES[v]?.many ?? v, remove: () => toggleValue('type', v) }));
   st.brand.forEach((v) => chips.push({ label: brandOf(v).name, remove: () => toggleValue('brand', v) }));
   st.offer.forEach((v) => chips.push({ label: OFFERS[v], remove: () => toggleValue('offer', v) }));
   st.skin.forEach((v) => chips.push({ label: SKINS[v], remove: () => toggleValue('skin', v) }));
@@ -169,7 +169,7 @@ export function CatalogView({ query }: { query: string }) {
             ))}
           </nav>
           <h1 className="page-hero__title h1">{ctx.title}</h1>
-          <p className="page-hero__sub">{list.length ? `${products(list.length)} из Кореи — оригинальная продукция со свежими сроками годности` : 'Оригинальная корейская косметика со свежими сроками годности'}</p>
+          <p className="page-hero__sub">{list.length ? `${products(list.length)} ${TEXTS.catalog.subtitle}` : TEXTS.catalog.subtitle}</p>
         </div>
       </section>
 
@@ -179,7 +179,7 @@ export function CatalogView({ query }: { query: string }) {
             {chipCat ? (
               <>
                 {chip('Все', { cat: chipCat.id }, st.cat === chipCat.id && !st.type.length, `?cat=${chipCat.id}`)}
-                {chipCat.groups.flatMap((g) => g.types).map((ty) => chip(TYPES[ty].many, { cat: '', type: [ty] }, st.type.length === 1 && st.type[0] === ty, `?type=${ty}`))}
+                {chipCat.groups.flatMap((g) => g.types).filter((ty) => TYPES[ty]).map((ty) => chip(TYPES[ty].many, { cat: '', type: [ty] }, st.type.length === 1 && st.type[0] === ty, `?type=${ty}`))}
               </>
             ) : (
               <>
@@ -235,7 +235,7 @@ export function CatalogView({ query }: { query: string }) {
               <div className="no-results" style={{ gridColumn: '1/-1' }}>
                 <Art className="no-results__art" as="div" spec={{ kind: 'empty', type: 'search' }} />
                 <h3>Ничего не нашлось</h3>
-                <p>Попробуйте изменить или сбросить фильтры — у нас точно найдётся что-то подходящее.</p>
+                <p>{TEXTS.catalog.empty}</p>
                 <button className="btn btn--primary" type="button" onClick={resetAll}>Сбросить всё</button>
               </div>
             )}

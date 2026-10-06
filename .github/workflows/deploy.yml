@@ -42,6 +42,9 @@ jobs:
           NEXT_TELEMETRY_DISABLED: 1
           NEXT_PUBLIC_BASE_PATH: ${{ steps.pages.outputs.base_path }}
           NEXT_PUBLIC_SITE_URL: ${{ steps.pages.outputs.base_url }}
+          # the admin panel (/admin) publishes content back to this repository and branch
+          NEXT_PUBLIC_GITHUB_REPO: ${{ github.repository }}
+          NEXT_PUBLIC_GITHUB_BRANCH: ${{ github.ref_name }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5

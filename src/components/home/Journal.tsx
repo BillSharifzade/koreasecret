@@ -2,28 +2,26 @@
 import { Art } from '../Art';
 import { useUI } from '../providers';
 import { ProductCard } from '../ui/ProductCard';
-import { ARTICLES, PRODUCTS } from '@/lib/data';
+import { SectionHead } from '../ui/bits';
+import { queryResults } from '@/lib/catalog';
+import { ARTICLES } from '@/lib/data';
 import { count } from '@/lib/format';
-import { catOf } from '@/lib/shop';
-import type { Article } from '@/lib/types';
+import { mdBlocks } from '@/lib/md';
+import { getProduct } from '@/lib/shop';
+import type { Article, HomeSection, Product } from '@/lib/types';
 
-const RELATED: Record<Article['theme'], (p: (typeof PRODUCTS)[number]) => boolean> = {
-  routine: (p) => ['toner', 'serum', 'cream', 'sunscreen'].includes(p.type) && p.tags.includes('hit'),
-  pdrn: (p) => p.brand === 'medicube',
-  spf: (p) => p.type === 'sunscreen',
-  oil: (p) => ['cleansing_oil', 'cleansing_balm', 'cleanser'].includes(p.type),
-  store: (p) => catOf(p) === 'sets'
-};
+/** «Товары из статьи»: the hand-picked list, otherwise the first products of the article's catalogue query. */
+const articleProducts = (a: Article): Product[] => (a.products.length ? a.products.map((id) => getProduct(id)).filter((p): p is Product => !!p) : a.query ? queryResults(a.query) : []).slice(0, 4);
 
 function ArticleView({ a }: { a: Article }) {
-  const products = PRODUCTS.filter(RELATED[a.theme]).slice(0, 4);
+  const products = articleProducts(a);
   return (
     <>
       <article className="article">
         <div className="article__tag">{a.tag} · {count(a.mins, 'минута', 'минуты', 'минут')}</div>
         <h2 className="modal__title">{a.title}</h2>
-        <Art className="article__art" as="div" spec={{ kind: 'journal', theme: a.theme, w: 1100, h: 500 }} />
-        {a.body.map((p, i) => <p key={i}>{p}</p>)}
+        <Art className="article__art" as="div" spec={{ kind: 'journal', id: a.id, w: 1100, h: 500 }} />
+        <div className="article__body" dangerouslySetInnerHTML={{ __html: mdBlocks(a.body) }} />
       </article>
       {products.length > 0 && (
         <>
@@ -35,24 +33,25 @@ function ArticleView({ a }: { a: Article }) {
   );
 }
 
-export function Journal() {
+export function Journal({ s }: { s: Extract<HomeSection, { type: 'journal' }> }) {
   const ui = useUI();
   const [first, ...rest] = ARTICLES;
+  if (!first) return null;
   const open = (a: Article) => (e: React.MouseEvent) => { e.preventDefault(); ui.openModal(<ArticleView a={a} />, { wide: true, label: a.title }); };
   return (
-    <section className="section" id="journal">
+    <section className="section" id={s.id}>
       <div className="container reveal">
-        <div className="section__head"><h2 className="section__title">Журнал <em>Korea Secret</em></h2></div>
-        <a className="journal-hero" href="#journal" onClick={open(first)} data-surface="dark">
-          <Art className="journal-hero__art" as="div" spec={{ kind: 'journal', theme: first.theme }} />
+        <SectionHead title={s.title} />
+        <a className="journal-hero" href={`#${s.id}`} onClick={open(first)} data-surface="dark">
+          <Art className="journal-hero__art" as="div" spec={{ kind: 'journal', id: first.id }} />
           <div className="journal-hero__content"><div className="journal-hero__tag">{first.tag}</div><h3 className="journal-hero__title">{first.title}</h3></div>
           <div className="journal-hero__hline" /><div className="journal-hero__vline" />
           <div className="journal-hero__btn"><span className="btn btn--white">Читать<span className="muted">~ {count(first.mins, 'минута', 'минуты', 'минут')}</span></span></div>
         </a>
         <div className="journal-grid">
           {rest.map((a) => (
-            <a key={a.id} className="article-card" href="#journal" onClick={open(a)}>
-              <Art className="article-card__art" as="div" spec={{ kind: 'journal', theme: a.theme, w: 600, h: 545 }} />
+            <a key={a.id} className="article-card" href={`#${s.id}`} onClick={open(a)}>
+              <Art className="article-card__art" as="div" spec={{ kind: 'journal', id: a.id, w: 600, h: 545 }} />
               <div className="article-card__tag">{a.tag}</div>
               <h3 className="article-card__title">{a.title}</h3>
             </a>

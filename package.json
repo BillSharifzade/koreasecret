@@ -13,6 +13,8 @@
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
     "embla-carousel-wheel-gestures": "^8.1.0",
+    "fflate": "^0.8.3",
+    "immer": "^11.1.21",
     "next": "16.3.8",
     "react": "19.3.0",
     "react-dom": "19.3.0"

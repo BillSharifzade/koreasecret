@@ -6,12 +6,11 @@ import { Art } from '../Art';
 import { Icon } from '../Icon';
 import { useLayer } from '../layer';
 import { useUI } from '../providers';
-import { PRODUCTS } from '@/lib/data';
+import { PRODUCTS, SEARCH_CHIPS } from '@/lib/data';
 import { count } from '@/lib/format';
 import { price, productPath, searchProducts, titleOf, typeLabel } from '@/lib/shop';
 import type { Product } from '@/lib/types';
 
-const CHIPS = ['санскрин', 'центелла', 'COSRX', 'тонер', 'PDRN', 'тинт', 'увлажнение', 'Anua'];
 const SHOWN = 6;
 
 function Highlight({ text, q }: { text: string; q: string }) {
@@ -79,7 +78,7 @@ export function SearchPanel() {
               </button>
             </form>
             <div className="search__label">Часто ищут</div>
-            <div className="search__chips">{CHIPS.map((c) => <button key={c} className="chip" type="button" onClick={() => setQ(c)}>{c}</button>)}</div>
+            <div className="search__chips">{SEARCH_CHIPS.map((c) => <button key={c} className="chip" type="button" onClick={() => setQ(c)}>{c}</button>)}</div>
           </div>
           <div className="search__results" aria-live="polite">
             <div className="search__label">{dq ? (results.length ? `Найдено ${count(results.length, 'товар', 'товара', 'товаров')}` : 'Ничего не нашлось') : 'Популярное сейчас'}</div>

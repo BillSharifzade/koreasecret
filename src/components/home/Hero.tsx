@@ -1,5 +1,4 @@
 'use client';
-import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as RPointerEvent } from 'react';
 import { Art } from '../Art';
 import { Butterfly } from '../Brand';
@@ -7,13 +6,45 @@ import { Icon } from '../Icon';
 import { useUI } from '../providers';
 import GlassSurface, { GLASS } from '../ui/GlassSurface';
 import { heroTone } from '@/lib/color';
-import { CONFIG, HERO_SLIDES } from '@/lib/data';
+import { CONFIG, HERO_SLIDES, TEXTS } from '@/lib/data';
+import { mdInline } from '@/lib/md';
+import type { HeroSlide, Tone } from '@/lib/types';
+import { GiftCardModal } from '../chrome/modals';
+import { SmartLink } from '../ui/SmartLink';
 
 const DELAY = 6500;
 const INTERACTIVE = 'a, button, input, .hero__dots';
 
-export function Hero() {
+/** One banner. The admin renders it on its own as the live preview of the slide being edited. */
+export function HeroSlideView({ s, tone, state = 'active', label }: { s: HeroSlide; tone: Tone; state?: 'active' | 'leaving' | 'idle'; label?: string }) {
   const ui = useUI();
+  const on = state === 'active';
+  return (
+    <div className={`hero__slide${on ? ' is-active' : state === 'leaving' ? ' is-leaving' : ''}`} data-tone={tone} role="group" aria-roledescription="slide" aria-label={label} aria-hidden={!on}>
+      <div className="hero__bg" style={{ background: s.bg }} />
+      <div className="hero__grain" />
+      <div className="hero__hline" />
+      <div className="hero__vline" />
+      <div className="hero__inner container">
+        <div className="hero__content">
+          <div className="hero__kicker"><Butterfly />{s.kicker}</div>
+          <h2 className="hero__title" dangerouslySetInnerHTML={{ __html: mdInline(s.title) }} />
+          <p className="hero__text">{s.text}</p>
+        </div>
+        <div className="hero__cta">
+          {s.action === 'copy'
+            ? <button className="btn btn--primary" type="button" tabIndex={on ? 0 : -1} onClick={() => ui.copyPromo(CONFIG.promo.code)}>{s.cta} <Icon name="copy" /></button>
+            : s.action === 'giftcard'
+              ? <button className="btn btn--primary" type="button" tabIndex={on ? 0 : -1} onClick={() => ui.openModal(<GiftCardModal />, { label: TEXTS.giftcard.title })}>{s.cta} <Icon name="gift" /></button>
+              : <SmartLink className="btn btn--primary" href={s.link} tabIndex={on ? 0 : -1}>{s.cta} <Icon name="arrow-right" /></SmartLink>}
+        </div>
+        <Art className="hero__art" as="div" spec={{ kind: 'hero', id: s.id }} />
+      </div>
+    </div>
+  );
+}
+
+export function Hero({ id }: { id?: string }) {
   const n = HERO_SLIDES.length;
   const tones = useMemo(() => HERO_SLIDES.map(heroTone), []);
   const [i, setI] = useState(0);
@@ -111,6 +142,7 @@ export function Hero() {
   return (
     <section
       ref={heroRef}
+      id={id}
       className={`hero${fine ? ' has-cursor' : ''}`}
       data-tone={tones[i]}
       data-surface={tones[i]}
@@ -132,27 +164,7 @@ export function Hero() {
       }}
     >
       <div className="hero__slides">
-        {HERO_SLIDES.map((s, k) => (
-          <div key={s.id} className={`hero__slide${k === i ? ' is-active' : k === prev ? ' is-leaving' : ''}`} data-tone={tones[k]} role="group" aria-roledescription="slide" aria-label={`${k + 1} из ${n}`} aria-hidden={k !== i}>
-            <div className="hero__bg" style={{ background: s.bg }} />
-            <div className="hero__grain" />
-            <div className="hero__hline" />
-            <div className="hero__vline" />
-            <div className="hero__inner container">
-              <div className="hero__content">
-                <div className="hero__kicker"><Butterfly />{s.kicker}</div>
-                <h2 className="hero__title" dangerouslySetInnerHTML={{ __html: s.title }} />
-                <p className="hero__text">{s.text}</p>
-              </div>
-              <div className="hero__cta">
-                {s.action === 'copy'
-                  ? <button className="btn btn--primary" type="button" tabIndex={k === i ? 0 : -1} onClick={() => ui.copyPromo(CONFIG.promo.code)}>{s.cta} <Icon name="copy" /></button>
-                  : <Link className="btn btn--primary" href={s.link} tabIndex={k === i ? 0 : -1}>{s.cta} <Icon name="arrow-right" /></Link>}
-              </div>
-              <Art className="hero__art" as="div" spec={{ kind: 'hero', id: s.id }} />
-            </div>
-          </div>
-        ))}
+        {HERO_SLIDES.map((s, k) => <HeroSlideView key={s.id} s={s} tone={tones[k]} state={k === i ? 'active' : k === prev ? 'leaving' : 'idle'} label={`${k + 1} из ${n}`} />)}
       </div>
       <GlassSurface {...GLASS} className="hero__dots" width="auto" height="auto" tone={tones[i]} role="tablist" aria-label="Слайды">
         {HERO_SLIDES.map((s, k) => (
